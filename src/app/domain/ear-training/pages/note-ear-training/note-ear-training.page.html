@@ -1,0 +1,89 @@
+<h1>Treinamento Auditivo - Reconhecimento de Notas</h1>
+
+<div *ngIf="!hasTrainingStarted" class="config">
+  <h2>Configurações</h2>
+
+  <div class="switch-container">
+    <nz-switch
+      [(ngModel)]="hasTimer"
+      nzCheckedChildren="Cronômetro habilitado"
+      nzUnCheckedChildren="Cronômetro desabilitado"
+    ></nz-switch>
+    <nz-switch
+      [(ngModel)]="hasReplay"
+      nzCheckedChildren="Repetir notas habilitado"
+      nzUnCheckedChildren="Repetir notas desabilitado"
+    ></nz-switch>
+  </div>
+
+  <nz-select nzPlaceHolder="Selecione o instrumento" [(ngModel)]="instrument">
+    <nz-option nzValue="bass" nzLabel="Baixo"></nz-option>
+  </nz-select>
+
+  <button
+    class="start-button"
+    style="margin-top: 20px"
+    nz-button
+    nzType="primary"
+    (click)="startTraining()"
+  >
+    Iniciar
+  </button>
+</div>
+
+<ng-container *ngIf="hasTrainingStarted">
+  <nz-steps [nzCurrent]="currentStep">
+    <nz-step
+      *ngFor="let step of filteredBassNotes; trackBy: trackById"
+    ></nz-step>
+  </nz-steps>
+
+  <div class="steps-content">
+    <nz-countdown
+      *ngIf="hasTimer"
+      [nzFormat]="'ss'"
+      [nzValue]="timer"
+      [nzTitle]="'Tempo restante'"
+      (nzCountdownFinish)="onCountdownFinish()"
+    />
+
+    <div class="hearing-container">
+      <h3>Ouça com atenção e identifique a nota tocada em seu instrumento</h3>
+      <img
+        class="hearing-image"
+        src="assets/images/hearing.svg"
+        alt="Ouvido Humano"
+      />
+    </div>
+  </div>
+
+  <div class="steps-action">
+    <button *ngIf="!hasReplay" (click)="playCurrentAudio()" nz-button>
+      <span>Repetir Nota</span>
+    </button>
+    <button
+      nz-button
+      nzType="default"
+      (click)="previousStep()"
+      *ngIf="currentStep > 0"
+    >
+      <span>Anterior</span>
+    </button>
+    <button
+      nz-button
+      nzType="default"
+      (click)="nextStep()"
+      *ngIf="currentStep < filteredBassNotes.length - 1"
+    >
+      <span>Próximo</span>
+    </button>
+    <button
+      nz-button
+      nzType="primary"
+      (click)="done()"
+      *ngIf="currentStep === filteredBassNotes.length - 1"
+    >
+      <span>Done</span>
+    </button>
+  </div>
+</ng-container>
