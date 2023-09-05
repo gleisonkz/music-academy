@@ -46,7 +46,17 @@ export class NoteEarTrainingPage {
     this.currentAudio = new Audio(this.filteredBassNotes[0].src);
   }
 
+  stopAudio() {
+    const isPlaying = !this.currentAudio.paused;
+    const isNotEnded = !this.currentAudio.ended;
+
+    if (isPlaying && isNotEnded) {
+      this.currentAudio.pause();
+    }
+  }
+
   previousStep(): void {
+    this.stopAudio();
     this.clearInterval();
     this.currentStep -= 1;
     this.currentAudio = new Audio(this.filteredBassNotes[this.currentStep].src);
@@ -55,6 +65,7 @@ export class NoteEarTrainingPage {
   }
 
   nextStep(): void {
+    this.stopAudio();
     this.clearInterval();
     this.currentStep += 1;
     this.currentAudio = new Audio(this.filteredBassNotes[this.currentStep].src);
@@ -74,11 +85,10 @@ export class NoteEarTrainingPage {
   }
 
   playCurrentAudio() {
-    const audio = new Audio(this.currentAudio.src);
-    audio.play();
+    this.currentAudio.play();
     if (this.hasReplay) {
       this.currentIntervalId = setInterval(() => {
-        audio.play();
+        this.currentAudio.play();
       }, this.INTERVAL_STEP);
     }
   }
