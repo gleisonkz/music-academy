@@ -15,9 +15,14 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16.
-      - name: install dependencies, run build, run test and deploy
+      - name: install dependencies, run build and run test
         run: |
           npm install
           npm run build
           npm run test-ci
-          npm run deploy
+      - name: deploy firebase
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
