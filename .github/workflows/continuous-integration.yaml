@@ -1,0 +1,23 @@
+name: continuous-integration
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
+jobs:
+  continuous-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: using node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.
+      - name: install dependencies, run build, run test and deploy
+        run: |
+          npm install
+          npm run build
+          npm run test-ci
+          npm run deploy
