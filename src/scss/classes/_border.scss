@@ -1,0 +1,101 @@
+@import './helpers';
+
+//Ex: <div class="b-10"></div> will add border: 10px solid transparent;
+
+.b {
+  @each $px in $pixels {
+    &-#{$px} {
+      border: $px + px solid transparent;
+    }
+  }
+}
+
+.bt {
+  @each $px in $pixels {
+    &-#{$px} {
+      border-top: $px + px solid transparent;
+    }
+  }
+}
+
+.bb {
+  @each $px in $pixels {
+    &-#{$px} {
+      border-bottom: $px + px solid transparent;
+    }
+  }
+}
+
+.bl {
+  @each $px in $pixels {
+    &-#{$px} {
+      border-left: $px + px solid transparent;
+    }
+  }
+}
+
+.br {
+  @each $px in $pixels {
+    &-#{$px} {
+      border-right: $px + px solid transparent;
+    }
+  }
+}
+
+.by {
+  @each $px in $pixels {
+    &-#{$px} {
+      border-top: $px + px solid transparent;
+      border-bottom: $px + px solid transparent;
+    }
+  }
+}
+
+.bx {
+  @each $px in $pixels {
+    &-#{$px} {
+      border-left: $px + px solid transparent;
+      border-right: $px + px solid transparent;
+    }
+  }
+}
+
+.bw {
+  @each $px in $pixels {
+    &-#{$px} {
+      border-width: $px + px;
+    }
+  }
+}
+
+.btw {
+  @each $px in $pixels {
+    &-#{$px} {
+      border-top-width: $px + px;
+    }
+  }
+}
+
+.bbw {
+  @each $px in $pixels {
+    &-#{$px} {
+      border-bottom-width: $px + px;
+    }
+  }
+}
+
+.blw {
+  @each $px in $pixels {
+    &-#{$px} {
+      border-left-width: $px + px;
+    }
+  }
+}
+
+.brw {
+  @each $px in $pixels {
+    &-#{$px} {
+      border-right-width: $px + px;
+    }
+  }
+}

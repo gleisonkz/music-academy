@@ -1,0 +1,19 @@
+<ul class="single-step-container flex row-start gap-8 p-8">
+  @for (step of steps; track $index) {
+  <li
+    class="single-step-item flex row-center gap-4"
+    [class.check-step]="currentStep > step"
+    [class.current-step]="currentStep === step"
+  >
+    <div class="single-step-item-content">
+      @if(currentStep > step){
+      <mat-icon>check</mat-icon>
+      }@else {
+      <span>{{ step }}</span>
+      }
+    </div>
+  </li>
+  @if(step < steps.length){
+  <div class="separator"></div>
+  } }
+</ul>

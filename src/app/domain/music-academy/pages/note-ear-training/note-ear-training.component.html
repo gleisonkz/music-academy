@@ -1,0 +1,77 @@
+<div class="note-ear-training-container">
+  <h1 class="font-size-large font-weight-medium mb-32">
+    Treinamento Auditivo - Reconhecimento de Notas
+  </h1>
+
+  @if(!hasTrainingStarted()){
+  <div class="settings-controls-container">
+    <h2 class="font-size-medium font-weight-medium">Configurações</h2>
+
+    <form
+      [formGroup]="noteEarTrainingForm"
+      class="full-width settings-controls-form"
+    >
+      <mat-slide-toggle formControlName="stopwatch"
+        >Cronômetro</mat-slide-toggle
+      >
+      <mat-slide-toggle formControlName="repeatNotes"
+        >Repetir notas</mat-slide-toggle
+      >
+
+      <mat-form-field appearance="outline">
+        <mat-label>Escolha um instrumento</mat-label>
+        <mat-select formControlName="instrument">
+          <mat-option [value]="1">Baixo</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button type="button" mat-stroked-button (click)="startTraining()">
+        Iniciar
+      </button>
+    </form>
+  </div>
+  } @else {
+
+  <div class="training-container">
+    <app-simple-step [currentStep]="currentStep()" />
+
+    <div class="controls flex row-center gap-8 full-width">
+      @if (!noteEarTrainingForm.controls.repeatNotes.value) {
+      <button type="button" mat-flat-button (click)="playCurrentAudio()">
+        Repetir nota
+      </button>
+
+      } @if (currentStep() > 1) {
+      <button type="button" mat-stroked-button (click)="previousStep()">
+        <mat-icon>skip_previous</mat-icon>
+        Anterior
+      </button>
+      } @if (currentStep() === countSteps()) {
+      <button type="button" mat-flat-button (click)="doneSteps()">
+        Concluído
+      </button>
+      }@else {
+      <button type="button" mat-stroked-button (click)="nextStep()">
+        <mat-icon>skip_next</mat-icon>
+        Proximo
+      </button>
+
+      }
+    </div>
+
+    @if(noteEarTrainingForm.controls.stopwatch.value){
+    <div class="timer font-size-large">
+      <span>Tempo restante</span>
+      <span>{{ timerValue() }}</span>
+    </div>
+    }
+
+    <img
+      class="img-training"
+      src="assets/images/training.svg"
+      alt="attention please!"
+    />
+  </div>
+
+  }
+</div>

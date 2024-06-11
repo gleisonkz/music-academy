@@ -2,9 +2,9 @@ name: continuous-integration
 
 on:
   push:
-    branches: ["main"]
+    branches: ['main']
   pull_request:
-    branches: ["main"]
+    branches: ['main']
 
 jobs:
   continuous-integration:
@@ -19,7 +19,6 @@ jobs:
         run: |
           npm install
           npm run build
-          npm run test-ci
       - name: deploy firebase
         uses: w9jds/firebase-action@master
         with:

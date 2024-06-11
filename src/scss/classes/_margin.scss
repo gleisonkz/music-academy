@@ -1,0 +1,61 @@
+@import './helpers';
+
+//Ex: <div class="m-10"></div> will add margin: 10px;
+
+.m {
+  @each $px in $pixels {
+    &-#{$px} {
+      margin: $px + px;
+    }
+  }
+}
+
+.mt {
+  @each $px in $pixels {
+    &-#{$px} {
+      margin-top: $px + px;
+    }
+  }
+}
+
+.mb {
+  @each $px in $pixels {
+    &-#{$px} {
+      margin-bottom: $px + px;
+    }
+  }
+}
+
+.ml {
+  @each $px in $pixels {
+    &-#{$px} {
+      margin-left: $px + px;
+    }
+  }
+}
+
+.mr {
+  @each $px in $pixels {
+    &-#{$px} {
+      margin-right: $px + px;
+    }
+  }
+}
+
+.my {
+  @each $px in $pixels {
+    &-#{$px} {
+      margin-top: $px + px;
+      margin-bottom: $px + px;
+    }
+  }
+}
+
+.mx {
+  @each $px in $pixels {
+    &-#{$px} {
+      margin-left: $px + px;
+      margin-right: $px + px;
+    }
+  }
+}

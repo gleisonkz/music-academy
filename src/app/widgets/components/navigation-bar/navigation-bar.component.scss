@@ -1,0 +1,10 @@
+.list-name {
+  height: 20px;
+}
+
+.active {
+  background-color: var(--background-contrast-color);
+  .content {
+    color: var(--primary-color);
+  }
+}

@@ -1,0 +1,41 @@
+//Ex: <div class="font-size-small"></div> will add font-size: 0.8rem;
+
+.font-size {
+  &-small {
+    font-size: 0.8rem;
+  }
+
+  &-medium {
+    font-size: 1rem;
+  }
+
+  &-large {
+    font-size: 1.2rem;
+  }
+
+  &-xlarge {
+    font-size: 1.5rem;
+  }
+
+  &-xxlarge {
+    font-size: 2rem;
+  }
+}
+
+.font-weight {
+  &-light {
+    font-weight: 300;
+  }
+
+  &-normal {
+    font-weight: 400;
+  }
+
+  &-medium {
+    font-weight: 500;
+  }
+
+  &-bold {
+    font-weight: 700;
+  }
+}

@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "dist/music-academy",
+    "public": "dist/music-academy/browser",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "frameworksBackend": {
       "region": "us-central1"

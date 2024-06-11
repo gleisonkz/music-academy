@@ -1,0 +1,30 @@
+@import 'mixins';
+
+.single-step-container {
+  flex-wrap: wrap;
+  justify-content: center;
+
+  .single-step-item {
+    border-radius: 50%;
+    background-color: var(--background-color);
+    color: var(--white-color);
+    width: 40px;
+    height: 40px;
+    @include flex-center();
+
+    &.current-step {
+      background-color: var(--primary-contrast-color);
+      color: var(--primary-color);
+    }
+
+    &.check-step {
+      background-color: var(--accent-color);
+      color: var(--background-color);
+    }
+  }
+  .separator {
+    width: 20px;
+    height: 2px;
+    background-color: #4d4d4d;
+  }
+}

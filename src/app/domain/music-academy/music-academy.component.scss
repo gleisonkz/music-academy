@@ -1,0 +1,21 @@
+@import 'medias';
+@import 'mixins';
+
+.mat-toolbar {
+  .toolbar-button {
+    background-color: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+}
+
+.mat-drawer-container {
+  height: calc(100vh - 64px);
+  @include less-than('mobile') {
+    height: calc(100vh - 56px);
+  }
+
+  .mat-drawer-content {
+    background-color: var(--background-contrast-color);
+  }
+}

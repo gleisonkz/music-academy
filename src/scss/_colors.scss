@@ -1,0 +1,15 @@
+$background-color: #{'var(--background-color)'};
+$background-contrast-color: #{'var(--background-contrast-color)'};
+$primary-color: #{'var(--primary-color)'};
+$primary-contrast-color: #{'var(--primary-contrast-color)'};
+$white-color: #{'var(--white-color)'};
+$accent-color: #{'var(--accent-color)'};
+
+$project-colors: (
+  'background-color': #191c1c,
+  'background-contrast-color': #2b3030,
+  'primary-color': #00fbfb,
+  'primary-contrast-color': #004f4f,
+  'white-color': #ffffff,
+  'accent-color': #ffb787,
+);

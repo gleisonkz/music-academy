@@ -1,11 +1,20 @@
-import { Routes } from '@angular/router';
+import { Route } from '@angular/router';
 
-export const APP_ROUTES: Routes = [
-  { path: '', redirectTo: 'welcome', pathMatch: 'full' },
+export const APP_ROUTES: Route[] = [
   {
-    path: 'ear-training',
+    path: '',
+    redirectTo: 'music-academy/dashboard',
+    pathMatch: 'full',
+  },
+  {
+    path: 'music-academy',
     loadChildren: async () =>
-      (await import('./domain/ear-training/ear-training.routes'))
-        .EAR_TRAINING_ROUTES,
+      (await import('./domain/music-academy/music-academy.routes'))
+        .MUSIC_ACADEMY_ROUTES,
+  },
+  {
+    path: '**',
+    redirectTo: '',
+    pathMatch: 'full',
   },
 ];

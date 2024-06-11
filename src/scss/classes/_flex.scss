@@ -1,0 +1,88 @@
+@import './helpers';
+
+//Ex: <div class="flex-row-center gap-10"></div> will add display: flex; justify-content: center; align-items: center; gap: 10px;
+
+@mixin flex(
+  $direction: row,
+  $justify: center,
+  $align: center,
+  $wrap: nowrap,
+  $gap: 0
+) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: $justify;
+  align-items: $align;
+  flex-wrap: $wrap;
+  gap: $gap;
+}
+
+.flex {
+  @include flex();
+
+  &.row {
+    &-start {
+      @include flex(row, flex-start);
+    }
+
+    &-center {
+      @include flex(row, center);
+    }
+
+    &-end {
+      @include flex(row, flex-end);
+    }
+
+    &-between {
+      @include flex(row, space-between);
+    }
+
+    &-around {
+      @include flex(row, space-around);
+    }
+
+    &-evenly {
+      @include flex(row, space-evenly);
+    }
+
+    &-reverse {
+      @include flex(row, center, center, nowrap, 0);
+    }
+  }
+
+  &.column {
+    &-start {
+      @include flex(column, flex-start);
+    }
+
+    &-center {
+      @include flex(column, center);
+    }
+
+    &-end {
+      @include flex(column, flex-end);
+    }
+
+    &-between {
+      @include flex(column, space-between);
+    }
+
+    &-around {
+      @include flex(column, space-around);
+    }
+
+    &-evenly {
+      @include flex(column, space-evenly);
+    }
+
+    &-reverse {
+      @include flex(column, center, center, nowrap, 0);
+    }
+  }
+
+  @each $px in $pixels {
+    &.gap-#{$px} {
+      gap: $px + px;
+    }
+  }
+}

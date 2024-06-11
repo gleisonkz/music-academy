@@ -1,0 +1,61 @@
+@import './helpers';
+
+//Ex: <div class="pt-10"></div> will add padding-top: 10px;
+
+.p {
+  @each $px in $pixels {
+    &-#{$px} {
+      padding: $px + px;
+    }
+  }
+}
+
+.pt {
+  @each $px in $pixels {
+    &-#{$px} {
+      padding-top: $px + px;
+    }
+  }
+}
+
+.pb {
+  @each $px in $pixels {
+    &-#{$px} {
+      padding-bottom: $px + px;
+    }
+  }
+}
+
+.pl {
+  @each $px in $pixels {
+    &-#{$px} {
+      padding-left: $px + px;
+    }
+  }
+}
+
+.pr {
+  @each $px in $pixels {
+    &-#{$px} {
+      padding-right: $px + px;
+    }
+  }
+}
+
+.py {
+  @each $px in $pixels {
+    &-#{$px} {
+      padding-top: $px + px;
+      padding-bottom: $px + px;
+    }
+  }
+}
+
+.px {
+  @each $px in $pixels {
+    &-#{$px} {
+      padding-left: $px + px;
+      padding-right: $px + px;
+    }
+  }
+}
