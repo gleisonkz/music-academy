@@ -1,0 +1,29 @@
+<div class="game-container">
+  <h2>Notação de Cifras</h2>
+
+  <p>{{currentStep()}} / {{steps()}}</p>
+  @if (!isGameOver()) {
+  <div>
+    <p>Qual é a nota correspondente a cifra abaixo?</p>
+    <p class="cipher">{{ currentChord() }}</p>
+  </div>
+
+  <div class="options">
+    <button [disabled]="!canGuess()" *ngFor="let option of options()" mat-fab (click)="selectOption(option)">{{ option }}</button>
+  </div>
+
+  <p>{{ feedback() }}</p>
+  } @if (isGameOver()) {
+  <p>Parabéns! Você acertou {{ correctAnswers() }} de {{ steps() }} cifras.</p>
+  <!-- <p>Seu tempo médio de resposta foi de {{ averageTime() }} segundos.</p>
+  <p>Seu tempo total de jogo foi de {{ totalTime() }} segundos.</p> -->
+
+  <br />
+  } @if (!canGuess() && currentStep() < steps()) {
+  <button mat-raised-button (click)="nextStep()">Próxima</button>
+  } @if (currentStep() === steps() && !isGameOver()) {
+  <button mat-raised-button (click)="endGame()">Finalizar</button>
+  } @if (isGameOver()) {
+  <button mat-raised-button (click)="restart()">Recomeçar</button>
+  }
+</div>

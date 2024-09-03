@@ -17,4 +17,9 @@ export const MENUS: Menu[] = [
     title: 'Ouvido Perfeito',
     link: '/music-academy/perfect-ear',
   },
+  {
+    icon: 'music_note',
+    title: 'Notação de Cifras',
+    link: '/music-academy/cipher-notation',
+  },
 ];
