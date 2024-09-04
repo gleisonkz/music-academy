@@ -26,6 +26,10 @@ export const MUSIC_ACADEMY_ROUTES: Route[] = [
         path: 'cipher-notation',
         loadComponent: async () => (await import('./pages/cipher-notation/cipher-notation.page')).CipherNotationPage,
       },
+      {
+        path: 'metronome',
+        loadComponent: async () => (await import('./pages/metronome/metronome.page')).MetronomePage,
+      },
     ],
   },
 ];

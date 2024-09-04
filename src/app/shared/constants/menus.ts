@@ -22,4 +22,9 @@ export const MENUS: Menu[] = [
     title: 'Notação de Cifras',
     link: '/music-academy/cipher-notation',
   },
+  {
+    icon: 'timer',
+    title: 'Metrônomo',
+    link: '/music-academy/metronome',
+  },
 ];

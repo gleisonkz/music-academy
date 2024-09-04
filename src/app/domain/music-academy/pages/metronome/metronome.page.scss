@@ -1,0 +1,51 @@
+.metronome-container {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.options {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+}
+
+.status-info {
+  margin-top: 20px;
+}
+
+.beat-display {
+  display: flex;
+  justify-content: space-around;
+  margin: 10px 0;
+}
+
+.active-beat mat-icon {
+  color: #4caf50; /* Cor para batidas ativas */
+}
+
+mat-icon {
+  color: #e0e0e0; /* Cor padrão para batidas inativas */
+}
+
+.metronome-icon {
+  background: url('src/assets/images/metronome-icon.jpg') no-repeat center center;
+  background-size: cover;
+}
+
+mat-card-title {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+mat-card-subtitle {
+  color: rgba(124, 219, 124, 0.829);
+}

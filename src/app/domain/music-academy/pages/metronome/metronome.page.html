@@ -1,0 +1,48 @@
+<mat-card class="metronome-container">
+  <div class="options">
+    <mat-form-field appearance="fill">
+      <mat-label>BPM</mat-label>
+
+      <input (keydown.enter)="startMetronome()" matInput type="number" [value]="bpm()" (input)="setBpm($event)" min="30" max="300" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Compasso</mat-label>
+      <mat-select [value]="timeSignature()" (selectionChange)="timeSignature.set($event.value)">
+        <mat-option *ngFor="let sig of timeSignatures" [value]="sig">{{ sig }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Tempo (minutos)</mat-label>
+      <input matInput type="number" [value]="timerDuration()" (input)="setTimeDuration($event)" min="1" />
+    </mat-form-field>
+  </div>
+
+  <mat-checkbox [formControl]="accentEnabled"> Som do acento no primeiro tempo </mat-checkbox>
+  <mat-checkbox [formControl]="soundEnabled"> Som do metrônomo </mat-checkbox>
+  <mat-checkbox [formControl]="endingSoundEnabled"> Som ao final da contagem </mat-checkbox>
+
+  <div class="button-group">
+    <button *ngIf="!isPlaying()" mat-stroked-button color="primary" (click)="startMetronome()">Iniciar</button>
+    <button mat-stroked-button color="warn" (click)="stopManualMetronome()">Parar</button>
+  </div>
+
+  <div *ngIf="isPlaying()" class="status-info">
+    <mat-card>
+      <mat-card-header>
+        <div mat-card-avatar class="metronome-icon"></div>
+        <mat-card-title>Metrônomo</mat-card-title>
+        <mat-card-subtitle>{{ remainingTime() | remainingTime}} restantes</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="beat-display">
+          <span *ngFor="let beat of [].constructor(timeSignature()); let i = index" [ngClass]="{'active-beat': i < currentBeat()}">
+            <mat-icon>circle</mat-icon>
+          </span>
+        </div>
+        <mat-progress-bar mode="determinate" [value]="(currentBeat() / timeSignature()) * 100"></mat-progress-bar>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</mat-card>
