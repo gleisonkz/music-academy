@@ -27,4 +27,9 @@ export const MENUS: Menu[] = [
     title: 'Metrônomo',
     link: '/music-academy/metronome',
   },
+  {
+    icon: 'music_note',
+    title: 'Prática de Backing',
+    link: '/music-academy/backing-practice',
+  },
 ];
