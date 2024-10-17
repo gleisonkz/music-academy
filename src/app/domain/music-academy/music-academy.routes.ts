@@ -34,6 +34,10 @@ export const MUSIC_ACADEMY_ROUTES: Route[] = [
         path: 'backing-practice',
         loadComponent: async () => (await import('./pages/backing-practice/backing-practice.page')).BackingPracticePage,
       },
+      {
+        path: 'quizz',
+        loadComponent: async () => (await import('./pages/quizz/quizz.page')).QuizzPage,
+      },
     ],
   },
 ];

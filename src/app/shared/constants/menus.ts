@@ -32,4 +32,9 @@ export const MENUS: Menu[] = [
     title: 'Prática de Backing',
     link: '/music-academy/backing-practice',
   },
+  {
+    icon: 'quiz',
+    title: 'Quizz',
+    link: '/music-academy/quizz',
+  },
 ];

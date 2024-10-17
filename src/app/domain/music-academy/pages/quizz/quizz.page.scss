@@ -1,0 +1,28 @@
+.container {
+  padding: 30px;
+}
+
+.cards-container {
+  display: grid;
+  gap: 20px;
+}
+
+h1,
+h2 {
+  margin-bottom: 30px;
+  font-family: 'DynaPuff', system-ui;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+@media (width < 500px) {
+  .container {
+    padding: 5px;
+  }
+
+  h1,
+  h2 {
+    font-size: 18px;
+  }
+}
