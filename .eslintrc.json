@@ -15,16 +15,19 @@
     },
     {
       "files": ["*.ts"],
-      "extends": [
-        "plugin:@nx/angular",
-        "plugin:@angular-eslint/template/process-inline-templates"
-      ],
+      "extends": ["plugin:@nx/angular", "plugin:@angular-eslint/template/process-inline-templates"],
       "rules": {
+        "@angular-eslint/component-class-suffix": [
+          "error",
+          {
+            "suffixes": ["Page", "Component", "Dialog", "Widget"]
+          }
+        ],
         "@angular-eslint/directive-selector": [
           "error",
           {
             "type": "attribute",
-            "prefix": "app",
+            "prefix": "ma",
             "style": "camelCase"
           }
         ],
@@ -32,7 +35,7 @@
           "error",
           {
             "type": "element",
-            "prefix": "app",
+            "prefix": "ma",
             "style": "kebab-case"
           }
         ]

@@ -1,0 +1,24 @@
+<div class="card-container" [class.flipped]="isFlipped" (click)="flipCard()">
+  <div class="card">
+    <div class="card-front">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Pergunta</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ question() }}</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <div class="card-back">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Resposta</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ answer() }}</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

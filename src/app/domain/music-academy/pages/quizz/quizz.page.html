@@ -1,276 +1,72 @@
 <div class="container">
-  <h1>Perguntas e Repostas Ensaio Backs Sara Sede Interior</h1>
+  <mat-tab-group>
+    <mat-tab label="Estudar">
+      <div class="mt-20">
+        <h1>Perguntas e Respostas Ensaio Backs Sara Sede Interior</h1>
 
-  <div class="cards-container">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title><h2>Timbre</h2></mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>A Identidade de um som</p>
-      </mat-card-content>
-    </mat-card>
+        <div class="cards-container grid gap-20 sm:grid-cols-2">
+          <mat-card *ngFor="let question of questions; ">
+            <mat-card-header>
+              <mat-card-title><h2>{{ question.question }}</h2></mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <p>{{ question.answer }}</p>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+    </mat-tab>
 
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title><h2>Intervalo</h2></mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>A medida usada para calcular a distância entre duas notas.</p>
-      </mat-card-content>
-    </mat-card>
+    <mat-tab label="Praticar">
+      <div class="flip-container">
+        <!-- Exibe o progresso: Pergunta X/Y -->
+        <h2>Progresso: {{ progress() }}</h2>
 
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title><h2>Enarmonia</h2></mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>Nomes diferentes para um mesmo som.</p>
-      </mat-card-content>
-    </mat-card>
+        <p class="mb-10">Clique no card para visualizar a resposta.</p>
 
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title><h2>Oitava</h2></mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>
-          É o intervalo entre duas notas de mesmo nome, onde a segunda nota é
-          mais aguda ou mais grave que a primeira.
-        </p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title
-          ><h2>Em qual oitava fica o C central?</h2></mat-card-title
+        <!-- Exibe a pergunta atual com flip-card, mas apenas se o quiz não terminou -->
+        <ma-flip-card
+          *ngIf="!isQuizOver()"
+          [question]="randomizedQuestions()[currentQuestionIndex()].question"
+          [answer]="randomizedQuestions()[currentQuestionIndex()].answer"
         >
-      </mat-card-header>
-      <mat-card-content>
-        <p>4ª oitava.</p>
-      </mat-card-content>
-    </mat-card>
+        </ma-flip-card>
 
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title><h2>Escala</h2></mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>
-          É uma sequência de notas de nomes diferentes, dentro de uma mesma
-          oitava, separadas por um padrão de intervalos.
-        </p>
-      </mat-card-content>
-    </mat-card>
+        <!-- Controles para resposta correta ou errada -->
+        <div *ngIf="!isQuizOver()">
+          <div class="controls">
+            <button
+              mat-raised-button
+              color="warn"
+              (click)="nextQuestion(false)"
+            >
+              Errei
+            </button>
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="nextQuestion(true)"
+            >
+              Acertei
+            </button>
+          </div>
+        </div>
 
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title><h2>Acorde</h2></mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>Emissão de duas ou mais notas ao mesmo tempo.</p>
-      </mat-card-content>
-    </mat-card>
+        <!-- Mensagem de finalização do quiz -->
+        <div *ngIf="isQuizOver()">
+          <p>
+            Quiz finalizado! Você acertou {{ correctAnswers() }} de {{
+            randomizedQuestions().length }} perguntas.
+          </p>
+        </div>
 
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title><h2>Uníssono Pleno</h2></mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>Duas ou mais pessoas cantando a mesma nota na mesma oitava.</p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title><h2>Uníssono Oitavado</h2></mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>Duas ou mais pessoas cantando a mesma nota em oitavas diferentes.</p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title><h2>Melodia</h2></mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>Duas ou mais notas emitidas uma após a outra/sucessivamente.</p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title><h2>Harmonia</h2></mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>Sequência de acordes que serve como base para uma melodia.</p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title
-          ><h2>Divisão Vocal/ Abertura de Vozes</h2></mat-card-title
-        >
-      </mat-card-header>
-      <mat-card-content>
-        <p>
-          Duas ou mais vozes cantando melodias diferentes que se harmonizam.
-        </p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title><h2>Extensão Vocal</h2></mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>
-          É o intervalo de notas desde a nota mais grave até a nota mais aguda
-          emitida por uma pessoa, independentemente da QUALIDADE dessa emissão.
-        </p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title><h2>Tessitura Vocal</h2></mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>
-          É o intervalo de notas desde a nota mais grave até a nota mais aguda
-          emitida por uma pessoa com QUALIDADE na emissão.
-        </p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title><h2>Naipe</h2></mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>Classificação Vocal, ex: Tenor, Contralto, Soprano.</p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title><h2>Dobra de Naipes</h2></mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>Inversão de vozes.</p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title><h2>Semi-tom / Meio tom</h2></mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>O menor intervalo entre duas notas.</p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title><h2>Tom</h2></mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>A soma de dois semitons.</p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title><h2>Quantas são as notas naturais?</h2></mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>7</p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title><h2>Notas Naturais Ascendentes</h2></mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>C D E F G A B C</p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title><h2>Notas Naturais Descendentes</h2></mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>C B A G F E D C</p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title
-          ><h2>Quantas notas existem ao todo na música?</h2></mat-card-title
-        >
-      </mat-card-header>
-      <mat-card-content>
-        <p>12</p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title
-          ><h2>Escala Cromática Ascendente com #</h2></mat-card-title
-        >
-      </mat-card-header>
-      <mat-card-content>
-        <p>C C# D D# E F F# G G# A A# B C</p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title
-          ><h2>Escala Cromática Descendente com #</h2></mat-card-title
-        >
-      </mat-card-header>
-      <mat-card-content>
-        <p>C B A# A G# G F# F E D# D C# C</p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title
-          ><h2>Escala Cromática Ascendente com bemol</h2></mat-card-title
-        >
-      </mat-card-header>
-      <mat-card-content>
-        <p>C Db D Eb E F Gb G Ab A Bb B C</p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title
-          ><h2>Escala Cromática Descendente com bemol</h2></mat-card-title
-        >
-      </mat-card-header>
-      <mat-card-content>
-        <p>C B Bb A Ab G Gb F E Eb D Db C</p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title><h2>Qual a forma da escala maior?</h2></mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>T, T, sT, T, T, T, St</p>
-      </mat-card-content>
-    </mat-card>
-  </div>
+        <!-- Botão para reiniciar o quiz -->
+        <div class="reset-btn">
+          <button mat-raised-button color="accent" (click)="resetQuiz()">
+            Reiniciar Quiz
+          </button>
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
 </div>

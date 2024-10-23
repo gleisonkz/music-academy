@@ -2,16 +2,16 @@
   padding: 30px;
 }
 
-.cards-container {
-  display: grid;
-  gap: 20px;
-}
-
 h1,
 h2 {
   margin-bottom: 30px;
   font-family: 'DynaPuff', system-ui;
-  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+::ng-deep .mat-mdc-tab > * {
+  font-family: 'DynaPuff', system-ui;
   font-weight: 400;
   font-style: normal;
 }
@@ -25,4 +25,35 @@ h2 {
   h2 {
     font-size: 18px;
   }
+}
+
+.flip-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.controls {
+  margin-top: 20px;
+  display: flex;
+  gap: 20px;
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+p {
+  margin-top: 20px;
+  font-size: 1.2rem;
+}
+
+.reset-btn {
+  margin-top: 20px;
+}
+
+::ng-deep .mat-mdc-tab-body-content {
+  overflow: hidden !important;
 }
