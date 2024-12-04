@@ -8,9 +8,7 @@ export const APP_ROUTES: Route[] = [
   },
   {
     path: 'music-academy',
-    loadChildren: async () =>
-      (await import('./domain/music-academy/music-academy.routes'))
-        .MUSIC_ACADEMY_ROUTES,
+    loadChildren: async () => (await import('./domain/music-academy/music-academy.routes')).MUSIC_ACADEMY_ROUTES,
   },
   {
     path: '**',

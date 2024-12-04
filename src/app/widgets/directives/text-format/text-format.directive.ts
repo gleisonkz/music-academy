@@ -14,12 +14,9 @@ export class TextFormatDirective implements AfterViewInit {
   formatText() {
     const elementText: string = this.el.nativeElement.innerText;
 
-    console.log('elementText', elementText);
-
     // Expressão regular para capturar texto entre símbolos (+, -, =)
-    const regex = /([+-=])([^+-=]+)\1/g;
+    const regex = /([+-=@])([^+-=@]+)\1/g;
 
-    // Substitui cada bloco de texto com o formato adequado
     const formattedText = elementText.replace(regex, (match, symbol, innerText) => {
       switch (symbol) {
         case '=':
@@ -28,12 +25,13 @@ export class TextFormatDirective implements AfterViewInit {
           return `<span style="background-color: #ff7300";>${innerText.trim()}</span>`;
         case '+':
           return `<span style="background-color: #f047ff";>${innerText.trim()}</span>`;
+        case '@':
+          return `<span style="background-color: #ff0000";>${innerText.trim()}</span>`;
         default:
-          return innerText; // Se por algum motivo o símbolo não for tratado
+          return innerText;
       }
     });
 
-    // Atualiza o conteúdo do elemento com o novo HTML formatado
     this.renderer.setProperty(this.el.nativeElement, 'innerHTML', formattedText);
   }
 }

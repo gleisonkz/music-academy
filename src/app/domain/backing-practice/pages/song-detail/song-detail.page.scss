@@ -1,0 +1,121 @@
+::ng-deep label.mdc-label {
+  color: black;
+}
+
+::ng-deep mat-drawer-content > div {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.player-sidebar-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 2;
+  height: 60px;
+  width: 60px;
+}
+
+.player-sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  max-width: 189px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px 20px;
+  overflow: hidden;
+  position: fixed;
+  right: 0;
+  z-index: 1;
+  transition: transform 0.3s ease-in-out;
+
+  &.closed {
+    transform: translateX(100%);
+  }
+}
+
+.card {
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  transition: transform 0.2s ease-in-out;
+}
+
+img {
+  border-radius: 8px;
+}
+
+.container {
+  background-color: #dde6e5;
+  padding: 0;
+}
+
+span,
+p {
+  color: black;
+}
+
+.song-section {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.song-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px;
+
+  h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  p {
+    font-size: 16px;
+    margin-top: 10px;
+  }
+}
+
+.audio-player-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  audio {
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 20px;
+  }
+
+  .lyrics-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    @media (width < 600px) {
+      display: block;
+    }
+
+    p {
+      cursor: pointer;
+      padding: 5px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+
+      &.active {
+        font-size: 22px;
+        font-weight: bold;
+      }
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+:host {
+  width: 100%;
+}
+
+.audio-player {
+  background: #1e293b;
+  color: white;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.progress-slider {
+  flex: 1;
+}
+
+.volume-slider {
+  max-width: 100px;
+}

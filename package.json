@@ -22,6 +22,8 @@
     "@angular/router": "~18.0.0",
     "@music-academy/source": "file:",
     "@nx/angular": "19.2.3",
+    "@types/howler": "^2.2.12",
+    "howler": "^2.2.4",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.3"

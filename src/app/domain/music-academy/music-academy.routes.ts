@@ -31,12 +31,12 @@ export const MUSIC_ACADEMY_ROUTES: Route[] = [
         loadComponent: async () => (await import('./pages/metronome/metronome.page')).MetronomePage,
       },
       {
-        path: 'backing-practice',
-        loadComponent: async () => (await import('./pages/backing-practice/backing-practice.page')).BackingPracticePage,
-      },
-      {
         path: 'quizz',
         loadComponent: async () => (await import('./pages/quizz/quizz.page')).QuizzPage,
+      },
+      {
+        path: 'backing-practice',
+        loadChildren: async () => (await import('../../domain/backing-practice/backing-practice.routes')).BACKING_PRACTICE_ROUTES,
       },
     ],
   },

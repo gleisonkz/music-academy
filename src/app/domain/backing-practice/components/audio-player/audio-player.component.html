@@ -1,0 +1,50 @@
+<div class="flex justify-between mb-6">
+  <button
+    (click)="playAll()"
+    class="cursor-pointer w-full fs-20 p-10 bg-blue-600 text-white font-semibold rounded hover:bg-blue-500 transition mr-5"
+  >
+    Tocar
+  </button>
+  <button
+    (click)="stopAll()"
+    class="cursor-pointer w-full fs-20 p-10 bg-red-600 text-white font-semibold rounded hover:bg-red-500 transition"
+  >
+    Parar
+  </button>
+</div>
+
+<div class="grid gap-5">
+  <div
+    *ngFor="let audio of sounds; let i = index"
+    class="grid grid-cols-[1fr] gap-5"
+  >
+    <label
+      class="cursor-pointer flex border-2 border-solid border-blue-600 bg-blue-200 rounded p-4 select-none"
+      style="justify-content: flex-start"
+    >
+      <input
+        type="checkbox"
+        [checked]="!audioService.isMuted[i]"
+        (change)="toggleMute(audio.id)"
+        class="h-20 w-20 mr-5 text-green-600 border-2 border-gray-300 rounded-sm transition duration-200 ease-in-out focus:ring-2 focus:ring-green-500"
+      />
+      <span class="text-lg font-medium text-gray-700">
+        {{ audio.id }}
+      </span>
+    </label>
+  </div>
+
+  <button
+    (click)="muteAll()"
+    class="cursor-pointer w-full fs-15 p-10 bg-blue-600 text-white font-semibold rounded hover:bg-blue-500 transition mr-5"
+  >
+    Desmarcar todos
+  </button>
+
+  <button
+    (click)="unmuteAll()"
+    class="cursor-pointer w-full fs-15 p-10 bg-blue-600 text-white font-semibold rounded hover:bg-blue-500 transition mr-5"
+  >
+    Marcar todos
+  </button>
+</div>

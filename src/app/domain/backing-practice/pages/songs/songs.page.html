@@ -1,0 +1,8 @@
+<h1 class="text-center fs-35">Músicas</h1>
+<div class="flex gap-25 mt-20">
+  @for (song of songs; track song.songId) {
+  <div class="flex cursor-pointer card" [routerLink]="['detail', song.songId]">
+    <img class="max-w-250" [src]="song.thumbnail" />
+  </div>
+  }
+</div>

@@ -1,0 +1,49 @@
+<div class="container">
+  <button
+    class="player-sidebar-button"
+    (click)="isPlayerSidebarOpen.set(!isPlayerSidebarOpen())"
+    mat-mini-fab
+  >
+    <mat-icon>{{ isPlayerSidebarOpen() ? 'menu_open' : 'menu' }}</mat-icon>
+  </button>
+
+  <div class="player-sidebar" [class.closed]="!isPlayerSidebarOpen()">
+    <div class="song-info">
+      <h1>
+        <span>{{ song.title }}</span> -
+        <span>{{ song.artist }}</span>
+      </h1>
+
+      <p>Tom: {{ song.key }}</p>
+    </div>
+
+    <ma-audio-player [sounds]="sounds"></ma-audio-player>
+  </div>
+
+  <div class="audio-player-container">
+    <div class="lyrics-container">
+      @for (section of song.sections ; track section.time + $index ; let
+      sectionIndex = $index) {
+      <p
+        class="song-section"
+        [attr.song-section-id]="sectionIndex"
+        [class.active]="sectionIndex === sectionActiveIndex"
+        (click)="jumpTo(section.time)"
+      >
+        {{ section.title }}
+      </p>
+
+      @for (lyric of section.lyrics ; track lyric.time ; let lyricIndex =
+      $index) {
+      <p
+        [class.active]="lyricIndex === lyricActiveIndex && sectionIndex === sectionActiveIndex"
+        (click)="jumpTo(lyric.time)"
+        maTextFormat
+        class="select-none"
+      >
+        {{ lyric.text }}
+      </p>
+      } }
+    </div>
+  </div>
+</div>
