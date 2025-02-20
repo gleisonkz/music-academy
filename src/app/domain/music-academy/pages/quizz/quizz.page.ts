@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
 
-import { QUESTIONS } from './questions.constant';
+import { Question, QUESTIONS } from './questions.constant';
 
 @Component({
   templateUrl: './quizz.page.html',
@@ -16,26 +16,22 @@ import { QUESTIONS } from './questions.constant';
 })
 export class QuizzPage {
   questions = QUESTIONS;
-  randomizedQuestions = signal(this.shuffleQuestions(this.questions)); // Perguntas randomizadas
-  currentQuestionIndex = signal(0); // Índice atual da pergunta
-  correctAnswers = signal(0); // Contador de respostas corretas
+  randomizedQuestions = signal(this.shuffleQuestions(this.questions));
+  currentQuestionIndex = signal(0);
+  correctAnswers = signal(0);
 
-  // Verifica se o quiz terminou (quando o índice atual é igual ao total de perguntas)
   isQuizOver = computed(() => this.currentQuestionIndex() >= this.randomizedQuestions().length);
 
-  // Retorna o progresso como "X/Y"
   progress = computed(() => {
     const total = this.randomizedQuestions().length;
     const current = Math.min(this.currentQuestionIndex() + 1, total); // Evita passar do total
     return `${current}/${total}`;
   });
 
-  // Função para embaralhar as perguntas
-  shuffleQuestions(questions: any[]) {
-    return questions.sort(() => Math.random() - 0.5);
+  shuffleQuestions(questions: Question[]) {
+    return [...questions].sort(() => Math.random() - 0.5);
   }
 
-  // Avança para a próxima pergunta, garantindo que o índice não ultrapasse o total
   nextQuestion(correct: boolean) {
     if (!this.isQuizOver()) {
       // Apenas avança se o quiz não terminou
@@ -44,7 +40,6 @@ export class QuizzPage {
     }
   }
 
-  // Reinicia o quiz
   resetQuiz() {
     this.randomizedQuestions.set(this.shuffleQuestions(this.questions));
     this.currentQuestionIndex.set(0);

@@ -3,8 +3,9 @@
     <mat-tab label="Estudar">
       <div class="mt-20">
         <h1>Perguntas e Respostas Ensaio Backs Sara Sede Interior</h1>
+        <p>Total de perguntas: {{ questions.length }}</p>
 
-        <div class="cards-container grid gap-20 sm:grid-cols-2">
+        <div class="cards-container grid gap-20 sm:grid-cols-2 mt-15">
           <mat-card *ngFor="let question of questions; ">
             <mat-card-header>
               <mat-card-title><h2>{{ question.question }}</h2></mat-card-title>
