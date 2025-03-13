@@ -45,6 +45,138 @@ export const QUESTIONS: Question[] = [
     answer: 'T, T, sT, T, T, T, St',
   },
   {
+    question: 'Aumentando em um tom a nota C, qual a nota resultante?',
+    answer: 'D',
+  },
+  {
+    question: 'Aumentando em um tom a nota C#, qual a nota resultante?',
+    answer: 'D#',
+  },
+  {
+    question: 'Aumentando em um tom a nota Db, qual a nota resultante?',
+    answer: 'Eb',
+  },
+  {
+    question: 'Aumentando em um tom a nota D#, qual a nota resultante?',
+    answer: 'F',
+  },
+  {
+    question: 'Aumentando em um tom a nota Eb, qual a nota resultante?',
+    answer: 'F',
+  },
+  {
+    question: 'Aumentando em um tom a nota E, qual a nota resultante?',
+    answer: 'Gb ou F#',
+  },
+  {
+    question: 'Aumentando em um tom a nota F, qual a nota resultante?',
+    answer: 'G',
+  },
+  {
+    question: 'Aumentando em um tom a nota F#, qual a nota resultante?',
+    answer: 'G#',
+  },
+  {
+    question: 'Aumentando em um tom a nota Gb, qual a nota resultante?',
+    answer: 'Ab',
+  },
+  {
+    question: 'Aumentando em um tom a nota G, qual a nota resultante?',
+    answer: 'A',
+  },
+  {
+    question: 'Aumentando em um tom a nota G#, qual a nota resultante?',
+    answer: 'A#',
+  },
+  {
+    question: 'Aumentando em um tom a nota Ab, qual a nota resultante?',
+    answer: 'Bb',
+  },
+  {
+    question: 'Aumentando em um tom a nota A, qual a nota resultante?',
+    answer: 'B',
+  },
+  {
+    question: 'Aumentando em um tom a nota A#, qual a nota resultante?',
+    answer: 'C',
+  },
+  {
+    question: 'Aumentando em um tom a nota Bb, qual a nota resultante?',
+    answer: 'C',
+  },
+  {
+    question: 'Aumentando em um tom a nota B, qual a nota resultante?',
+    answer: 'C#',
+  },
+  {
+    question: 'Aumentando em meio tom a nota C, qual a nota resultante?',
+    answer: 'C# ou Db',
+  },
+  {
+    question: 'Aumentando em meio tom a nota C#, qual a nota resultante?',
+    answer: 'D',
+  },
+  {
+    question: 'Aumentando em meio tom a nota Db, qual a nota resultante?',
+    answer: 'D',
+  },
+  {
+    question: 'Aumentando em meio tom a nota D, qual a nota resultante?',
+    answer: 'D# ou Eb',
+  },
+  {
+    question: 'Aumentando em meio tom a nota D#, qual a nota resultante?',
+    answer: 'E',
+  },
+  {
+    question: 'Aumentando em meio tom a nota Eb, qual a nota resultante?',
+    answer: 'E',
+  },
+  {
+    question: 'Aumentando em meio tom a nota E, qual a nota resultante?',
+    answer: 'F',
+  },
+  {
+    question: 'Aumentando em meio tom a nota F, qual a nota resultante?',
+    answer: 'F# ou Gb',
+  },
+  {
+    question: 'Aumentando em meio tom a nota F#, qual a nota resultante?',
+    answer: 'G',
+  },
+  {
+    question: 'Aumentando em meio tom a nota Gb, qual a nota resultante?',
+    answer: 'G',
+  },
+  {
+    question: 'Aumentando em meio tom a nota G, qual a nota resultante?',
+    answer: 'G# ou Ab',
+  },
+  {
+    question: 'Aumentando em meio tom a nota G#, qual a nota resultante?',
+    answer: 'A',
+  },
+  {
+    question: 'Aumentando em meio tom a nota Ab, qual a nota resultante?',
+    answer: 'A',
+  },
+  {
+    question: 'Aumentando em meio tom a nota A, qual a nota resultante?',
+    answer: 'A# ou Bb',
+  },
+  {
+    question: 'Aumentando em meio tom a nota A#, qual a nota resultante?',
+    answer: 'B',
+  },
+  {
+    question: 'Aumentando em meio tom a nota Bb, qual a nota resultante?',
+    answer: 'B',
+  },
+  {
+    question: 'Aumentando em meio tom a nota B, qual a nota resultante?',
+    answer: 'C',
+  },
+  {
     question: 'Escala Maior de C',
     answer: 'C D E F G A B C',
   },

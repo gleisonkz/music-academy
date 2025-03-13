@@ -6,7 +6,7 @@
     "start": "nx serve",
     "build": "nx build",
     "test": "nx test",
-    "deploy": "nx build && firebase deploy"
+    "deploy": "npx nx build && firebase deploy"
   },
   "private": true,
   "dependencies": {
