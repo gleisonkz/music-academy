@@ -19,6 +19,7 @@ export class QuizzPage {
   randomizedQuestions = signal(this.shuffleQuestions(this.questions));
   currentQuestionIndex = signal(0);
   correctAnswers = signal(0);
+  isFlipped = false;
 
   isQuizOver = computed(() => this.currentQuestionIndex() >= this.randomizedQuestions().length);
 
@@ -35,6 +36,7 @@ export class QuizzPage {
   nextQuestion(correct: boolean) {
     if (!this.isQuizOver()) {
       // Apenas avança se o quiz não terminou
+      this.isFlipped = false;
       if (correct) this.correctAnswers.update((count) => count + 1);
       this.currentQuestionIndex.update((index) => index + 1);
     }

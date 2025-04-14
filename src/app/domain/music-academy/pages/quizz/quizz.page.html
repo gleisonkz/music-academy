@@ -25,41 +25,35 @@
 
         <p class="mb-10">Clique no card para visualizar a resposta.</p>
 
-        <!-- Exibe a pergunta atual com flip-card, mas apenas se o quiz não terminou -->
-        <ma-flip-card
-          *ngIf="!isQuizOver()"
-          [question]="randomizedQuestions()[currentQuestionIndex()].question"
-          [answer]="randomizedQuestions()[currentQuestionIndex()].answer"
-        >
+        @for (question of randomizedQuestions(); track question.question; let i
+        = $index) { @if (!isQuizOver() && currentQuestionIndex() === i) {
+        <ma-flip-card [question]="question.question" [answer]="question.answer">
         </ma-flip-card>
+        } }
 
         <!-- Controles para resposta correta ou errada -->
-        <div *ngIf="!isQuizOver()">
-          <div class="controls">
-            <button
-              mat-raised-button
-              color="warn"
-              (click)="nextQuestion(false)"
-            >
-              Errei
-            </button>
-            <button
-              mat-raised-button
-              color="primary"
-              (click)="nextQuestion(true)"
-            >
-              Acertei
-            </button>
-          </div>
+        @if (!isQuizOver()) {
+        <div class="controls">
+          <button mat-raised-button color="warn" (click)="nextQuestion(false)">
+            Errei
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="nextQuestion(true)"
+          >
+            Acertei
+          </button>
         </div>
+        }
 
         <!-- Mensagem de finalização do quiz -->
-        <div *ngIf="isQuizOver()">
-          <p>
-            Quiz finalizado! Você acertou {{ correctAnswers() }} de {{
-            randomizedQuestions().length }} perguntas.
-          </p>
-        </div>
+        @if (isQuizOver()) {
+        <p>
+          Quiz finalizado! Você acertou {{ correctAnswers() }} de {{
+          randomizedQuestions().length }} perguntas.
+        </p>
+        }
 
         <!-- Botão para reiniciar o quiz -->
         <div class="reset-btn">

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, input } from '@angular/core';
+import { Component, input, OnInit, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 
 @Component({
@@ -9,12 +9,17 @@ import { MatCardModule } from '@angular/material/card';
   templateUrl: './flip-card.component.html',
   styleUrl: './flip-card.component.scss',
 })
-export class FlipCardComponent {
+export class FlipCardComponent implements OnInit {
   question = input('');
   answer = input('');
-  @Input() isFlipped = false;
+
+  isFlipped = signal(false);
 
   flipCard() {
-    this.isFlipped = !this.isFlipped;
+    this.isFlipped.update((isFlipped) => !isFlipped);
+  }
+
+  ngOnInit(): void {
+    this.isFlipped.set(false);
   }
 }

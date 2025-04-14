@@ -213,6 +213,18 @@ export const QUESTIONS: Question[] = [
     answer: 'Acorde formado por três notas. T, 3, 5.',
   },
   {
+    question: 'Tríade Menor',
+    answer: 'Acorde formado por três notas. T, 3b, 5.',
+  },
+  {
+    question: 'Tríade Diminuta',
+    answer: 'Acorde formado por três notas. T, 3b, 5b.',
+  },
+  {
+    question: 'Tríade Aumentada',
+    answer: 'Acorde formado por três notas. T, 3, 5#.',
+  },
+  {
     question: 'Tétrade',
     answer: 'Acorde formado por quatro notas. T, 3, 5, 7.',
   },
@@ -288,5 +300,13 @@ export const QUESTIONS: Question[] = [
   {
     question: 'Escala Cromática Descendente com bemol',
     answer: 'C B Bb A Ab G Gb F E Eb D Db C',
+  },
+  {
+    question: 'Qual a diferença entre a tríade maior e a tríade menor?',
+    answer: 'A diferença está no 3º grau, que na tríade maior é uma 3ª maior e na tríade menor é uma 3ª menor.',
+  },
+  {
+    question: 'Qual a diferença entre a tríade maior e a tríade aumentada?',
+    answer: 'A diferença está no 5º grau, que na tríade maior é uma 5ª justa e na tríade aumentada é uma 5ª aumentada.',
   },
 ];
