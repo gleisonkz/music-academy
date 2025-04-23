@@ -50,11 +50,11 @@ export const QUESTIONS: Question[] = [
   },
   {
     question: 'Aumentando em um tom a nota C#, qual a nota resultante?',
-    answer: 'D#',
+    answer: 'D# ou Eb',
   },
   {
     question: 'Aumentando em um tom a nota Db, qual a nota resultante?',
-    answer: 'Eb',
+    answer: 'Eb ou D#',
   },
   {
     question: 'Aumentando em um tom a nota D#, qual a nota resultante?',
@@ -74,11 +74,11 @@ export const QUESTIONS: Question[] = [
   },
   {
     question: 'Aumentando em um tom a nota F#, qual a nota resultante?',
-    answer: 'G#',
+    answer: 'G# ou Ab',
   },
   {
     question: 'Aumentando em um tom a nota Gb, qual a nota resultante?',
-    answer: 'Ab',
+    answer: 'Ab ou G#',
   },
   {
     question: 'Aumentando em um tom a nota G, qual a nota resultante?',
@@ -86,11 +86,11 @@ export const QUESTIONS: Question[] = [
   },
   {
     question: 'Aumentando em um tom a nota G#, qual a nota resultante?',
-    answer: 'A#',
+    answer: 'A# ou Bb',
   },
   {
     question: 'Aumentando em um tom a nota Ab, qual a nota resultante?',
-    answer: 'Bb',
+    answer: 'Bb ou A#',
   },
   {
     question: 'Aumentando em um tom a nota A, qual a nota resultante?',
@@ -106,7 +106,7 @@ export const QUESTIONS: Question[] = [
   },
   {
     question: 'Aumentando em um tom a nota B, qual a nota resultante?',
-    answer: 'C#',
+    answer: 'C# ou Db',
   },
   {
     question: 'Aumentando em meio tom a nota C, qual a nota resultante?',
@@ -210,27 +210,59 @@ export const QUESTIONS: Question[] = [
   },
   {
     question: 'Tríade Maior',
-    answer: 'Acorde formado por três notas. T, 3, 5.',
+    answer: 'É um acorde formado por três notas. T (tônica), 3 (terça maior), 5 (quinta justa).',
   },
   {
     question: 'Tríade Menor',
-    answer: 'Acorde formado por três notas. T, 3b, 5.',
+    answer: 'É um acorde formado por três notas. T (tônica), 3b (terça menor), 5 (quinta justa).',
   },
   {
     question: 'Tríade Diminuta',
-    answer: 'Acorde formado por três notas. T, 3b, 5b.',
+    answer: 'É um acorde formado por três notas. T (tônica), 3b (terça menor), 5b (quinta diminuta).',
   },
   {
     question: 'Tríade Aumentada',
-    answer: 'Acorde formado por três notas. T, 3, 5#.',
+    answer: 'É um acorde formado por três notas. T (tônica), 3 (terça maior), 5# (quinta aumentada).',
+  },
+  {
+    question: 'Tríade sus2',
+    answer: 'É um acorde formado por três notas. T (tônica), 2 (segunda maior), 5 (quinta justa).',
+  },
+  {
+    question: 'Tríade sus4',
+    answer: 'É um acorde formado por três notas. T (tônica), 4 (quarta justa), 5 (quinta justa).',
   },
   {
     question: 'Tétrade',
-    answer: 'Acorde formado por quatro notas. T, 3, 5, 7.',
+    answer: 'É um acorde formado por quatro notas. T (tônica), 3 (terça maior), 5 (quinta justa), 7 (sétima maior).',
   },
   {
     question: 'Tipos de Tríades',
-    answer: 'Maior, Menor, Diminuta, Aumentada.',
+    answer: 'Maior, Menor, Diminuta, Aumentada, sus2, sus4.',
+  },
+  {
+    question: 'Um intervalo de segunda pode ser classificado como:',
+    answer: 'Maior, Menor',
+  },
+  {
+    question: 'Um intervalo de terça pode ser classificado como:',
+    answer: 'Maior, Menor',
+  },
+  {
+    question: 'Um intervalo de quarta pode ser classificado como:',
+    answer: 'Justa, Aumentada, Diminuta',
+  },
+  {
+    question: 'Um intervalo de quinta pode ser classificado como:',
+    answer: 'Justa, Aumentada, Diminuta',
+  },
+  {
+    question: 'Um intervalo de sexta pode ser classificado como:',
+    answer: 'Maior, Menor',
+  },
+  {
+    question: 'Um intervalo de sétima pode ser classificado como:',
+    answer: 'Maior, Menor, Diminuta',
   },
   {
     question: 'Uníssono Pleno',
