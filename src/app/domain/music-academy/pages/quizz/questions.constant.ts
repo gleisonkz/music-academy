@@ -234,7 +234,7 @@ export const QUESTIONS: Question[] = [
   },
   {
     question: 'Tétrade',
-    answer: 'É um acorde formado por quatro notas. T (tônica), 3 (terça maior), 5 (quinta justa), 7 (sétima maior).',
+    answer: 'É um acorde formado por quatro ou mais notas. T (tônica), 3 (terça maior), 5 (quinta justa), 7 (sétima maior).',
   },
   {
     question: 'Tipos de Tríades',
