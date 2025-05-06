@@ -41,7 +41,7 @@ export const QUESTIONS: Question[] = [
     answer: 'É uma sequência de notas de nomes diferentes, dentro de uma mesma oitava, separadas por um padrão de intervalos.',
   },
   {
-    question: 'Qual a forma da escala maior?',
+    question: 'Qual é a fórmula da escala maior?',
     answer: 'T, T, sT, T, T, T, St',
   },
   {
