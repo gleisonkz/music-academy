@@ -10,7 +10,30 @@
 .options {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.options .form-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.options .form-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--foreground, #f3f4f6);
+  font-weight: 500;
+}
+
+.options input[z-input],
+.options z-select {
+  min-width: 5rem;
+}
+
+.options input[z-input] {
+  min-height: 2.5rem;
+  padding: 0.5rem 1rem;
 }
 
 .button-group {

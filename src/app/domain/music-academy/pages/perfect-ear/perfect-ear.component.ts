@@ -1,5 +1,5 @@
 import { FrequencyService } from 'src/app/domain/music-academy/services/frequency/frequency.service';
-import { MatSharedModule } from 'src/app/shared/modules/mat-shared.module';
+import { ZardSharedModule } from 'src/app/shared/modules/zard-shared.module';
 
 import { NgIf } from '@angular/common';
 import { Component } from '@angular/core';
@@ -20,7 +20,7 @@ interface ExerciseResult {
 @Component({
   styleUrls: ['./perfect-ear.component.scss'],
   standalone: true,
-  imports: [NgIf, MatSharedModule],
+  imports: [NgIf, ZardSharedModule],
   template: `
     <div class="perfect-ear-container">
       <h2>Exercício de Afinação</h2>

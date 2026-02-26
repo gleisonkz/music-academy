@@ -1,4 +1,4 @@
-import { MatSharedModule } from 'src/app/shared/modules/mat-shared.module';
+import { ZardSharedModule } from 'src/app/shared/modules/zard-shared.module';
 
 import { NgFor } from '@angular/common';
 import { Component, signal } from '@angular/core';
@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './cipher-notation.page.html',
   styleUrls: ['./cipher-notation.page.scss'],
   standalone: true,
-  imports: [FormsModule, NgFor, MatSharedModule],
+  imports: [FormsModule, NgFor, ZardSharedModule],
 })
 export class CipherNotationPage {
   private chords = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];

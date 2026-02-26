@@ -1,10 +1,8 @@
 import { FlipCardComponent } from 'src/app/domain/music-academy/components/flip-card/flip-card.component';
+import { ZardSharedModule } from 'src/app/shared/modules/zard-shared.module';
 
 import { CommonModule } from '@angular/common';
 import { Component, computed, signal } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatTabsModule } from '@angular/material/tabs';
 
 import { Question, QUESTIONS } from './questions.constant';
 
@@ -12,7 +10,7 @@ import { Question, QUESTIONS } from './questions.constant';
   templateUrl: './quizz.page.html',
   styleUrls: ['./quizz.page.scss'],
   standalone: true,
-  imports: [MatCardModule, MatButtonModule, MatTabsModule, FlipCardComponent, CommonModule],
+  imports: [ZardSharedModule, FlipCardComponent, CommonModule],
 })
 export class QuizzPage {
   questions = QUESTIONS;
@@ -20,6 +18,9 @@ export class QuizzPage {
   currentQuestionIndex = signal(0);
   correctAnswers = signal(0);
   isFlipped = false;
+
+  /** Tab ativa: 'estudar' | 'praticar' */
+  activeTab = signal<'estudar' | 'praticar'>('praticar');
 
   isQuizOver = computed(() => this.currentQuestionIndex() >= this.randomizedQuestions().length);
 

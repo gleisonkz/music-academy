@@ -1,10 +1,17 @@
 .list-name {
   height: 20px;
+  color: inherit;
 }
 
 .active {
-  background-color: var(--background-contrast-color);
+  background-color: rgba(0, 251, 251, 0.15);
+  color: var(--primary-color);
+
   .content {
-    color: var(--primary-color);
+    color: inherit;
+  }
+
+  .nav-icon {
+    color: inherit;
   }
 }

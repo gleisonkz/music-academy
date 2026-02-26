@@ -83,7 +83,7 @@ export class FrequencyService {
     };
 
     if (this.audioAnalyser && this.samples) {
-      this.audioAnalyser.getFloatTimeDomainData(this.samples);
+      this.audioAnalyser.getFloatTimeDomainData(this.samples as Float32Array<ArrayBuffer>);
 
       let greatestMagnitude = -Infinity;
       let chosenPeriod = -1;

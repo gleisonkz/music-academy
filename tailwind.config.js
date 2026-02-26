@@ -237,6 +237,37 @@ module.exports = {
         8: '800',
         9: '900',
       },
+      colors: {
+        border: '#374151',
+        input: '#4b5563',
+        ring: '#00fbfb',
+        background: '#191c1c',
+        foreground: '#f3f4f6',
+        primary: {
+          DEFAULT: '#00fbfb',
+          foreground: '#004f4f',
+        },
+        secondary: {
+          DEFAULT: '#2b3030',
+          foreground: '#e5e7eb',
+        },
+        destructive: {
+          DEFAULT: '#dc2626',
+          foreground: '#ffffff',
+        },
+        muted: {
+          DEFAULT: '#2b3030',
+          foreground: '#9ca3af',
+        },
+        accent: {
+          DEFAULT: '#ffb787',
+          foreground: '#191c1c',
+        },
+        card: {
+          DEFAULT: '#2b3030',
+          foreground: '#f3f4f6',
+        },
+      },
     },
   },
   plugins: [

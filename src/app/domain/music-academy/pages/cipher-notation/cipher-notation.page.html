@@ -9,7 +9,15 @@
   </div>
 
   <div class="options">
-    <button [disabled]="!canGuess()" *ngFor="let option of options()" mat-fab (click)="selectOption(option)">{{ option }}</button>
+    <button
+      [disabled]="!canGuess()"
+      *ngFor="let option of options()"
+      z-button
+      zType="outline"
+      (click)="selectOption(option)"
+    >
+      {{ option }}
+    </button>
   </div>
 
   <p>{{ feedback() }}</p>
@@ -20,10 +28,10 @@
 
   <br />
   } @if (!canGuess() && currentStep() < steps()) {
-  <button mat-raised-button (click)="nextStep()">Próxima</button>
+  <button z-button zType="default" (click)="nextStep()">Próxima</button>
   } @if (currentStep() === steps() && !isGameOver()) {
-  <button mat-raised-button (click)="endGame()">Finalizar</button>
+  <button z-button zType="default" (click)="endGame()">Finalizar</button>
   } @if (isGameOver()) {
-  <button mat-raised-button (click)="restart()">Recomeçar</button>
+  <button z-button zType="default" (click)="restart()">Recomeçar</button>
   }
 </div>

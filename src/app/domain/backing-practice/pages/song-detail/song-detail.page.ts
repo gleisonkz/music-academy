@@ -4,12 +4,8 @@ import { TextFormatDirective } from 'src/app/widgets/directives/text-format/text
 
 import { DOCUMENT } from '@angular/common';
 import { Component, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatSliderModule } from '@angular/material/slider';
 
+import { ZardSharedModule } from '../../../../shared/modules/zard-shared.module';
 import { AudioPlayerComponent } from '../../components/audio-player/audio-player.component';
 import { AudioService } from '../../services/audio/audio.service';
 
@@ -26,7 +22,7 @@ function compareWithTolerance(num1: number, num2: number, tolerance: number) {
   templateUrl: './song-detail.page.html',
   styleUrls: ['./song-detail.page.scss'],
   standalone: true,
-  imports: [MatCheckboxModule, MatIconModule, TextFormatDirective, AudioPlayerComponent, MatSliderModule, MatSidenavModule, MatButtonModule],
+  imports: [ZardSharedModule, TextFormatDirective, AudioPlayerComponent],
 })
 export class SongDetailPage implements OnInit {
   @ViewChild('tenorAudio') tenorAudio!: ElementRef<HTMLAudioElement>;

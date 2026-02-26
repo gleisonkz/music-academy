@@ -2,10 +2,8 @@ import { Howl } from 'howler';
 
 import { CommonModule } from '@angular/common';
 import { Component, inject, Input, signal } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSliderModule } from '@angular/material/slider';
 
+import { ZardSharedModule } from '../../../../shared/modules/zard-shared.module';
 import { AudioService } from '../../services/audio/audio.service';
 
 export interface AudioPath {
@@ -23,11 +21,12 @@ export interface HowlAudio {
   templateUrl: './audio-player.component.html',
   styleUrls: ['./audio-player.component.scss'],
   standalone: true,
-  imports: [MatIconModule, MatButtonModule, MatSliderModule, CommonModule],
+  imports: [ZardSharedModule, CommonModule],
 })
 export class AudioPlayerComponent {
   public audioService = inject(AudioService);
   public allMuted = signal(false);
+  public masterVolume = signal(1.0); // Volume geral (0.0 a 1.0)
 
   @Input()
   sounds: HowlAudio[] | undefined;
@@ -66,5 +65,25 @@ export class AudioPlayerComponent {
     this.sounds?.forEach(({ howl: sound }) => {
       sound.stop();
     });
+  }
+
+  // Novo método para controlar o volume geral
+  setMasterVolume(volume: number) {
+    this.masterVolume.set(volume);
+    this.sounds?.forEach(({ howl: sound }) => {
+      sound.volume(volume);
+    });
+  }
+
+  // Método para obter o volume atual
+  getMasterVolume(): number {
+    return this.masterVolume();
+  }
+
+  // Método para lidar com mudanças no slider
+  onVolumeChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const volume = parseFloat(target.value);
+    this.setMasterVolume(volume);
   }
 }

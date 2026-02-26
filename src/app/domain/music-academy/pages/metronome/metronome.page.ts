@@ -1,5 +1,5 @@
 import { interval, Subject, takeUntil } from 'rxjs';
-import { MatSharedModule } from 'src/app/shared/modules/mat-shared.module';
+import { ZardSharedModule } from 'src/app/shared/modules/zard-shared.module';
 import { RemainingTimePipe } from 'src/app/widgets/pipes/remaining-time/remaining-time.pipe';
 
 import { CommonModule } from '@angular/common';
@@ -10,7 +10,7 @@ import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
   templateUrl: './metronome.page.html',
   styleUrls: ['./metronome.page.scss'],
   standalone: true,
-  imports: [MatSharedModule, CommonModule, RemainingTimePipe, FormsModule, ReactiveFormsModule],
+  imports: [ZardSharedModule, CommonModule, RemainingTimePipe, FormsModule, ReactiveFormsModule],
 })
 export class MetronomePage {
   bpm = signal(120);

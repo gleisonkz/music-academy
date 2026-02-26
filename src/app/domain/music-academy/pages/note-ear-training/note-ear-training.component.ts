@@ -1,31 +1,20 @@
-import { CommonModule } from '@angular/common';
-import {
-  Component,
-  DestroyRef,
-  OnDestroy,
-  OnInit,
-  inject,
-  signal,
-} from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { Subscription, delay, timer } from 'rxjs';
+import { delay, Subscription, timer } from 'rxjs';
 import { BASS_NOTES } from 'src/app/shared/constants/bass-notes.constant';
 import { NoteEarTrainingForm } from 'src/app/shared/models/interfaces/note-ear-training';
-import { MatSharedModule } from 'src/app/shared/modules/mat-shared.module';
+import { ZardSharedModule } from 'src/app/shared/modules/zard-shared.module';
 import { SimpleStepComponent } from 'src/app/widgets/components/simple-step/simple-step.component';
+
+import { CommonModule } from '@angular/common';
+import { Component, DestroyRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-note-ear-training',
   templateUrl: './note-ear-training.component.html',
   styleUrls: ['./note-ear-training.component.scss'],
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatSharedModule,
-    SimpleStepComponent,
-  ],
+  imports: [CommonModule, ReactiveFormsModule, ZardSharedModule, SimpleStepComponent],
 })
 export class NoteEarTrainingComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
@@ -40,9 +29,7 @@ export class NoteEarTrainingComponent implements OnInit, OnDestroy {
   private readonly intervalStep = 5000;
   private currentIntervalId: any;
   private filteredBassNotes = this.getNotes();
-  private currentAudio: HTMLAudioElement = new Audio(
-    this.filteredBassNotes[0].src
-  );
+  private currentAudio: HTMLAudioElement = new Audio(this.filteredBassNotes[0].src);
 
   ngOnInit(): void {
     this.buildForm();
@@ -59,9 +46,7 @@ export class NoteEarTrainingComponent implements OnInit, OnDestroy {
 
     this.currentStep.set(this.currentStep() + 1);
 
-    this.currentAudio = new Audio(
-      this.filteredBassNotes[this.currentStep() - 1].src
-    );
+    this.currentAudio = new Audio(this.filteredBassNotes[this.currentStep() - 1].src);
     this.playCurrentAudio();
     this.restartCountdown();
     this.startCountdown();
@@ -73,9 +58,7 @@ export class NoteEarTrainingComponent implements OnInit, OnDestroy {
 
     this.currentStep.set(this.currentStep() - 1);
 
-    this.currentAudio = new Audio(
-      this.filteredBassNotes[this.currentStep() - 1].src
-    );
+    this.currentAudio = new Audio(this.filteredBassNotes[this.currentStep() - 1].src);
     this.playCurrentAudio();
     this.restartCountdown();
     this.startCountdown();
@@ -159,9 +142,7 @@ export class NoteEarTrainingComponent implements OnInit, OnDestroy {
           .toString()
           .padStart(2, '0');
 
-        const seconds = Math.floor(
-          (this.limitTimeMilliseconds % minuteTime) / secondTime
-        )
+        const seconds = Math.floor((this.limitTimeMilliseconds % minuteTime) / secondTime)
           .toString()
           .padStart(2, '0');
         this.timerValue.set(`${minutes}:${seconds}`);

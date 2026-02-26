@@ -2,8 +2,9 @@ import { TextFormatDirective } from 'src/app/widgets/directives/text-format/text
 
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
 import { RouterModule } from '@angular/router';
+
+import { ZardSharedModule } from '../../../../shared/modules/zard-shared.module';
 
 interface Song {
   songId: string;
@@ -14,7 +15,7 @@ interface Song {
   templateUrl: './songs.page.html',
   styleUrls: ['./songs.page.scss'],
   standalone: true,
-  imports: [CommonModule, TextFormatDirective, MatCardModule, RouterModule],
+  imports: [CommonModule, TextFormatDirective, ZardSharedModule, RouterModule],
 })
 export class SongsPage {
   songs: Song[] = [

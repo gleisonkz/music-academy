@@ -1,21 +1,52 @@
 @import 'medias';
 @import 'mixins';
 
-.mat-toolbar {
-  .toolbar-button {
-    background-color: transparent;
-    color: inherit;
-    cursor: pointer;
+.music-academy-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  height: 100%;
+  overflow: hidden;
+}
+
+.toolbar-header {
+  gap: 1.5rem;
+}
+
+.toolbar-title {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  font-size: 1.25rem;
+  font-weight: 500;
+  text-align: left;
+
+  &:hover {
+    opacity: 0.9;
   }
 }
 
-.mat-drawer-container {
-  height: calc(100vh - 64px);
-  @include less-than('mobile') {
-    height: calc(100vh - 56px);
-  }
+.drawer-container {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
 
-  .mat-drawer-content {
-    background-color: var(--background-contrast-color);
-  }
+.drawer-content {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-content-inner {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 1.5rem;
 }

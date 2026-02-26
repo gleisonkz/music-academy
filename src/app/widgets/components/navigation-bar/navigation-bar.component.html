@@ -1,15 +1,15 @@
 @for (menu of menus(); track menu.title) {
-<mat-nav-list>
-  <a
-    mat-list-item
-    [routerLink]="[menu.link]"
-    routerLinkActive="active"
-    (click)="menuChange.emit(menu)"
-  >
-    <div class="content flex row-start gap-4">
-      <mat-icon mat-list-icon>{{ menu.icon }}</mat-icon>
-      <span class="list-name" mat-line>{{ menu.title }}</span>
-    </div>
-  </a>
-</mat-nav-list>
+  <nav class="nav-list">
+    <a
+      class="nav-item"
+      [routerLink]="[menu.link]"
+      routerLinkActive="active"
+      (click)="menuChange.emit(menu)"
+    >
+      <div class="content flex row-start gap-4">
+        <span class="material-icons nav-icon" [attr.aria-hidden]="true">{{ menu.icon }}</span>
+        <span class="list-name">{{ menu.title }}</span>
+      </div>
+    </a>
+  </nav>
 }

@@ -1,67 +1,113 @@
-<div class="container">
-  <mat-tab-group>
-    <mat-tab label="Estudar">
-      <div class="mt-20">
-        <h1>Perguntas e Respostas Ensaio Backs Sara Sede Interior</h1>
-        <p>Total de perguntas: {{ questions.length }}</p>
+<div class="quiz-page">
+  <!-- Tabs no topo: barra fixa acima do conteúdo -->
+  <nav class="quiz-tabs" role="tablist">
+    <button
+      type="button"
+      role="tab"
+      class="quiz-tab"
+      [class.active]="activeTab() === 'estudar'"
+      (click)="activeTab.set('estudar')"
+      aria-selected="{{ activeTab() === 'estudar' }}"
+    >
+      Estudar
+    </button>
+    <button
+      type="button"
+      role="tab"
+      class="quiz-tab"
+      [class.active]="activeTab() === 'praticar'"
+      (click)="activeTab.set('praticar')"
+      aria-selected="{{ activeTab() === 'praticar' }}"
+    >
+      Praticar
+    </button>
+  </nav>
 
-        <div class="cards-container grid gap-20 sm:grid-cols-2 mt-15">
-          <mat-card *ngFor="let question of questions; ">
-            <mat-card-header>
-              <mat-card-title><h2>{{ question.question }}</h2></mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-              <p>{{ question.answer }}</p>
-            </mat-card-content>
-          </mat-card>
+  <!-- Conteúdo abaixo das tabs -->
+  @if (activeTab() === 'estudar') {
+    <div class="quiz-section estudar-section">
+      <header class="quiz-header">
+        <h1 class="quiz-title">Perguntas e Respostas</h1>
+        <p class="quiz-subtitle text-muted-foreground">
+          Ensaio Backs — Sara Sede Interior
+        </p>
+        <div class="quiz-badge">
+          <span class="quiz-badge-value">{{ questions.length }}</span>
+          <span class="quiz-badge-label">perguntas</span>
         </div>
+      </header>
+
+      <div class="cards-grid">
+        @for (question of questions; track question.question) {
+          <z-card class="quiz-card" [zTitle]="question.question">
+            <p class="quiz-card-answer">{{ question.answer }}</p>
+          </z-card>
+        }
       </div>
-    </mat-tab>
+    </div>
+  }
 
-    <mat-tab label="Praticar">
-      <div class="flip-container">
-        <!-- Exibe o progresso: Pergunta X/Y -->
-        <h2>Progresso: {{ progress() }}</h2>
+  @if (activeTab() === 'praticar') {
+    <div class="quiz-section praticar-section">
+      @if (!isQuizOver()) {
+        <header class="quiz-practice-header">
+          <div class="quiz-progress-badge">
+            <span class="quiz-progress-value">{{ progress() }}</span>
+            <span class="quiz-progress-label">progresso</span>
+          </div>
+          <p class="quiz-instruction text-muted-foreground">
+            Clique no card para ver a resposta. Depois, indique se acertou ou errou.
+          </p>
+        </header>
 
-        <p class="mb-10">Clique no card para visualizar a resposta.</p>
+        <div class="flip-card-wrapper">
+          @for (question of randomizedQuestions(); track question.question; let i = $index) {
+            @if (currentQuestionIndex() === i) {
+              <ma-flip-card
+                [question]="question.question"
+                [answer]="question.answer"
+              />
+            }
+          }
+        </div>
 
-        @for (question of randomizedQuestions(); track question.question; let i
-        = $index) { @if (!isQuizOver() && currentQuestionIndex() === i) {
-        <ma-flip-card [question]="question.question" [answer]="question.answer">
-        </ma-flip-card>
-        } }
-
-        <!-- Controles para resposta correta ou errada -->
-        @if (!isQuizOver()) {
-        <div class="controls">
-          <button mat-raised-button color="warn" (click)="nextQuestion(false)">
+        <div class="quiz-actions">
+          <button
+            z-button
+            zType="destructive"
+            zSize="lg"
+            (click)="nextQuestion(false)"
+          >
             Errei
           </button>
           <button
-            mat-raised-button
-            color="primary"
+            z-button
+            zType="default"
+            zSize="lg"
             (click)="nextQuestion(true)"
           >
             Acertei
           </button>
         </div>
-        }
-
-        <!-- Mensagem de finalização do quiz -->
-        @if (isQuizOver()) {
-        <p>
-          Quiz finalizado! Você acertou {{ correctAnswers() }} de {{
-          randomizedQuestions().length }} perguntas.
-        </p>
-        }
-
-        <!-- Botão para reiniciar o quiz -->
-        <div class="reset-btn">
-          <button mat-raised-button color="accent" (click)="resetQuiz()">
-            Reiniciar Quiz
-          </button>
+      } @else {
+        <div class="quiz-result">
+          <z-card class="quiz-result-card">
+            <h2 class="quiz-result-title">Quiz finalizado!</h2>
+            <p class="quiz-result-score">
+              Você acertou
+              <strong class="text-primary">{{ correctAnswers() }}</strong>
+              de
+              <strong>{{ randomizedQuestions().length }}</strong>
+              perguntas.
+            </p>
+            <div class="quiz-result-actions">
+              <button z-button zType="secondary" zSize="lg" (click)="resetQuiz()">
+                Reiniciar Quiz
+              </button>
+            </div>
+          </z-card>
         </div>
-      </div>
-    </mat-tab>
-  </mat-tab-group>
+      }
+    </div>
+  }
 </div>

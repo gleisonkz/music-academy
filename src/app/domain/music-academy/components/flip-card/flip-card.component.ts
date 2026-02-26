@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, input, OnInit, signal } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
+
+import { ZardCardComponent } from '../../../../ui/components/card/card.component';
 
 @Component({
   selector: 'ma-flip-card',
   standalone: true,
-  imports: [CommonModule, MatCardModule],
+  imports: [CommonModule, ZardCardComponent],
   templateUrl: './flip-card.component.html',
   styleUrl: './flip-card.component.scss',
 })

@@ -2,9 +2,11 @@
   <button
     class="player-sidebar-button"
     (click)="isPlayerSidebarOpen.set(!isPlayerSidebarOpen())"
-    mat-mini-fab
+    z-button
+    zType="ghost"
+    zSize="sm"
   >
-    <mat-icon>{{ isPlayerSidebarOpen() ? 'menu_open' : 'menu' }}</mat-icon>
+    <span>{{ isPlayerSidebarOpen() ? '☰' : '☰' }}</span>
   </button>
 
   <div class="player-sidebar" [class.closed]="!isPlayerSidebarOpen()">

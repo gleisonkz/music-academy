@@ -22,22 +22,6 @@
           {
             "suffixes": ["Page", "Component", "Dialog", "Widget"]
           }
-        ],
-        "@angular-eslint/directive-selector": [
-          "error",
-          {
-            "type": "attribute",
-            "prefix": "ma",
-            "style": "camelCase"
-          }
-        ],
-        "@angular-eslint/component-selector": [
-          "error",
-          {
-            "type": "element",
-            "prefix": "ma",
-            "style": "kebab-case"
-          }
         ]
       }
     },
