@@ -1,0 +1,168 @@
+.recording-page {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+.recording-title {
+  font-family: 'DynaPuff', system-ui;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--foreground, #f3f4f6);
+  margin: 0 0 0.5rem 0;
+}
+
+.recording-subtitle {
+  color: var(--foreground);
+  opacity: 0.9;
+  font-size: 0.9375rem;
+  margin: 0 0 2.25rem 0;
+  line-height: 1.5;
+}
+
+.dropzone {
+  position: relative;
+  border: 2px dashed rgba(255, 255, 255, 0.25);
+  border-radius: 0.75rem;
+  padding: 3rem 2rem;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.03);
+  transition: border-color 0.2s, background 0.2s;
+
+  &.dragging {
+    border-color: var(--primary-color, #00fbfb);
+    background: rgba(0, 251, 251, 0.08);
+  }
+}
+
+.dropzone-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.dropzone-icon {
+  font-size: 3rem;
+  color: var(--primary-color, #00fbfb);
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.dropzone-text {
+  font-size: 1rem;
+  color: var(--foreground);
+  margin: 0 0 0.25rem 0;
+}
+
+.dropzone-hint {
+  font-size: 0.8125rem;
+  color: var(--foreground);
+  opacity: 0.7;
+  margin: 0;
+}
+
+.recording-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  padding: 1.75rem 1.5rem;
+}
+
+.section-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin: 0 0 0.75rem 0;
+}
+
+.section-hint {
+  font-size: 0.875rem;
+  color: var(--foreground);
+  opacity: 0.8;
+  margin: 0 0 1.25rem 0;
+  line-height: 1.45;
+}
+
+.file-name {
+  font-size: 0.875rem;
+  color: var(--foreground);
+  opacity: 0.9;
+  margin: 0 0 1rem 0;
+}
+
+.backing-section,
+.record-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.backing-audio,
+.recorded-audio {
+  width: 100%;
+  margin: 0.75rem 0 0 0;
+}
+
+.backing-actions {
+  margin-top: 1rem;
+}
+
+.record-section {
+  padding-top: 0;
+}
+
+.recording-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--primary-color);
+  margin-bottom: 1.25rem;
+}
+
+.recording-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.result-section {
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.result-section .section-label {
+  margin-bottom: 0.75rem;
+}
+
+.result-section .recorded-audio {
+  margin: 0 0 1rem 0;
+}
+
+.result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}

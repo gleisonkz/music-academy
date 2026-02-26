@@ -16,7 +16,7 @@ export const MUSIC_ACADEMY_ROUTES: Route[] = [
       },
       {
         path: 'note-ear-training',
-        loadComponent: async () => (await import('./pages/note-ear-training/note-ear-training.component')).NoteEarTrainingComponent,
+        loadComponent: async () =>  (await import('./pages/note-ear-training/note-ear-training.component')).NoteEarTrainingComponent,
       },
       {
         path: 'perfect-ear',
@@ -33,6 +33,10 @@ export const MUSIC_ACADEMY_ROUTES: Route[] = [
       {
         path: 'quizz',
         loadComponent: async () => (await import('./pages/quizz/quizz.page')).QuizzPage,
+      },
+      {
+        path: 'recording',
+        loadComponent: async () => (await import('./pages/recording')).RecordingPage,
       },
       {
         path: 'backing-practice',

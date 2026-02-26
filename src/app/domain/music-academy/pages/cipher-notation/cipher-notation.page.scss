@@ -1,5 +1,17 @@
 .game-container {
   text-align: center;
+  color: var(--foreground, #f3f4f6);
+}
+
+.game-container > p {
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 1rem;
+}
+
+.game-container .options + p {
+  margin-top: 1rem;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 button {
@@ -8,21 +20,25 @@ button {
   cursor: pointer;
 }
 
-p {
-  margin-top: 10px;
-}
-
 .cipher {
-  // deixa destacado e bonito
   font-size: 40px;
   font-weight: bold;
   text-transform: uppercase;
   text-align: center;
-  color: #fff;
+  color: var(--foreground, #fff);
+  margin: 1rem 0;
 }
 
 .options {
   display: flex;
   justify-content: center;
   margin-top: 20px;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+// Garantir contraste nos botões de opção (z-button outline)
+.options button {
+  color: var(--card-foreground, #f3f4f6);
+  border-color: rgba(255, 255, 255, 0.25);
 }

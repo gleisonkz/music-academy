@@ -36,6 +36,17 @@
   width: 100%;
 }
 
+// Quando o drawer está aberto (desktop), empurrar header e conteúdo para não ficar atrás da sidebar
+.music-academy-container.drawer-open {
+  .toolbar-header {
+    margin-left: 250px;
+  }
+
+  .drawer-content {
+    margin-left: 250px;
+  }
+}
+
 .drawer-content {
   flex: 1;
   min-width: 0;

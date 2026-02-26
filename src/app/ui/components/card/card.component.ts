@@ -16,7 +16,7 @@ import { cardBodyVariants, cardHeaderVariants, cardVariants } from './card.varia
   template: `
     @if (zTitle()) {
     <div [class]="headerClasses()">
-      <div class="text-2xl font-semibold leading-none tracking-tight">
+      <div class="text-lg font-semibold leading-snug tracking-tight text-card-foreground">
         <ng-container *zStringTemplateOutlet="zTitle()">{{ zTitle() }}</ng-container>
       </div>
 

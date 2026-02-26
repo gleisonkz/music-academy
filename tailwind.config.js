@@ -257,7 +257,7 @@ module.exports = {
         },
         muted: {
           DEFAULT: '#2b3030',
-          foreground: '#9ca3af',
+          foreground: '#d1d5db',
         },
         accent: {
           DEFAULT: '#ffb787',

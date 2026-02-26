@@ -1,0 +1,97 @@
+<div class="recording-page">
+  <h1 class="recording-title">Gravação</h1>
+  <p class="recording-subtitle">
+    Envie um áudio de apoio (backing track), dê play e grave sua voz ou instrumento pelo microfone.
+  </p>
+
+  @if (!hasBackingTrack()) {
+    <div
+      class="dropzone"
+      [class.dragging]="isDragging()"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+    >
+      <input
+        type="file"
+        [accept]="acceptTypes"
+        class="dropzone-input"
+        (change)="onFileSelect($event)"
+      />
+      <span class="dropzone-icon material-icons">upload_file</span>
+      <p class="dropzone-text">Arraste um arquivo de áudio aqui ou clique para escolher</p>
+      <p class="dropzone-hint">MP3, WAV, OGG, M4A, AAC</p>
+    </div>
+  } @else {
+    <z-card class="recording-card">
+      <div class="backing-section">
+        <div class="justify-between ">
+         <div>
+          <h2 class="section-label">Áudio de apoio</h2>
+          <p class="file-name">{{ fileName() }}</p>
+         </div>
+
+        <div class="backing-actions">
+          <button z-button zType="outline" zSize="sm" (click)="removeBackingTrack()" type="button">
+            Trocar arquivo
+          </button>
+        </div>
+        </div>
+
+        <ma-track-audio-player
+          #backingPlayer
+          [src]="backingAudioUrl()"
+          class="backing-audio"
+        />
+      
+      </div>
+
+      <div class="record-section mt-20">
+        <h2 class="section-label">Gravar com o microfone</h2>
+        <p class="section-hint">O áudio de apoio será reproduzido ao iniciar a gravação.</p>
+        @if (!isRecording()) {
+          <button
+            z-button
+            zType="default"
+            zSize="lg"
+            (click)="startRecording()"
+            type="button"
+          >
+            Iniciar gravação
+          </button>
+        } @else {
+          <div class="recording-status">
+            <span class="recording-dot"></span>
+            Gravando...
+          </div>
+          <button
+            z-button
+            zType="destructive"
+            zSize="lg"
+            (click)="stopRecording()"
+            type="button"
+          >
+            Parar gravação
+          </button>
+        }
+      </div>
+
+      @if (hasRecording()) {
+        <div class="result-section">
+          <h2 class="section-label">Sua gravação</h2>
+          <ma-track-audio-player
+            [src]="recordedUrl()"
+            [durationSeconds]="recordedDurationSeconds()"
+            class="recorded-audio"
+          />
+          <div class="result-actions">
+            <button z-button zType="default" (click)="downloadRecording()" type="button">
+              Download
+            </button>
+          
+          </div>
+        </div>
+      }
+    </z-card>
+  }
+</div>

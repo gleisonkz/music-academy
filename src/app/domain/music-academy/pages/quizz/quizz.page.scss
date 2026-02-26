@@ -111,7 +111,7 @@
   margin: 0;
   font-size: 0.9375rem;
   line-height: 1.6;
-  color: var(--card-foreground, #f3f4f6);
+  color: rgba(0, 251, 251, 0.92);
 }
 
 // ---- Praticar tab ----
@@ -125,7 +125,7 @@
   flex-direction: column;
   align-items: center;
   min-width: 4rem;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.25rem;
   background: var(--background-contrast-color, #2b3030);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.5rem;
@@ -165,12 +165,25 @@
     height: 240px;
   }
 
-  ::ng-deep .card-front p,
-  ::ng-deep .card-back p {
+  ::ng-deep .card-front z-card,
+  ::ng-deep .card-back z-card {
+    padding: 2.25rem 2rem;
+  }
+
+  ::ng-deep .card-front p {
     font-size: 0.9375rem;
-    line-height: 1.5;
+    line-height: 1.6;
     color: var(--card-foreground);
     margin: 0;
+    padding-top: 0.25rem;
+  }
+
+  ::ng-deep .card-back p {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: rgba(0, 251, 251, 0.92);
+    margin: 0;
+    padding-top: 0.25rem;
   }
 }
 

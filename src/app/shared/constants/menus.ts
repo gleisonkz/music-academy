@@ -33,6 +33,11 @@ export const MENUS: Menu[] = [
     link: '/music-academy/backing-practice',
   },
   {
+    icon: 'mic',
+    title: 'Gravação',
+    link: '/music-academy/recording',
+  },
+  {
     icon: 'quiz',
     title: 'Quizz',
     link: '/music-academy/quizz',

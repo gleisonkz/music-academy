@@ -1,0 +1,56 @@
+@if (src()) {
+  <div class="track-audio-player">
+    <audio
+      #audio
+      [src]="src()!"
+      (timeupdate)="onTimeUpdate()"
+      (loadedmetadata)="onLoadedMetadata()"
+      (durationchange)="onDurationChange()"
+      (play)="onPlay()"
+      (pause)="onPause()"
+      (ended)="onPause()"
+    ></audio>
+
+    <button
+      type="button"
+      class="player-btn play-pause"
+      (click)="togglePlay()"
+      [attr.aria-label]="isPlaying() ? 'Pausar' : 'Reproduzir'"
+    >
+      @if (isPlaying()) {
+        <span class="material-icons">pause</span>
+      } @else {
+        <span class="material-icons">play_arrow</span>
+      }
+    </button>
+
+    <span class="time-display">{{ currentFormatted() }} / {{ durationFormatted() }}</span>
+
+    <div class="progress-wrap">
+      <input
+        type="range"
+        class="progress-range"
+        min="0"
+        max="100"
+        step="0.1"
+        [value]="progressPercent()"
+        (input)="onSeek($event)"
+        aria-label="Posição do áudio"
+      />
+    </div>
+
+    <div class="volume-wrap">
+      <span class="material-icons volume-icon" aria-hidden="true">volume_up</span>
+      <input
+        type="range"
+        class="volume-range"
+        min="0"
+        max="1"
+        step="0.05"
+        [value]="volume()"
+        (input)="onVolumeChange($event)"
+        aria-label="Volume"
+      />
+    </div>
+  </div>
+}

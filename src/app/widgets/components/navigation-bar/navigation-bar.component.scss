@@ -1,6 +1,12 @@
+.content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .list-name {
-  height: 20px;
-  color: inherit;
+  line-height: 1.25;
+  color: var(--foreground, rgba(255, 255, 255, 0.95));
 }
 
 .active {
@@ -12,6 +18,10 @@
   }
 
   .nav-icon {
-    color: inherit;
+    color: var(--primary-color);
+  }
+
+  .list-name {
+    color: var(--primary-color);
   }
 }
