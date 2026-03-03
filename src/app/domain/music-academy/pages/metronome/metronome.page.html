@@ -1,230 +1,87 @@
 <div class="metronome-page">
   <h1 class="page-title">Metrônomo</h1>
 
-  <z-tab-group class="metronome-tabs" [zTabsPosition]="'top'" [zShowArrow]="false">
-    <z-tab label="Metrônomo">
-      <div class="pro-layout">
-        <div class="display-panel">
-          <div class="display-row">
-            <div class="display-item">
-              <span class="display-label">TEMPO</span>
-              <span class="display-value">{{ practiceCurrentBpm() }}</span>
-            </div>
-            <div class="display-item">
-              <span class="display-label">T.S.</span>
-              <span class="display-value">{{ timeSignature() }}/4</span>
-            </div>
-            <div class="display-item">
-              <span class="display-label">SUB DIV.</span>
-              <span class="display-value">{{ subdivision() === 'quarter' ? '1/4' : subdivision() === 'eighth' ? '1/8' : subdivision() === 'eighthTriplet' ? '1/8T' : '1/16' }}</span>
-            </div>
-          </div>
-          <div class="beat-visualizer">
-            @for (idx of getBeatIndices(); track idx) {
-              <div class="beat-bar" [class.active]="idx < currentBeat()"></div>
+  <div class="pro-layout">
+    <div class="display-panel">
+      <div class="display-row">
+        <div class="display-item">
+          <span class="display-label">TEMPO</span>
+          <button type="button" class="display-value display-value-btn" (click)="openBpmKeypad()" [attr.aria-label]="'Alterar BPM. Valor atual: ' + bpm()">
+            {{ bpm() }}
+          </button>
+        </div>
+        <div class="display-item">
+          <span class="display-label">T.S.</span>
+          <span class="display-value">{{ timeSignature() }}/4</span>
+        </div>
+        <div class="display-item">
+          <span class="display-label">SUB DIV.</span>
+          <span class="display-value">{{ subdivision() === 'quarter' ? '1/4' : subdivision() === 'eighth' ? '1/8' : subdivision() === 'eighthTriplet' ? '1/8T' : '1/16' }}</span>
+        </div>
+      </div>
+      <div class="beat-visualizer">
+        @for (idx of getBeatIndices(); track idx) {
+          <div class="beat-bar" [class.active]="idx < currentBeat()"></div>
+        }
+      </div>
+    </div>
+
+    <div class="control-panel">
+      <button type="button" class="btn-tempo" (click)="setBpmByDelta(-5)" aria-label="Diminuir BPM">−</button>
+      <button
+        type="button"
+        class="btn-play"
+        (click)="isPlaying() ? stopManualMetronome() : startMainMetronome()"
+        [attr.aria-label]="isPlaying() ? 'Parar' : 'Iniciar'"
+      >
+        <span class="material-icons">{{ isPlaying() ? 'pause' : 'play_arrow' }}</span>
+      </button>
+      <button type="button" class="btn-tempo" (click)="setBpmByDelta(5)" aria-label="Aumentar BPM">+</button>
+    </div>
+
+    <div class="bottom-controls">
+      <button z-button zType="outline" zSize="sm" type="button" (click)="cycleTimeSignature()">
+        {{ timeSignature() }}/4
+      </button>
+      <button z-button zType="outline" zSize="sm" type="button" (click)="soundEnabled.setValue(!soundEnabled.value)">
+        <span class="material-icons">{{ soundEnabled.value ? 'volume_up' : 'volume_off' }}</span>
+      </button>
+      <button z-button zType="outline" zSize="sm" type="button" (click)="tapTempo()">TAP</button>
+    </div>
+
+    <div class="extra-options">
+      <z-checkbox [formControl]="accentEnabled">Acento no 1º tempo</z-checkbox>
+      <z-checkbox [formControl]="soundEnabled">Som</z-checkbox>
+      <z-checkbox [formControl]="endingSoundEnabled">Som ao final</z-checkbox>
+      <div class="timer-field">
+        <label>Tempo (min)</label>
+        <input z-input type="number" [value]="timerDuration()" (input)="setTimeDuration($event)" min="1" />
+      </div>
+    </div>
+
+    @if (bpmKeypadOpen()) {
+      <dialog class="bpm-keypad-dialog" #bpmDialog (click)="onBpmDialogBackdropClick($event)" (cancel)="closeBpmKeypad()">
+        <div class="bpm-keypad-panel" (click)="$event.stopPropagation()">
+          <div class="bpm-keypad-display">{{ bpmKeypadInput() || '0' }}</div>
+          <div class="bpm-keypad-grid">
+            @for (d of keypadDigits; track d) {
+              <button type="button" class="bpm-keypad-key" (click)="keypadDigit(d)">{{ d }}</button>
             }
+            <button type="button" class="bpm-keypad-key bpm-keypad-key-c" (click)="keypadClear()">C</button>
+            <button type="button" class="bpm-keypad-key bpm-keypad-key-0" (click)="keypadDigit(0)">0</button>
+            <button type="button" class="bpm-keypad-key bpm-keypad-key-set" (click)="keypadSet()">SET</button>
           </div>
         </div>
+      </dialog>
+    }
 
-        <div class="control-panel">
-          <button type="button" class="btn-tempo" (click)="setBpmByDelta(-5)" aria-label="Diminuir BPM">−</button>
-          <button
-            type="button"
-            class="btn-play"
-            (click)="isPlaying() ? stopManualMetronome() : startMainMetronome()"
-            [attr.aria-label]="isPlaying() ? 'Parar' : 'Iniciar'"
-          >
-            <span class="material-icons">{{ isPlaying() ? 'pause' : 'play_arrow' }}</span>
-          </button>
-          <button type="button" class="btn-tempo" (click)="setBpmByDelta(5)" aria-label="Aumentar BPM">+</button>
-        </div>
-
-        <div class="bottom-controls">
-          <button z-button zType="outline" zSize="sm" type="button" (click)="cycleTimeSignature()">
-            {{ timeSignature() }}/4
-          </button>
-          <button z-button zType="outline" zSize="sm" type="button" (click)="soundEnabled.setValue(!soundEnabled.value)">
-            <span class="material-icons">{{ soundEnabled.value ? 'volume_up' : 'volume_off' }}</span>
-          </button>
-          <button z-button zType="outline" zSize="sm" type="button" (click)="tapTempo()">TAP</button>
-        </div>
-
-        <div class="extra-options">
-          <z-checkbox [formControl]="accentEnabled">Acento no 1º tempo</z-checkbox>
-          <z-checkbox [formControl]="soundEnabled">Som</z-checkbox>
-          <z-checkbox [formControl]="endingSoundEnabled">Som ao final</z-checkbox>
-          <div class="timer-field">
-            <label>Tempo (min)</label>
-            <input z-input type="number" [value]="timerDuration()" (input)="setTimeDuration($event)" min="1" />
-          </div>
-        </div>
-
-        @if (isPlaying()) {
-          <div class="status-info">
-            <span>{{ remainingTime() | remainingTime }} restantes</span>
-            <div class="progress-bar">
-              <div class="progress-fill" [style.width.%]="100 - (remainingTime() / (timerDuration() * 60)) * 100"></div>
-            </div>
-          </div>
-        }
-      </div>
-    </z-tab>
-
-    <z-tab label="Subdivisões">
-      <div class="subdivisions-panel">
-        <p class="section-desc">Ajuste compasso, nota base e acentos para estudar ritmos.</p>
-        <div class="sub-controls">
-          <div class="sub-group">
-            <span class="sub-label">Compasso</span>
-            <div class="sub-buttons">
-              <button z-button zType="outline" zSize="sm" (click)="setTimeSignatureDelta(-1)">−</button>
-              <span class="sub-value">{{ timeSignature() }}/4</span>
-              <button z-button zType="outline" zSize="sm" (click)="setTimeSignatureDelta(1)">+</button>
-            </div>
-          </div>
-          <div class="sub-group">
-            <span class="sub-label">Nota</span>
-            <div class="sub-buttons">
-              @for (opt of subdivisionOptions; track opt.value) {
-                <button
-                  z-button
-                  [zType]="subdivision() === opt.value ? 'default' : 'outline'"
-                  zSize="sm"
-                  (click)="setSubdivision(opt.value)"
-                >
-                  {{ opt.label }}
-                </button>
-              }
-            </div>
-          </div>
-        </div>
-        <div class="accent-row">
-          <span class="sub-label">Acento</span>
-          <div class="accent-beats">
-            @for (idx of getBeatIndices(); track idx) {
-              <button
-                type="button"
-                class="accent-dot"
-                [class.active]="accentBeat() === idx + 1"
-                (click)="setAccentBeat(idx + 1)"
-                [attr.aria-label]="'Acento no tempo ' + (idx + 1)"
-              >
-                <span class="material-icons">music_note</span>
-              </button>
-            }
-          </div>
+    @if (isPlaying()) {
+      <div class="status-info">
+        <span>{{ remainingTime() | remainingTime }} restantes</span>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="100 - (remainingTime() / (timerDuration() * 60)) * 100"></div>
         </div>
       </div>
-    </z-tab>
-
-    <z-tab label="Playlist">
-      <div class="playlist-panel">
-        <p class="section-desc">Crie e gerencie presets de BPM e compasso.</p>
-        <div class="playlist-toolbar">
-          <input
-            z-input
-            type="text"
-            placeholder="Nome do preset"
-            #presetName
-            class="preset-name-input"
-          />
-          <button z-button zType="default" zSize="sm" (click)="addPreset(presetName.value); presetName.value = ''">
-            Salvar atual
-          </button>
-        </div>
-        <ul class="playlist-list">
-          @for (p of playlist(); track p.id) {
-            <li class="playlist-item">
-              <button type="button" class="playlist-item-btn" (click)="loadPreset(p)">
-                <span class="preset-bpm">{{ p.bpm }}</span>
-                <span class="preset-ts">{{ p.timeSignature }}/4</span>
-                <span class="preset-name">{{ p.name }}</span>
-              </button>
-              <button type="button" class="btn-remove" (click)="removePreset(p.id)" aria-label="Remover">×</button>
-            </li>
-          }
-        </ul>
-        @if (playlist().length === 0) {
-          <p class="empty-msg">Nenhum preset. Ajuste BPM e compasso e clique em "Salvar atual".</p>
-        }
-      </div>
-    </z-tab>
-
-    <z-tab label="Modo Prática">
-      <div class="practice-panel">
-        <p class="section-desc">Warmup: toque em frações do tempo alvo. Automator: aumente o tempo aos poucos.</p>
-
-        <div class="practice-mode-tabs">
-          <button
-            z-button
-            [zType]="practiceMode() === 'warmup' ? 'default' : 'outline'"
-            zSize="sm"
-            (click)="practiceMode.set('warmup')"
-          >
-            Warmup
-          </button>
-          <button
-            z-button
-            [zType]="practiceMode() === 'automator' ? 'default' : 'outline'"
-            zSize="sm"
-            (click)="practiceMode.set('automator')"
-          >
-            Automator
-          </button>
-        </div>
-
-        @if (practiceMode() === 'warmup') {
-          <div class="practice-form">
-            <div class="form-field">
-              <label>Tempo alvo (BPM)</label>
-              <input z-input type="number" [value]="warmupTargetBpm()" (input)="warmupTargetBpm.set(+$any($event.target).value || 80)" min="40" max="300" />
-            </div>
-            <div class="warmup-steps">
-              @for (step of warmupSteps(); track $index; let i = $index) {
-                <div class="warmup-step">
-                  <span>{{ step.ratio }}x ({{ step.ratio * 100 }}%)</span>
-                  <input z-input type="number" [value]="step.durationMin" (input)="setWarmupStepDuration(i, +$any($event.target).value || 1)" min="1" /> min
-                </div>
-              }
-            </div>
-            <z-checkbox [formControl]="flashOnTempoChange">Piscar tela ao mudar tempo</z-checkbox>
-            <button z-button zType="default" zSize="lg" (click)="startPracticeWarmup()" [disabled]="isPlaying()">
-              Iniciar warmup
-            </button>
-          </div>
-        }
-
-        @if (practiceMode() === 'automator') {
-          <div class="practice-form">
-            <div class="form-row">
-              <div class="form-field">
-                <label>A cada</label>
-                <input z-input type="number" [value]="automatorEveryBars()" (input)="automatorEveryBars.set(+$any($event.target).value || 10)" min="1" />
-                <span>compassos</span>
-              </div>
-              <div class="form-field">
-                <label>Aumentar (BPM)</label>
-                <input z-input type="number" [value]="automatorIncreaseBpm()" (input)="automatorIncreaseBpm.set(+$any($event.target).value || 10)" min="1" />
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-field">
-                <label>BPM inicial</label>
-                <input z-input type="number" [value]="automatorStartBpm()" (input)="automatorStartBpm.set(+$any($event.target).value || 90)" min="30" />
-              </div>
-              <div class="form-field">
-                <label>BPM máximo</label>
-                <input z-input type="number" [value]="automatorMaxBpm()" (input)="automatorMaxBpm.set(+$any($event.target).value || 180)" min="30" />
-              </div>
-            </div>
-            <p class="practice-hint">Aprox. {{ getAutomatorEstimatedMin() | number:'1.0-0' }} min até {{ automatorMaxBpm() }} BPM.</p>
-            <z-checkbox [formControl]="flashOnTempoChange">Piscar tela ao mudar tempo</z-checkbox>
-            <button z-button zType="default" zSize="lg" (click)="startPracticeAutomator()" [disabled]="isPlaying()">
-              Iniciar automator
-            </button>
-          </div>
-        }
-      </div>
-    </z-tab>
-  </z-tab-group>
+    }
+  </div>
 </div>
