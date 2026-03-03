@@ -48,12 +48,25 @@
             </button>
           }
         </nav>
+        @if (isFirstLevel()) {
+          <div class="search-wrap">
+            <span class="material-icons search-icon" aria-hidden="true">search</span>
+            <input
+              type="search"
+              class="search-input"
+              placeholder="Filtrar pastas e arquivos..."
+              [value]="searchFilter()"
+              (input)="searchFilter.set($any($event.target).value)"
+              aria-label="Filtrar lista"
+            />
+          </div>
+        }
         <h2 class="list-title">Conteúdo da pasta</h2>
         @if (isLoading()) {
           <p class="loading-msg">Carregando...</p>
         } @else {
           <ul class="items-list">
-            @for (item of currentItems(); track item.id) {
+            @for (item of filteredItems(); track item.id) {
               <li>
                 @if (isDriveFolder(item)) {
                   <button
@@ -95,8 +108,10 @@
               </li>
             }
           </ul>
-          @if (currentItems().length === 0) {
-            <p class="empty-msg">Nenhum arquivo ou pasta nesta pasta.</p>
+          @if (filteredItems().length === 0) {
+            <p class="empty-msg">
+              {{ searchFilter().trim() ? 'Nenhum resultado para "' + searchFilter().trim() + '".' : 'Nenhum arquivo ou pasta nesta pasta.' }}
+            </p>
           }
         }
       </div>

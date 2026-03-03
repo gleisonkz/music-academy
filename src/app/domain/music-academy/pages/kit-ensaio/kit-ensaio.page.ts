@@ -1,7 +1,7 @@
 import { ZardSharedModule } from 'src/app/shared/modules/zard-shared.module';
 
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
 /** Client ID do OAuth 2.0 (Google Cloud Console > APIs & Services > Credentials). */
@@ -51,6 +51,19 @@ export class KitEnsaioPage implements OnInit {
   readonly breadcrumb = signal<{ id: string; name: string }[]>([]);
   /** ID do arquivo sendo carregado para "Usar na gravação" (evita cliques duplos). */
   readonly loadingForRecording = signal<string | null>(null);
+  /** Filtro de pesquisa (só no primeiro nível). */
+  readonly searchFilter = signal('');
+
+  readonly isFirstLevel = computed(() => this.breadcrumb().length === 1);
+
+  /** Itens da pasta atual; no primeiro nível, filtrados pela pesquisa. */
+  readonly filteredItems = computed(() => {
+    const items = this.currentItems();
+    if (!this.isFirstLevel()) return items;
+    const q = (this.searchFilter() || '').trim().toLowerCase();
+    if (!q) return items;
+    return items.filter((item) => (item.name || '').toLowerCase().includes(q));
+  });
 
   private accessToken: string | null = null;
 
