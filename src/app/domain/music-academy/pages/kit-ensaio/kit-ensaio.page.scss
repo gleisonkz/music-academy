@@ -25,35 +25,6 @@
   padding: 1.75rem 1.5rem;
 }
 
-.access-card {
-  margin-bottom: 1.5rem;
-}
-
-.open-drive-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  background: var(--primary-color, #00fbfb);
-  color: var(--primary-contrast-color, #004f4f);
-  border-radius: 0.5rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: opacity 0.2s;
-
-  &:hover {
-    opacity: 0.9;
-  }
-
-  .material-icons {
-    font-size: 1.25rem;
-  }
-}
-
-.list-card {
-  margin-top: 0;
-}
-
 .section-label {
   font-size: 1rem;
   font-weight: 600;
@@ -78,58 +49,6 @@
     padding: 0.15rem 0.4rem;
     border-radius: 0.25rem;
     font-size: 0.8125rem;
-  }
-}
-
-.steps-list {
-  margin: 0.5rem 0 0 1.25rem;
-  padding: 0;
-  line-height: 1.7;
-  color: var(--foreground);
-  opacity: 0.9;
-
-  li {
-    margin-bottom: 0.5rem;
-  }
-}
-
-.connect-section {
-  margin-bottom: 1rem;
-}
-
-.connect-section button .material-icons {
-  margin-right: 0.5rem;
-  font-size: 1.25rem;
-  vertical-align: middle;
-}
-
-.list-section {
-  margin-bottom: 1.5rem;
-}
-
-.input-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
-
-.folder-input {
-  flex: 1;
-  min-width: 12rem;
-}
-
-.connected-hint {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  font-size: 0.8125rem;
-  color: var(--primary-color);
-  margin: 0;
-
-  .material-icons {
-    font-size: 1rem;
   }
 }
 
@@ -261,7 +180,6 @@
   }
 }
 
-/* Mobile: fonte menor para pastas/arquivos, botão só ícone */
 @media (max-width: 480px) {
   .items-list .item-link {
     font-size: 0.875rem;
@@ -324,27 +242,9 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
-/* Ícones por tipo de arquivo */
-.file-audio .material-icons {
-  color: #4ade80;
-}
-
-.file-video .material-icons {
-  color: #a78bfa;
-}
-
-.file-pdf .material-icons {
-  color: #f87171;
-}
-
-.file-text .material-icons {
-  color: #60a5fa;
-}
-
-.file-image .material-icons {
-  color: #60a5fa;
-}
-
-.file-default .material-icons {
-  color: rgba(255, 255, 255, 0.7);
-}
+.file-audio .material-icons { color: #4ade80; }
+.file-video .material-icons { color: #a78bfa; }
+.file-pdf .material-icons { color: #f87171; }
+.file-text .material-icons,
+.file-image .material-icons { color: #60a5fa; }
+.file-default .material-icons { color: rgba(255, 255, 255, 0.7); }
