@@ -215,3 +215,13 @@ h6 {
   height: 1rem;
   display: inline-block;
 }
+
+body.metronome-flash {
+  animation: metronome-flash 0.15s ease-out;
+}
+
+@keyframes metronome-flash {
+  to {
+    filter: brightness(1.4);
+  }
+}

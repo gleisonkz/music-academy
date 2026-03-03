@@ -1,74 +1,96 @@
-.metronome-container {
-  max-width: 600px;
-  margin: 20px auto;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+.metronome-page { max-width: 36rem; margin: 0 auto; padding: 1rem; }
+.page-title { font-size: 1.5rem; font-weight: 600; color: var(--foreground); margin: 0 0 1rem 0; }
+.metronome-tabs ::ng-deep .tab-group { overflow: visible; display: flex; flex-direction: column; }
+.metronome-tabs ::ng-deep .tab-group > div:first-child { width: 100%; }
+.metronome-tabs ::ng-deep nav { overflow: visible; padding: 0; gap: 0.5rem; flex-wrap: wrap; flex-direction: row; width: 100%; }
+.metronome-tabs ::ng-deep nav button { white-space: nowrap; flex-shrink: 0; border-bottom: 2px solid transparent; padding-bottom: 0.5rem; margin-bottom: -1px; }
+.metronome-tabs ::ng-deep nav button.border-b-2 { border-bottom-color: var(--primary-color, #00fbfb); }
+.pro-layout { display: flex; flex-direction: column; gap: 1.25rem; }
+.display-panel {
+  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
-
-.options {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
+.display-row { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; }
+.display-item { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
+.display-label { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--foreground); opacity: 0.8; }
+.display-value { font-size: 1.5rem; font-weight: 600; color: var(--primary-color, #00fbfb); }
+.beat-visualizer { display: flex; gap: 0.5rem; justify-content: center; }
+.beat-bar {
+  flex: 1; max-width: 3rem; height: 0.5rem; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15); transition: background 0.15s;
+  &.active { background: var(--primary-color, #00fbfb); }
 }
-
-.options .form-field {
-  flex: 1;
-  min-width: 0;
+.control-panel { display: flex; align-items: center; justify-content: center; gap: 1.5rem; }
+.btn-tempo {
+  width: 2.5rem; height: 2.5rem; border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.08);
+  color: var(--foreground); font-size: 1.25rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: background 0.2s;
+  &:hover { background: rgba(255, 255, 255, 0.15); }
 }
-
-.options .form-field label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: var(--foreground, #f3f4f6);
-  font-weight: 500;
+.btn-play {
+  width: 4rem; height: 4rem; border-radius: 50%; border: none;
+  background: var(--primary-color, #00fbfb); color: var(--primary-contrast-color, #0a0a0a);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 0 4px rgba(0, 251, 251, 0.2); transition: transform 0.15s, box-shadow 0.15s;
+  .material-icons { font-size: 2.25rem; }
+  &:hover { transform: scale(1.05); box-shadow: 0 0 0 6px rgba(0, 251, 251, 0.25); }
 }
-
-.options input[z-input],
-.options z-select {
-  min-width: 5rem;
+.bottom-controls { display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap; }
+.extra-options { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; font-size: 0.875rem; color: var(--foreground); opacity: 0.9; }
+.extra-options ::ng-deep z-checkbox span.flex { gap: 0.625rem; }
+.timer-field { display: flex; align-items: center; gap: 0.5rem; label { white-space: nowrap; } input { width: 4rem; } }
+.status-info { padding: 0.75rem; background: rgba(255, 255, 255, 0.05); border-radius: 0.5rem; font-size: 0.875rem; color: var(--foreground); }
+.progress-bar { height: 0.375rem; border-radius: 999px; background: rgba(255, 255, 255, 0.15); margin-top: 0.5rem; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--primary-color); border-radius: 999px; transition: width 1s linear; }
+.subdivisions-panel, .playlist-panel, .practice-panel { padding: 0.5rem 0; }
+.section-desc { font-size: 0.875rem; color: var(--foreground); opacity: 0.85; margin: 0 0 1rem 0; line-height: 1.5; }
+.sub-controls { display: flex; flex-wrap: wrap; gap: 1.25rem; margin-bottom: 1.25rem; }
+.sub-group { display: flex; flex-direction: column; gap: 0.5rem; }
+.sub-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--foreground); opacity: 0.8; }
+.sub-buttons { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.sub-value { font-size: 1rem; font-weight: 600; color: var(--foreground); min-width: 2.5rem; text-align: center; }
+.accent-row { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.accent-beats { display: flex; gap: 0.5rem; }
+.accent-dot {
+  width: 2.25rem; height: 2.25rem; border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.06);
+  color: var(--foreground); opacity: 0.5; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+  .material-icons { font-size: 1.125rem; }
+  &.active { background: var(--primary-color); color: var(--primary-contrast-color); opacity: 1; }
+  &:hover { opacity: 1; background: rgba(255, 255, 255, 0.12); }
 }
-
-.options input[z-input] {
-  min-height: 2.5rem;
-  padding: 0.5rem 1rem;
+.playlist-toolbar { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.preset-name-input { flex: 1; min-width: 10rem; }
+.playlist-list { list-style: none; margin: 0; padding: 0; }
+.playlist-item { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.playlist-item-btn {
+  flex: 1; display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem; color: var(--foreground); text-align: left; cursor: pointer; transition: background 0.2s;
+  &:hover { background: rgba(255, 255, 255, 0.1); }
 }
-
-.button-group {
-  display: flex;
-  justify-content: space-between;
+.preset-bpm { font-size: 1.25rem; font-weight: 600; color: var(--primary-color); min-width: 2.5rem; }
+.preset-ts { font-size: 0.8125rem; opacity: 0.85; }
+.preset-name { flex: 1; font-size: 0.9375rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.btn-remove {
+  width: 2rem; height: 2rem; border: none; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08); color: var(--foreground); font-size: 1.25rem; line-height: 1; cursor: pointer; opacity: 0.8;
+  &:hover { background: rgba(248, 113, 113, 0.3); color: #f87171; }
 }
-
-.status-info {
-  margin-top: 20px;
+.empty-msg { font-size: 0.875rem; color: var(--foreground); opacity: 0.7; margin: 1rem 0 0 0; }
+.practice-mode-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+.practice-form { display: flex; flex-direction: column; gap: 1rem; }
+.form-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.form-field {
+  display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;
+  label { font-size: 0.8125rem; color: var(--foreground); opacity: 0.9; }
+  input { max-width: 6rem; }
+  span { font-size: 0.875rem; color: var(--foreground); opacity: 0.8; }
 }
-
-.beat-display {
-  display: flex;
-  justify-content: space-around;
-  margin: 10px 0;
-}
-
-.active-beat mat-icon {
-  color: #4caf50; /* Cor para batidas ativas */
-}
-
-mat-icon {
-  color: #e0e0e0; /* Cor padrão para batidas inativas */
-}
-
-.metronome-icon {
-  background: url('src/assets/images/metronome-icon.jpg') no-repeat center center;
-  background-size: cover;
-}
-
-mat-card-title {
-  font-size: 1.5em;
-  font-weight: bold;
-}
-
-mat-card-subtitle {
-  color: rgba(124, 219, 124, 0.829);
-}
+.warmup-steps { display: flex; flex-direction: column; gap: 0.5rem; }
+.warmup-step { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: var(--foreground); input { width: 4rem; } }
+.practice-hint { font-size: 0.8125rem; color: var(--foreground); opacity: 0.75; margin: 0; }
