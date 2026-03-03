@@ -10,8 +10,15 @@ import {
   viewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 import { TrackAudioPlayerComponent } from '../../components/track-audio-player/track-audio-player.component';
+
+/** State opcional ao navegar do Kit Ensaio com um áudio já escolhido. */
+export interface RecordingState {
+  backingAudioUrl?: string;
+  fileName?: string;
+}
 
 @Component({
   selector: 'app-recording-page',
@@ -24,6 +31,15 @@ export class RecordingPage {
   private readonly backingPlayerRef = viewChild<TrackAudioPlayerComponent>('backingPlayer');
   private readonly ngZone = inject(NgZone);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly router = inject(Router);
+
+  constructor() {
+    const state = this.router.getCurrentNavigation()?.extras?.state as RecordingState | undefined;
+    if (state?.backingAudioUrl) {
+      this.backingAudioUrl.set(state.backingAudioUrl);
+      this.fileName.set(state.fileName ?? 'Áudio do Kit Ensaio');
+    }
+  }
 
   /** Arquivo de áudio enviado (backing track) */
   audioFile = signal<File | null>(null);

@@ -38,6 +38,11 @@ export const MENUS: Menu[] = [
     link: '/music-academy/recording',
   },
   {
+    icon: 'folder',
+    title: 'Kit Ensaio',
+    link: '/music-academy/kit-ensaio',
+  },
+  {
     icon: 'quiz',
     title: 'Quizz',
     link: '/music-academy/quizz',

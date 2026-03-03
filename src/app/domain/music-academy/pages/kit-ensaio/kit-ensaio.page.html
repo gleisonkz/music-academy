@@ -1,0 +1,105 @@
+<div class="kit-ensaio-page">
+  <h1 class="page-title">Kit Ensaio</h1>
+  <p class="page-subtitle">
+    Pasta do Google Drive com o material de ensaio. A conexão é feita automaticamente e o login é lembrado por cerca de 1 hora.
+  </p>
+
+  @if (!hasClientId) {
+    <z-card class="main-card setup-card">
+      <h2 class="section-label">Configuração necessária</h2>
+      <p class="section-hint">
+        Crie um projeto no
+        <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud Console</a>,
+        ative a API do Google Drive e crie um Client ID (OAuth 2.0, tipo "Aplicativo da Web"). Cole o Client ID em <code>kit-ensaio.page.ts</code> (const <code>GOOGLE_CLIENT_ID</code>).
+      </p>
+    </z-card>
+  } @else {
+    @if (!isConnected() && isConnecting()) {
+      <p class="status-msg">
+        <span class="material-icons spin">sync</span>
+        Conectando ao Google…
+      </p>
+    }
+
+    @if (error()) {
+      <div class="error-block">
+        <p class="error-msg">{{ error() }}</p>
+        @if (!isConnected()) {
+          <button z-button zType="default" (click)="tryConnectGoogle()" type="button">
+            Tentar novamente
+          </button>
+        }
+      </div>
+    }
+
+    @if (breadcrumb().length > 0) {
+      <div class="drive-browser">
+        <nav class="breadcrumb" aria-label="Navegação da pasta">
+          @for (crumb of breadcrumb(); track crumb.id; let i = $index) {
+            @if (i > 0) {
+              <span class="breadcrumb-sep" aria-hidden="true">/</span>
+            }
+            <button
+              type="button"
+              class="breadcrumb-link"
+              (click)="navigateTo(i)"
+            >
+              {{ crumb.name }}
+            </button>
+          }
+        </nav>
+        <h2 class="list-title">Conteúdo da pasta</h2>
+        @if (isLoading()) {
+          <p class="loading-msg">Carregando...</p>
+        } @else {
+          <ul class="items-list">
+            @for (item of currentItems(); track item.id) {
+              <li>
+                @if (isDriveFolder(item)) {
+                  <button
+                    type="button"
+                    class="item-link folder-link"
+                    (click)="openFolder(item)"
+                  >
+                    <span class="material-icons">folder</span>
+                    {{ item.name }}
+                  </button>
+                } @else {
+                  <div class="file-row">
+                    <a [href]="item.webViewLink" target="_blank" rel="noopener" class="item-link file-link" [class]="'item-link file-link ' + getFileIconClass(item)">
+                      <span class="material-icons file-row-icon" aria-hidden="true">{{ getFileIcon(item) }}</span>
+                      <span class="file-row-name">{{ item.name }}</span>
+                    </a>
+                    @if (isAudioItem(item)) {
+                      <button
+                        type="button"
+                        z-button
+                        zType="outline"
+                        zSize="sm"
+                        class="use-in-recording-btn"
+                        [attr.title]="loadingForRecording() === item.id ? 'Carregando…' : 'Usar na gravação'"
+                        [disabled]="loadingForRecording() !== null"
+                        (click)="useInRecording(item); $event.preventDefault(); $event.stopPropagation()"
+                      >
+                        @if (loadingForRecording() === item.id) {
+                          <span class="material-icons spin">sync</span>
+                          <span class="use-in-recording-label">Carregando…</span>
+                        } @else {
+                          <span class="material-icons">mic</span>
+                          <span class="use-in-recording-label">Usar na gravação</span>
+                        }
+                      </button>
+                    }
+                  </div>
+                }
+              </li>
+            }
+          </ul>
+          @if (currentItems().length === 0) {
+            <p class="empty-msg">Nenhum arquivo ou pasta nesta pasta.</p>
+          }
+        }
+      </div>
+    }
+  }
+</div>

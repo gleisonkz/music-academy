@@ -1,7 +1,8 @@
-import { FrequencyService } from 'src/app/domain/music-academy/services/frequency/frequency.service';
+import {
+    FrequencyService
+} from 'src/app/domain/music-academy/services/frequency/frequency.service';
 import { ZardSharedModule } from 'src/app/shared/modules/zard-shared.module';
 
-import { NgIf } from '@angular/common';
 import { Component } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 
@@ -20,64 +21,66 @@ interface ExerciseResult {
 @Component({
   styleUrls: ['./perfect-ear.component.scss'],
   standalone: true,
-  imports: [NgIf, ZardSharedModule],
+  imports: [ZardSharedModule],
   template: `
     <div class="perfect-ear-container">
       <h2>Exercício de Afinação</h2>
 
       @if (!exerciseStarted) {
-      <div class="start-section">
-        <p>Este exercício mostrará 10 notas para você cantar em uníssono.</p>
-        <button mat-raised-button color="primary" (click)="startExercise()">Iniciar Exercício</button>
-      </div>
-      } @if (exerciseStarted && !exerciseCompleted) {
-      <div class="exercise-section">
-        <h3>Nota {{ currentNoteIndex + 1 }} de {{ totalNotes }}</h3>
-
-        <div class="current-note">
-          <p>
-            Cante a nota: <strong>{{ currentNote?.name }}</strong>
-          </p>
-          <button mat-stroked-button (click)="playCurrentNote()">Ouvir Nota</button>
+        <div class="start-section">
+          <p>Este exercício mostrará 10 notas para você cantar em uníssono.</p>
+          <button mat-raised-button color="primary" (click)="startExercise()">Iniciar Exercício</button>
         </div>
+      }
+      @if (exerciseStarted && !exerciseCompleted) {
+        <div class="exercise-section">
+          <h3>Nota {{ currentNoteIndex + 1 }} de {{ totalNotes }}</h3>
 
-        <div class="recording-section">
-          @if (!isRecording) {
-          <button mat-raised-button color="accent" (click)="startRecording()">Gravar Sua Voz</button>
-          } @else {
-          <button mat-raised-button color="warn" (click)="stopRecording()">Parar Gravação</button>
-          <div class="recording-indicator">Gravando... {{ recordedTime }}</div>
+          <div class="current-note">
+            <p>
+              Cante a nota: <strong>{{ currentNote?.name }}</strong>
+            </p>
+            <button mat-stroked-button (click)="playCurrentNote()">Ouvir Nota</button>
+          </div>
+
+          <div class="recording-section">
+            @if (!isRecording) {
+              <button mat-raised-button color="accent" (click)="startRecording()">Gravar Sua Voz</button>
+            } @else {
+              <button mat-raised-button color="warn" (click)="stopRecording()">Parar Gravação</button>
+              <div class="recording-indicator">Gravando... {{ recordedTime }}</div>
+            }
+          </div>
+
+          @if (!isRecording && audioBlob) {
+            <div class="playback-section">
+              <p>Sua Gravação:</p>
+              <audio controls>
+                <source [src]="audioBlob" type="audio/webm" />
+              </audio>
+              <button mat-raised-button color="primary" (click)="checkNote()">Verificar Nota</button>
+            </div>
           }
         </div>
+      }
+      @if (exerciseCompleted) {
+        <div class="results-section">
+          <h3>Resultados</h3>
+          <p>Acertos: {{ results.correctNotes }} de {{ results.totalNotes }} ({{ getPercentage() }}%)</p>
 
-        @if (!isRecording && audioBlob) {
-        <div class="playback-section">
-          <p>Sua Gravação:</p>
-          <audio controls>
-            <source [src]="audioBlob" type="audio/webm" />
-          </audio>
-          <button mat-raised-button color="primary" (click)="checkNote()">Verificar Nota</button>
+          @if (results.incorrectNotes.length > 0) {
+            <div class="incorrect-notes">
+              <h4>Notas erradas:</h4>
+              <ul>
+                @for (note of results.incorrectNotes; track note.name) {
+                  <li>{{ note.name }} (sua nota estava fora do intervalo aceitável)</li>
+                }
+              </ul>
+            </div>
+          }
+
+          <button mat-raised-button color="primary" (click)="startExercise()">Tentar Novamente</button>
         </div>
-        }
-      </div>
-      } @if (exerciseCompleted) {
-      <div class="results-section">
-        <h3>Resultados</h3>
-        <p>Acertos: {{ results.correctNotes }} de {{ results.totalNotes }} ({{ getPercentage() }}%)</p>
-
-        @if (results.incorrectNotes.length > 0) {
-        <div class="incorrect-notes">
-          <h4>Notas erradas:</h4>
-          <ul>
-            @for (note of results.incorrectNotes; track note.name) {
-            <li>{{ note.name }} (sua nota estava fora do intervalo aceitável)</li>
-            }
-          </ul>
-        </div>
-        }
-
-        <button mat-raised-button color="primary" (click)="startExercise()">Tentar Novamente</button>
-      </div>
       }
     </div>
   `,
@@ -120,7 +123,10 @@ export class PerfectEarComponent {
     { name: 'B4', frequency: 493.88 },
   ];
 
-  constructor(private sanitizer: DomSanitizer, private frequencyService: FrequencyService) {
+  constructor(
+    private sanitizer: DomSanitizer,
+    private frequencyService: FrequencyService,
+  ) {
     this.audioContext = new AudioContext();
   }
 

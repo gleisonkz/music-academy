@@ -1,15 +1,9 @@
 {
   "hosting": {
+    "target": "music-academy",
     "public": "dist/music-academy/browser",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-    "frameworksBackend": {
-      "region": "us-central1"
-    },
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
+    "frameworksBackend": { "region": "us-central1" },
+    "rewrites": [{ "source": "**", "destination": "/index.html" }]
   }
 }

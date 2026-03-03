@@ -1,4 +1,4 @@
-import { TextFormatDirective } from 'src/app/widgets/directives/text-format/text-format.directive';
+
 
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
@@ -15,7 +15,7 @@ interface Song {
   templateUrl: './songs.page.html',
   styleUrls: ['./songs.page.scss'],
   standalone: true,
-  imports: [CommonModule, TextFormatDirective, ZardSharedModule, RouterModule],
+  imports: [CommonModule, ZardSharedModule, RouterModule],
 })
 export class SongsPage {
   songs: Song[] = [
