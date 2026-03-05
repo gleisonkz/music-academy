@@ -61,11 +61,35 @@
             />
           </div>
         }
-        <h2 class="list-title">Conteúdo da pasta</h2>
+        <div class="list-header">
+          <h2 class="list-title">Conteúdo da pasta</h2>
+          <div class="view-toggle" aria-label="Visualização">
+            <button
+              type="button"
+              class="view-toggle-btn"
+              [class.active]="viewMode() === 'list'"
+              (click)="setViewMode('list')"
+              title="Lista"
+              [attr.aria-pressed]="viewMode() === 'list'"
+            >
+              <span class="material-icons">view_list</span>
+            </button>
+            <button
+              type="button"
+              class="view-toggle-btn"
+              [class.active]="viewMode() === 'grid'"
+              (click)="setViewMode('grid')"
+              title="Grade"
+              [attr.aria-pressed]="viewMode() === 'grid'"
+            >
+              <span class="material-icons">grid_view</span>
+            </button>
+          </div>
+        </div>
         @if (isLoading()) {
           <p class="loading-msg">Carregando...</p>
         } @else {
-          <ul class="items-list">
+          <ul class="items-list" [class.view-list]="viewMode() === 'list'" [class.view-grid]="viewMode() === 'grid'">
             @for (item of filteredItems(); track item.id) {
               <li>
                 @if (isDriveFolder(item)) {

@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 const GOOGLE_CLIENT_ID = '216430399393-s4bsm8fiti6978mm4elmmkphh6npa30q.apps.googleusercontent.com';
 
 const DRIVE_TOKEN_STORAGE_KEY = 'music-academy-drive-token';
+const KIT_ENSAIO_VIEW_KEY = 'music-academy-kit-ensaio-view';
 /** Tempo que mantemos o token em cache no localStorage (1 dia). */
 const TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000;
 
@@ -53,6 +54,8 @@ export class KitEnsaioPage implements OnInit {
   readonly loadingForRecording = signal<string | null>(null);
   /** Filtro de pesquisa (só no primeiro nível). */
   readonly searchFilter = signal('');
+  /** Visualização: lista ou grade (só afeta desktop; preferência salva no localStorage). */
+  readonly viewMode = signal<'list' | 'grid'>('grid');
 
   readonly isFirstLevel = computed(() => this.breadcrumb().length === 1);
 
@@ -72,6 +75,7 @@ export class KitEnsaioPage implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadViewPreference();
     if (!GOOGLE_CLIENT_ID) return;
     const cached = this.loadTokenFromCache();
     if (cached) {
@@ -112,6 +116,24 @@ export class KitEnsaioPage implements OnInit {
   private clearTokenCache(): void {
     try {
       localStorage.removeItem(DRIVE_TOKEN_STORAGE_KEY);
+    } catch {
+      // ignore
+    }
+  }
+
+  private loadViewPreference(): void {
+    try {
+      const saved = localStorage.getItem(KIT_ENSAIO_VIEW_KEY);
+      if (saved === 'list' || saved === 'grid') this.viewMode.set(saved);
+    } catch {
+      // ignore
+    }
+  }
+
+  setViewMode(mode: 'list' | 'grid'): void {
+    this.viewMode.set(mode);
+    try {
+      localStorage.setItem(KIT_ENSAIO_VIEW_KEY, mode);
     } catch {
       // ignore
     }
