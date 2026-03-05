@@ -8,8 +8,8 @@ import { Router } from '@angular/router';
 const GOOGLE_CLIENT_ID = '216430399393-s4bsm8fiti6978mm4elmmkphh6npa30q.apps.googleusercontent.com';
 
 const DRIVE_TOKEN_STORAGE_KEY = 'music-academy-drive-token';
-/** Token do Google expira em 1h; guardamos 55 min para renovar antes. */
-const TOKEN_EXPIRY_MS = 55 * 60 * 1000;
+/** Tempo que mantemos o token em cache no localStorage (1 dia). */
+const TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000;
 
 /** Pasta pública do Kit Ensaio (qualquer um com o link pode ver). */
 export const KIT_ENSAIO_FOLDER_ID = '1K8URtmzX0MOWtEcB_NSzBhcqNzFVBy83';
