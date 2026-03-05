@@ -26,30 +26,75 @@
   <!-- Conteúdo abaixo das tabs -->
   @if (activeTab() === 'estudar') {
     <div class="quiz-section estudar-section">
+      <div class="quiz-tag-filter">
+        <span class="quiz-tag-filter-label">Filtrar por tag:</span>
+        @for (tag of availableTags; track tag) {
+          <button
+            type="button"
+            class="quiz-tag-chip"
+            [class.active]="isTagSelected(tag)"
+            (click)="toggleTag(tag)"
+          >
+            {{ tag }}
+          </button>
+        }
+      </div>
       <header class="quiz-header">
         <h1 class="quiz-title">Perguntas e Respostas</h1>
         <p class="quiz-subtitle text-muted-foreground">
           Ensaio Backs — Sara Sede Interior
         </p>
         <div class="quiz-badge">
-          <span class="quiz-badge-value">{{ questions.length }}</span>
+          <span class="quiz-badge-value">{{ filteredQuestions().length }}</span>
           <span class="quiz-badge-label">perguntas</span>
         </div>
       </header>
 
+      @if (filteredQuestions().length === 0) {
+        <div class="quiz-empty-state">
+          <p>Nenhuma pergunta com as tags selecionadas.</p>
+          <p class="text-muted-foreground">Desmarque as tags acima para ver todas as perguntas ou adicione tags às perguntas no código.</p>
+        </div>
+      } @else {
       <div class="cards-grid">
-        @for (question of questions; track question.question) {
+        @for (question of filteredQuestions(); track question.question) {
           <z-card class="quiz-card" [zTitle]="question.question">
+            @if (question.tags && question.tags.length) {
+              <div class="quiz-card-tags">
+                @for (t of question.tags; track t) {
+                  <span class="quiz-card-tag">{{ t }}</span>
+                }
+              </div>
+            }
             <p class="quiz-card-answer">{{ question.answer }}</p>
           </z-card>
         }
       </div>
+      }
     </div>
   }
 
   @if (activeTab() === 'praticar') {
     <div class="quiz-section praticar-section">
-      @if (!isQuizOver()) {
+      <div class="quiz-tag-filter">
+        <span class="quiz-tag-filter-label">Filtrar por tag:</span>
+        @for (tag of availableTags; track tag) {
+          <button
+            type="button"
+            class="quiz-tag-chip"
+            [class.active]="isTagSelected(tag)"
+            (click)="toggleTag(tag)"
+          >
+            {{ tag }}
+          </button>
+        }
+      </div>
+      @if (filteredQuestions().length === 0) {
+        <div class="quiz-empty-state">
+          <p>Nenhuma pergunta com as tags selecionadas.</p>
+          <p class="text-muted-foreground">Clique nas tags acima para alterar o filtro ou desmarque todas para ver todas as perguntas.</p>
+        </div>
+      } @else if (!isQuizOver()) {
         <header class="quiz-practice-header">
           <div class="quiz-progress-badge">
             <span class="quiz-progress-value">{{ progress() }}</span>
@@ -98,7 +143,7 @@
             Reiniciar
           </button>
         </div>
-      } @else {
+      } @else if (filteredQuestions().length > 0) {
         <div class="quiz-result">
           <z-card class="quiz-result-card">
             <h2 class="quiz-result-title">Quiz finalizado!</h2>
