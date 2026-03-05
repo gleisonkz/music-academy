@@ -1,11 +1,12 @@
 <div class="note-ear-training-container">
   <h1 class="page-title">Treinamento Auditivo – Reconhecimento de Notas</h1>
 
-  @if (!hasTrainingStarted()) {
-    <section class="settings-card" aria-labelledby="config-heading">
-      <h2 id="config-heading" class="section-heading">Configurações</h2>
+  <form [formGroup]="noteEarTrainingForm">
+    @if (!hasTrainingStarted()) {
+      <section class="settings-card" aria-labelledby="config-heading">
+        <h2 id="config-heading" class="section-heading">Configurações</h2>
 
-      <form [formGroup]="noteEarTrainingForm" class="settings-form">
+        <div class="settings-form">
         <div class="settings-row">
           <z-switch formControlName="stopwatch" id="cfg-stopwatch" zSize="lg"
             >Cronômetro</z-switch
@@ -53,10 +54,25 @@
         >
           Iniciar
         </button>
-      </form>
-    </section>
-  } @else {
+        </div>
+      </section>
+    } @else {
     <div class="training-container">
+      <div class="training-volume">
+        <label for="training-volume" class="field-label">
+          Volume
+          <span class="volume-value">{{ noteEarTrainingForm.controls.volume.value }}%</span>
+        </label>
+        <input
+          type="range"
+          formControlName="volume"
+          id="training-volume"
+          min="0"
+          max="100"
+          class="volume-slider"
+        />
+      </div>
+
       <app-simple-step [currentStep]="currentStep()" />
 
       <div class="controls">
@@ -77,7 +93,7 @@
             zType="outline"
             (click)="previousStep()"
           >
-            <span class="icon-skip-previous"></span>
+            <span class="material-icons" aria-hidden="true">skip_previous</span>
             Anterior
           </button>
         }
@@ -87,10 +103,13 @@
           </button>
         } @else {
           <button type="button" z-button zType="outline" (click)="nextStep()">
-            <span class="icon-skip-next"></span>
+            <span class="material-icons" aria-hidden="true">skip_next</span>
             Próximo
           </button>
         }
+        <button type="button" z-button zType="outline" (click)="doneSteps()" class="btn-finish">
+          Finalizar
+        </button>
       </div>
 
       @if (noteEarTrainingForm.controls.stopwatch.value) {
@@ -106,5 +125,6 @@
         alt="Pessoa ouvindo atentamente – treino auditivo"
       />
     </div>
-  }
+    }
+  </form>
 </div>

@@ -5,7 +5,7 @@ import { ZardSharedModule } from 'src/app/shared/modules/zard-shared.module';
 import { SimpleStepComponent } from 'src/app/widgets/components/simple-step/simple-step.component';
 
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnDestroy, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
@@ -16,7 +16,7 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ZardSharedModule, SimpleStepComponent],
 })
-export class NoteEarTrainingComponent implements OnInit, OnDestroy {
+export class NoteEarTrainingComponent implements OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
   private timeSubscription: Subscription;
 
@@ -31,7 +31,7 @@ export class NoteEarTrainingComponent implements OnInit, OnDestroy {
   private filteredBassNotes = this.getNotes();
   private currentAudio: HTMLAudioElement = new Audio(this.filteredBassNotes[0].src);
 
-  ngOnInit(): void {
+  constructor() {
     this.buildForm();
   }
 
@@ -94,7 +94,7 @@ export class NoteEarTrainingComponent implements OnInit, OnDestroy {
     this.noteEarTrainingForm = new FormGroup<NoteEarTrainingForm>({
       stopwatch: new FormControl(false),
       repeatNotes: new FormControl(false),
-      instrument: new FormControl(1),
+      instrument: new FormControl('1'),
       volume: new FormControl(50),
     });
   }
