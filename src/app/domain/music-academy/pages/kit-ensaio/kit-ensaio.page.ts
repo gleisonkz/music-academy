@@ -17,6 +17,9 @@ export const KIT_ENSAIO_FOLDER_ID = '1K8URtmzX0MOWtEcB_NSzBhcqNzFVBy83';
 export const KIT_ENSAIO_FOLDER_URL = `https://drive.google.com/drive/folders/${KIT_ENSAIO_FOLDER_ID}`;
 
 const FOLDER_MIME = 'application/vnd.google-apps.folder';
+const GOOGLE_DOCS_MIME = 'application/vnd.google-apps.document';
+/** Nome do arquivo de mapa de backs — busca case-insensitive. */
+const MAPA_BACKS_NAME = 'MAPA BACKS';
 
 export interface DriveFolder {
   id: string;
@@ -261,7 +264,44 @@ export class KitEnsaioPage implements OnInit {
     return this.getFileIcon(item) === 'music_note';
   }
 
-  /** Baixa o áudio do Drive e navega para Gravação já com esse arquivo como áudio de apoio. */
+  /**
+   * Busca o arquivo "MAPA BACKS" de forma recursiva: começa na pasta do áudio e sobe as pastas
+   * até a raiz (nível da pasta da música / Kit Ensaio). Se não achar em nenhum nível, lança erro.
+   * Google Docs é exportado como PDF para exibição.
+   */
+  private async loadMapBacksRecursive(): Promise<{ url: string; fileName: string; mimeType: string }> {
+    const bc = this.breadcrumb();
+    if (bc.length < 1 || !this.accessToken) {
+      throw new Error('MAPA BACKS não encontrado: nenhuma pasta para buscar.');
+    }
+    const searchName = MAPA_BACKS_NAME.toUpperCase();
+    for (let i = bc.length - 1; i >= 0; i--) {
+      const folderId = bc[i].id;
+      const listUrl = `https://www.googleapis.com/drive/v3/files?q='${encodeURIComponent(folderId)}'+in+parents&fields=files(id,name,mimeType)`;
+      const data = await this.apiFetch<{ files?: DriveItem[] }>(listUrl).catch(() => ({ files: [] }));
+      const files = data.files || [];
+      const mapBacks = files.find((f) => f.name?.toUpperCase().includes(searchName));
+      if (!mapBacks) continue;
+
+      const isGoogleDoc = (mapBacks.mimeType || '').includes(GOOGLE_DOCS_MIME);
+      const downloadUrl = isGoogleDoc
+        ? `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(mapBacks.id)}/export?mimeType=text%2Fhtml`
+        : `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(mapBacks.id)}?alt=media`;
+      const res = await fetch(downloadUrl, {
+        headers: { Authorization: `Bearer ${this.accessToken}` },
+      });
+      if (!res.ok) throw new Error(`Erro ${res.status} ao baixar o MAPA BACKS.`);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const mimeType = isGoogleDoc ? 'text/html' : (mapBacks.mimeType || '');
+      return { url, fileName: mapBacks.name, mimeType };
+    }
+    throw new Error(
+      'MAPA BACKS não encontrado. Coloque um arquivo com esse nome (ex.: no Google Docs) na pasta da música ou em alguma pasta acima.'
+    );
+  }
+
+  /** Baixa o áudio e o MAPA BACKS (busca recursiva) e navega para Gravação. Se o mapa não for encontrado, exibe erro e não navega. */
   async useInRecording(item: DriveItem): Promise<void> {
     if (!this.isAudioItem(item) || !this.accessToken) return;
     this.loadingForRecording.set(item.id);
@@ -274,11 +314,20 @@ export class KitEnsaioPage implements OnInit {
       if (!res.ok) throw new Error(`Erro ${res.status} ao baixar o áudio.`);
       const blob = await res.blob();
       const objectUrl = URL.createObjectURL(blob);
+
+      const mapBacks = await this.loadMapBacksRecursive();
+
       this.router.navigate(['/music-academy/recording'], {
-        state: { backingAudioUrl: objectUrl, fileName: item.name },
+        state: {
+          backingAudioUrl: objectUrl,
+          fileName: item.name,
+          mapBacksUrl: mapBacks.url,
+          mapBacksFileName: mapBacks.fileName,
+          mapBacksMimeType: mapBacks.mimeType,
+        },
       });
     } catch (err) {
-      this.error.set((err as Error)?.message ?? 'Não foi possível carregar o áudio para a gravação.');
+      this.error.set((err as Error)?.message ?? 'Não foi possível carregar para a gravação.');
     } finally {
       this.loadingForRecording.set(null);
     }

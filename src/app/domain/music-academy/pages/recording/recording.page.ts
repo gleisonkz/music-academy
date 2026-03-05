@@ -6,11 +6,13 @@ import {
   computed,
   inject,
   NgZone,
+  OnInit,
   signal,
   viewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { DomSanitizer } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { TrackAudioPlayerComponent } from '../../components/track-audio-player/track-audio-player.component';
 
@@ -18,6 +20,9 @@ import { TrackAudioPlayerComponent } from '../../components/track-audio-player/t
 export interface RecordingState {
   backingAudioUrl?: string;
   fileName?: string;
+  mapBacksUrl?: string;
+  mapBacksFileName?: string;
+  mapBacksMimeType?: string;
 }
 
 @Component({
@@ -27,17 +32,80 @@ export interface RecordingState {
   templateUrl: './recording.page.html',
   styleUrls: ['./recording.page.scss'],
 })
-export class RecordingPage {
+export class RecordingPage implements OnInit {
   private readonly backingPlayerRef = viewChild<TrackAudioPlayerComponent>('backingPlayer');
   private readonly ngZone = inject(NgZone);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly sanitizer = inject(DomSanitizer);
 
   constructor() {
     const state = this.router.getCurrentNavigation()?.extras?.state as RecordingState | undefined;
     if (state?.backingAudioUrl) {
       this.backingAudioUrl.set(state.backingAudioUrl);
       this.fileName.set(state.fileName ?? 'Áudio do Kit Ensaio');
+    }
+    if (state?.mapBacksUrl) {
+      this.mapBacksUrl.set(state.mapBacksUrl);
+      this.mapBacksFileName.set(state.mapBacksFileName ?? 'MAPA BACKS');
+      this.mapBacksMimeType.set(state.mapBacksMimeType ?? '');
+    }
+  }
+
+  /** Corrige HTML do Docs: remove clip à esquerda, injeta estilo e wrapper com zona segura. */
+  private normalizeDocHtml(html: string): string {
+    const fixInlineStyles = (raw: string) =>
+      raw.replace(
+        /style="([^"]*)"/gi,
+        (_match: string, style: string) => {
+          let s = style
+            .replace(/\boverflow\s*:\s*(?:hidden|auto|scroll)\b/gi, 'overflow:visible')
+            .replace(/\bmax-width\s*:\s*[^;]+;?/gi, '')
+            .replace(/\bcontain\s*:\s*[^;]+;?/gi, '');
+          s = s.replace(/\bmargin-left\s*:\s*-[^;]+;?/gi, 'margin-left:0 !important;');
+          s = s.replace(/\bleft\s*:\s*-[^;]+;?/gi, 'left:0 !important;');
+          return `style="${s}"`;
+        }
+      );
+
+    const fixed = fixInlineStyles(html);
+    const wrapOpen = '<div class="doc-fix-wrapper" style="overflow:visible;display:block;box-sizing:border-box;">';
+    const wrapClose = '</div>';
+    const styleOverride =
+      '<style data-doc-fix="">.doc-fix-wrapper *{overflow:visible !important;contain:none !important;}.doc-fix-wrapper,.doc-fix-wrapper body{margin-left:0 !important;}</style>';
+    return styleOverride + wrapOpen + fixed + wrapClose;
+  }
+
+  /**
+   * Debug: com ?debugMapHtml=1 na URL, o HTML bruto do Docs é logado no console.
+   * Use isso para inspecionar a estrutura e estilos se o texto ainda cortar.
+   */
+  private debugMapHtmlIfRequested(rawHtml: string): void {
+    if (this.route.snapshot.queryParamMap.get('debugMapHtml') === '1') {
+      console.log('[Recording] HTML bruto do MAPA BACKS (primeiros 8000 chars):', rawHtml.slice(0, 8000));
+      if (rawHtml.length > 8000) console.log('... (total', rawHtml.length, 'chars)');
+    }
+  }
+
+  ngOnInit(): void {
+    const url = this.mapBacksUrl();
+    const mime = (this.mapBacksMimeType() || '').toLowerCase();
+    if (url && (mime.includes('text/plain') || mime.includes('text/html'))) {
+      fetch(url)
+        .then((r) => r.text())
+        .then((t) => {
+          if (mime.includes('text/html')) {
+            this.debugMapHtmlIfRequested(t);
+            this.mapBacksHtml.set(this.normalizeDocHtml(t));
+          } else {
+            this.mapBacksText.set(t);
+          }
+        })
+        .catch(() => {
+          this.mapBacksHtml.set(null);
+          this.mapBacksText.set(null);
+        });
     }
   }
 
@@ -47,6 +115,30 @@ export class RecordingPage {
   backingAudioUrl = signal<string | null>(null);
   /** Nome do arquivo para exibição */
   fileName = signal<string>('');
+
+  /** Mapa da música (MAPA BACKS) vindo do Kit Ensaio — URL, nome e mime para exibição. */
+  mapBacksUrl = signal<string | null>(null);
+  mapBacksFileName = signal<string>('');
+  mapBacksMimeType = signal<string>('');
+
+  readonly hasMapBacks = computed(() => !!this.mapBacksUrl());
+  /** Sidebar de controles: true = visível, false = oculta. */
+  sidebarOpen = signal(true);
+  /** Conteúdo do mapa em texto puro (export text/plain). */
+  mapBacksText = signal<string | null>(null);
+  /** Conteúdo do mapa em HTML (export Google Docs como HTML — preserva cores e negrito). */
+  mapBacksHtml = signal<string | null>(null);
+  readonly mapBacksSafeUrl = computed(() => {
+    const url = this.mapBacksUrl();
+    return url ? this.sanitizer.bypassSecurityTrustResourceUrl(url) : null;
+  });
+  readonly mapBacksSafeHtml = computed(() => {
+    const html = this.mapBacksHtml();
+    return html ? this.sanitizer.bypassSecurityTrustHtml(html) : null;
+  });
+  readonly mapBacksIsPdf = computed(() => (this.mapBacksMimeType() || '').toLowerCase().includes('pdf'));
+  readonly mapBacksIsText = computed(() => (this.mapBacksMimeType() || '').toLowerCase().includes('text/plain'));
+  readonly mapBacksIsHtml = computed(() => (this.mapBacksMimeType() || '').toLowerCase().includes('text/html'));
 
   /** Estado do drag and drop */
   isDragging = signal(false);
@@ -251,5 +343,7 @@ export class RecordingPage {
     this.clearBackingTrack();
     const url = this.recordedUrl();
     if (url) URL.revokeObjectURL(url);
+    const mapUrl = this.mapBacksUrl();
+    if (mapUrl) URL.revokeObjectURL(mapUrl);
   }
 }
