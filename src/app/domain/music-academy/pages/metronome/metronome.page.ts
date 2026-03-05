@@ -39,7 +39,11 @@ export class MetronomePage implements OnInit, OnDestroy, AfterViewChecked {
   soundEnabled = new FormControl(true);
   endingSoundEnabled = new FormControl(true);
 
+  /** Volume do metrônomo (0–100). Padrão 50. */
+  readonly volume = signal(50);
+
   private readonly audioContext = new (globalThis.AudioContext || (globalThis as any).webkitAudioContext)();
+  private gainNode: GainNode | null = null;
   private accentBuffer: AudioBuffer | null = null;
   private clickBuffer: AudioBuffer | null = null;
   private tapTimes: number[] = [];
@@ -66,6 +70,10 @@ export class MetronomePage implements OnInit, OnDestroy, AfterViewChecked {
 
   async loadSounds() {
     try {
+      this.gainNode = this.audioContext.createGain();
+      this.gainNode.gain.value = this.volume() / 100;
+      this.gainNode.connect(this.audioContext.destination);
+
       const [clickRes, accentRes] = await Promise.all([
         fetch('assets/audio/metronome/classic/click.m4a'),
         fetch('assets/audio/metronome/classic/accent.m4a'),
@@ -77,6 +85,13 @@ export class MetronomePage implements OnInit, OnDestroy, AfterViewChecked {
         await (await accentRes).arrayBuffer()
       );
     } catch {}
+  }
+
+  setVolume(value: number) {
+    this.volume.set(Math.max(0, Math.min(100, value)));
+    if (this.gainNode) {
+      this.gainNode.gain.setTargetAtTime(this.volume() / 100, this.audioContext.currentTime, 0.01);
+    }
   }
 
   tapTempo() {
@@ -195,9 +210,13 @@ export class MetronomePage implements OnInit, OnDestroy, AfterViewChecked {
     const isAccent = !!(beat === this.accentBeat() && this.accentEnabled.value);
     const buf = isAccent ? this.accentBuffer : this.clickBuffer;
     if (!buf) return;
+    const dest = this.gainNode ?? this.audioContext.destination;
+    if (this.gainNode) {
+      this.gainNode.gain.setTargetAtTime(this.volume() / 100, this.audioContext.currentTime, 0.01);
+    }
     const source = this.audioContext.createBufferSource();
     source.buffer = buf;
-    source.connect(this.audioContext.destination);
+    source.connect(dest);
     source.start(when);
   }
 
@@ -224,6 +243,7 @@ export class MetronomePage implements OnInit, OnDestroy, AfterViewChecked {
   stopMetronome() {
     if (this.endingSoundEnabled.value) {
       const a = new Audio('assets/audio/ending.mp3');
+      a.volume = this.volume() / 100;
       a.play().catch(() => {});
     }
     this.clearSchedulerAndTimer();
@@ -250,9 +270,13 @@ export class MetronomePage implements OnInit, OnDestroy, AfterViewChecked {
     if (this.soundEnabled.value !== true) return;
     const buf = accent && this.accentEnabled.value ? this.accentBuffer : this.clickBuffer;
     if (!buf) return;
+    const dest = this.gainNode ?? this.audioContext.destination;
+    if (this.gainNode) {
+      this.gainNode.gain.setTargetAtTime(this.volume() / 100, this.audioContext.currentTime, 0.01);
+    }
     const source = this.audioContext.createBufferSource();
     source.buffer = buf;
-    source.connect(this.audioContext.destination);
+    source.connect(dest);
     source.start(0);
   }
 
