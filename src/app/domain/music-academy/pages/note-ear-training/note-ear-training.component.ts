@@ -80,6 +80,7 @@ export class NoteEarTrainingComponent implements OnInit, OnDestroy {
   }
 
   protected playCurrentAudio(): void {
+    this.applyVolume();
     this.currentAudio.play();
 
     if (this.noteEarTrainingForm.controls.repeatNotes.value) {
@@ -94,7 +95,14 @@ export class NoteEarTrainingComponent implements OnInit, OnDestroy {
       stopwatch: new FormControl(false),
       repeatNotes: new FormControl(false),
       instrument: new FormControl(1),
+      volume: new FormControl(50),
     });
+  }
+
+  /** Aplica o volume do formulário (0–100) no elemento de áudio. */
+  private applyVolume(): void {
+    const pct = this.noteEarTrainingForm?.controls.volume?.value ?? 50;
+    this.currentAudio.volume = Math.min(1, Math.max(0, pct / 100));
   }
 
   private clearInterval() {

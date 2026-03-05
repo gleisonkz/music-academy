@@ -64,6 +64,19 @@
       font-size: 0.875rem;
       font-weight: 500;
       color: var(--foreground);
+
+      .volume-value {
+        margin-left: 0.5rem;
+        color: var(--primary-color);
+        font-variant-numeric: tabular-nums;
+      }
+    }
+
+    .volume-slider {
+      width: 100%;
+      height: 0.5rem;
+      accent-color: var(--primary-color);
+      cursor: pointer;
     }
 
     .btn-start {

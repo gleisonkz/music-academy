@@ -27,6 +27,21 @@
           </z-select>
         </div>
 
+        <div class="form-field">
+          <label for="cfg-volume" class="field-label">
+            Volume
+            <span class="volume-value">{{ noteEarTrainingForm.controls.volume.value }}%</span>
+          </label>
+          <input
+            type="range"
+            formControlName="volume"
+            id="cfg-volume"
+            min="0"
+            max="100"
+            class="volume-slider"
+          />
+        </div>
+
         <button
           type="button"
           z-button
