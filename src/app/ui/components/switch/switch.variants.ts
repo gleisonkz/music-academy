@@ -9,9 +9,9 @@ export const switchVariants = cva(
         destructive: 'data-[state=checked]:bg-destructive',
       },
       zSize: {
-        default: 'h-6 w-11',
-        sm: 'h-5 w-9',
-        lg: 'h-7 w-13',
+        default: 'h-[1.5rem] w-[2.75rem]',
+        sm: 'h-[1.25rem] w-[2.25rem]',
+        lg: 'h-[1.75rem] w-[3rem]',
       },
     },
     defaultVariants: {

@@ -1,4 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, forwardRef, input, output, signal, ViewEncapsulation } from '@angular/core';
+import {
+    ChangeDetectionStrategy, Component, computed, forwardRef, input, output, signal,
+    ViewEncapsulation
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { generateId, mergeClasses } from '../../utils/merge-classes';
@@ -14,7 +17,7 @@ type OnChangeType = (value: any) => void;
   standalone: true,
   exportAs: 'zSwitch',
   template: `
-    <span class="flex items-center space-x-2" (mousedown)="onSwitchChange()">
+    <span class="flex items-center" (mousedown)="onSwitchChange()">
       <button
         [id]="zId() || uniqueId()"
         type="button"
@@ -27,11 +30,11 @@ type OnChangeType = (value: any) => void;
         <span
           [attr.data-size]="zSize()"
           [attr.data-state]="status()"
-          class="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0 data-[size=sm]:w-4 data-[size=sm]:h-4 data-[size=sm]:data-[state=checked]:translate-x-4 data-[size=sm]:data-[state=unchecked]:translate-x-0 data-[size=lg]:w-6 data-[size=lg]:h-6 data-[size=lg]:data-[state=checked]:translate-x-6 data-[size=lg]:data-[state=unchecked]:translate-x-0"
+          class="pointer-events-none block !h-[1.25rem] !w-[1.25rem] rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:!translate-x-[1.5rem] data-[state=unchecked]:!translate-x-0 data-[size=sm]:!h-[1rem] data-[size=sm]:!w-[1rem] data-[size=sm]:data-[state=checked]:!translate-x-[1.25rem] data-[size=sm]:data-[state=unchecked]:!translate-x-0 data-[size=lg]:!h-[1.5rem] data-[size=lg]:!w-[1.5rem] data-[size=lg]:data-[state=checked]:!translate-x-[1.5rem] data-[size=lg]:data-[state=unchecked]:!translate-x-0"
         ></span>
       </button>
 
-      <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" [for]="zId() || uniqueId()">
+      <label class="text-sm font-medium leading-none ml-[0.75rem] peer-disabled:cursor-not-allowed peer-disabled:opacity-70" [for]="zId() || uniqueId()">
         <ng-content></ng-content>
       </label>
     </span>
