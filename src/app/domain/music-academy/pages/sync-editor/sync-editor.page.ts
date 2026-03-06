@@ -14,6 +14,7 @@ import { CommonModule } from '@angular/common';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
+import { enumerateMapBlocks, normalizeDocHtml } from '../../shared/map-backs-doc';
 import { SyncPointsListComponent } from '../../components/sync-points-list';
 import { ZardSharedModule } from 'src/app/shared/modules/zard-shared.module';
 import { TrackAudioPlayerComponent } from '../../components/track-audio-player/track-audio-player.component';
@@ -102,25 +103,6 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
     });
   }
 
-  private normalizeDocHtml(html: string): string {
-    const fixInlineStyles = (raw: string) =>
-      raw.replace(/style="([^"]*)"/gi, (_: string, style: string) => {
-        let s = style
-          .replace(/\boverflow\s*:\s*(?:hidden|auto|scroll)\b/gi, 'overflow:visible')
-          .replace(/\bmax-width\s*:\s*[^;]+;?/gi, '')
-          .replace(/\bcontain\s*:\s*[^;]+;?/gi, '');
-        s = s.replace(/\bmargin-left\s*:\s*-[^;]+;?/gi, 'margin-left:0 !important;');
-        s = s.replace(/\bleft\s*:\s*-[^;]+;?/gi, 'left:0 !important;');
-        return `style="${s}"`;
-      });
-    const fixed = fixInlineStyles(html);
-    const wrapOpen = '<div class="doc-fix-wrapper" style="overflow:visible;display:block;box-sizing:border-box;">';
-    const wrapClose = '</div>';
-    const styleOverride =
-      '<style data-doc-fix="">.doc-fix-wrapper *{overflow:visible !important;contain:none !important;}.doc-fix-wrapper,.doc-fix-wrapper body{margin-left:0 !important;}</style>';
-    return styleOverride + wrapOpen + fixed + wrapClose;
-  }
-
   ngOnInit(): void {
     const url = this.mapBacksUrl();
     const mime = (this.mapBacksMimeType() || '').toLowerCase();
@@ -129,7 +111,7 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
         .then((r) => r.text())
         .then((t) => {
           if (mime.includes('text/html')) {
-            this.mapBacksHtml.set(this.normalizeDocHtml(t));
+            this.mapBacksHtml.set(normalizeDocHtml(t));
           } else {
             this.mapBacksText.set(t);
           }
@@ -160,9 +142,7 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
     if (!container) return;
     const content = container.querySelector('.map-html-content');
     if (!content) return;
-    // Mesmo seletor da Gravação: Google Docs pode exportar <p> e/ou <div>
-    const blocks = content.querySelectorAll('.doc-fix-wrapper p, .doc-fix-wrapper > div');
-    blocks.forEach((el, i) => { (el as HTMLElement).dataset['blockIndex'] = String(i); });
+    enumerateMapBlocks(content);
     this.enumeratedForHtml = html;
   }
 

@@ -1,27 +1,20 @@
 import { ZardSharedModule } from 'src/app/shared/modules/zard-shared.module';
 
-import {
-  AfterViewChecked,
-  ChangeDetectorRef,
-  Component,
-  computed,
-  effect,
-  ElementRef,
-  inject,
-  NgZone,
-  OnDestroy,
-  OnInit,
-  signal,
-  viewChild,
-} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import {
+    AfterViewChecked, ChangeDetectorRef, Component, computed, effect, ElementRef, inject, NgZone,
+    OnDestroy, OnInit, signal, viewChild
+} from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
+import { SyncPointsListComponent } from '../../components/sync-points-list';
+import {
+    TrackAudioPlayerComponent
+} from '../../components/track-audio-player/track-audio-player.component';
 import { getDriveTokenFromCache } from '../../shared/drive-token';
 import { loadRecordingContextFromDrive } from '../../shared/load-recording-context';
-import { SyncPointsListComponent } from '../../components/sync-points-list';
-import { TrackAudioPlayerComponent } from '../../components/track-audio-player/track-audio-player.component';
+import { enumerateMapBlocks, normalizeDocHtml } from '../../shared/map-backs-doc';
 
 /** Ponto de sincronia mapa/áudio (time em segundos, blockIndex do parágrafo). */
 export interface SyncPoint {
@@ -42,6 +35,19 @@ export interface RecordingState {
   driveFolderId?: string;
   /** Token de acesso ao Drive (para o Editor de Sincronia fazer upload do JSON). */
   driveAccessToken?: string;
+}
+
+/**
+ * Lista de exclusão do spotlight: blocos cujo texto contiver uma dessas palavras/frases
+ * não são escurecidos e permanecem sempre em destaque (rótulos do mapa).
+ * Ajuste conforme o padrão dos seus mapas.
+ */
+const SPOTLIGHT_EXCLUSION_TERMS = ['UNÍSSONO PLENO', 'UNÍSSONO OITAVADO', 'ABERTO', 'DOBRA DE NAIPES', 'DOBRA DE NAIPE', 'CONTRA-TEMPO'] as const;
+
+function isExcludedFromSpotlight(blockText: string): boolean {
+  const normalized = blockText.trim().toUpperCase();
+  if (!normalized) return false;
+  return SPOTLIGHT_EXCLUSION_TERMS.some((term) => normalized.includes(term));
 }
 
 @Component({
@@ -107,7 +113,7 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
         }
         this.activeBlockIndex.set(idx);
       },
-      { allowSignalWrites: true }
+      { allowSignalWrites: true },
     );
 
     effect(() => {
@@ -122,7 +128,8 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
         return;
       }
       blocks.forEach((el) => {
-        const isActive = el.getAttribute('data-block-index') === String(activeIdx);
+        const isExcluded = isExcludedFromSpotlight(el.textContent?.trim() ?? '');
+        const isActive = isExcluded || el.getAttribute('data-block-index') === String(activeIdx);
         this.applySpotlightToBlock(el, isActive);
       });
       const activeEl = content.querySelector(`[data-block-index="${activeIdx}"]`);
@@ -153,30 +160,6 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
     el.style.removeProperty('opacity');
     el.style.removeProperty('filter');
     el.style.removeProperty('transition');
-  }
-
-  /** Corrige HTML do Docs: remove clip à esquerda, injeta estilo e wrapper com zona segura. */
-  private normalizeDocHtml(html: string): string {
-    const fixInlineStyles = (raw: string) =>
-      raw.replace(
-        /style="([^"]*)"/gi,
-        (_match: string, style: string) => {
-          let s = style
-            .replace(/\boverflow\s*:\s*(?:hidden|auto|scroll)\b/gi, 'overflow:visible')
-            .replace(/\bmax-width\s*:\s*[^;]+;?/gi, '')
-            .replace(/\bcontain\s*:\s*[^;]+;?/gi, '');
-          s = s.replace(/\bmargin-left\s*:\s*-[^;]+;?/gi, 'margin-left:0 !important;');
-          s = s.replace(/\bleft\s*:\s*-[^;]+;?/gi, 'left:0 !important;');
-          return `style="${s}"`;
-        }
-      );
-
-    const fixed = fixInlineStyles(html);
-    const wrapOpen = '<div class="doc-fix-wrapper" style="overflow:visible;display:block;box-sizing:border-box;">';
-    const wrapClose = '</div>';
-    const styleOverride =
-      '<style data-doc-fix="">.doc-fix-wrapper *{overflow:visible !important;contain:none !important;}.doc-fix-wrapper,.doc-fix-wrapper body{margin-left:0 !important;}</style>';
-    return styleOverride + wrapOpen + fixed + wrapClose;
   }
 
   /**
@@ -213,7 +196,7 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
         .then((t) => {
           if (mime.includes('text/html')) {
             this.debugMapHtmlIfRequested(t);
-            this.mapBacksHtml.set(this.normalizeDocHtml(t));
+            this.mapBacksHtml.set(normalizeDocHtml(t));
           } else {
             this.mapBacksText.set(t);
           }
@@ -269,11 +252,9 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
     if (!container) return;
     const content = container.querySelector('.map-html-content');
     if (!content) return;
-    // Google Docs exporta com <p> e/ou <div>; mesmo seletor do Editor de Sincronia para índices baterem
-    const blocks = content.querySelectorAll('.doc-fix-wrapper p, .doc-fix-wrapper > div');
-    blocks.forEach((el, i) => (el as HTMLElement).dataset['blockIndex'] = String(i));
+    const count = enumerateMapBlocks(content);
     this.enumeratedForHtml = html;
-    this.enumeratedBlocksCount.set(blocks.length);
+    this.enumeratedBlocksCount.set(count);
   }
 
   /** Arquivo de áudio enviado (backing track) */
@@ -331,12 +312,7 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
 
   /** Escolhe o melhor codec suportado pelo navegador (Opus = melhor qualidade). */
   private getBestSupportedMimeType(): string {
-    const types = [
-      'audio/webm;codecs=opus',
-      'audio/webm',
-      'audio/ogg;codecs=opus',
-      'audio/mp4',
-    ];
+    const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4'];
     for (const type of types) {
       if (MediaRecorder.isTypeSupported(type)) return type;
     }
@@ -505,7 +481,10 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   private fallbackWhatsAppShare() {
-    window.open('https://wa.me/?text=' + encodeURIComponent('Minha gravação do Music Academy. Baixe o áudio pelo botão "Download" na página.'), '_blank');
+    window.open(
+      'https://wa.me/?text=' + encodeURIComponent('Minha gravação do Music Academy. Baixe o áudio pelo botão "Download" na página.'),
+      '_blank',
+    );
   }
 
   removeBackingTrack() {
