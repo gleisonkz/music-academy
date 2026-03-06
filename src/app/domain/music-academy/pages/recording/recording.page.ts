@@ -16,8 +16,11 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer } from '@angular/platform-browser';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
+import { getDriveTokenFromCache } from '../../shared/drive-token';
+import { loadRecordingContextFromDrive } from '../../shared/load-recording-context';
+import { SyncPointsListComponent } from '../../components/sync-points-list';
 import { TrackAudioPlayerComponent } from '../../components/track-audio-player/track-audio-player.component';
 
 /** Ponto de sincronia mapa/áudio (time em segundos, blockIndex do parágrafo). */
@@ -44,7 +47,7 @@ export interface RecordingState {
 @Component({
   selector: 'app-recording-page',
   standalone: true,
-  imports: [ZardSharedModule, CommonModule, TrackAudioPlayerComponent],
+  imports: [ZardSharedModule, CommonModule, RouterLink, TrackAudioPlayerComponent, SyncPointsListComponent],
   templateUrl: './recording.page.html',
   styleUrls: ['./recording.page.scss'],
 })
@@ -67,6 +70,10 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
   private enumeratedBlocksCount = signal(0);
   /** Tempo atual do áudio de apoio (atualizado pelo output do player para o effect reagir). */
   backingCurrentTime = signal(0);
+  /** Mensagem de erro ao restaurar contexto da URL (ex.: token expirado). */
+  restoreError = signal<string | null>(null);
+  /** true enquanto restaura contexto do Drive após F5. */
+  restoringFromUrl = signal(false);
 
   constructor() {
     const state = this.router.getCurrentNavigation()?.extras?.state as RecordingState | undefined;
@@ -177,6 +184,20 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   ngOnInit(): void {
+    const audioId = this.route.snapshot.queryParamMap.get('audioId');
+    const folderIds = this.route.snapshot.queryParamMap.get('folderIds');
+    const hasState = !!this.backingAudioUrl();
+
+    if (!hasState && audioId && folderIds) {
+      this.tryRestoreFromUrl(audioId, folderIds);
+      return;
+    }
+
+    this.loadMapAndSyncFromCurrentUrls();
+  }
+
+  /** Carrega HTML/texto do mapa e JSON de sync a partir dos URLs já setados. */
+  private loadMapAndSyncFromCurrentUrls(): void {
     const url = this.mapBacksUrl();
     const mime = (this.mapBacksMimeType() || '').toLowerCase();
     if (url && (mime.includes('text/plain') || mime.includes('text/html'))) {
@@ -207,6 +228,31 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
         })
         .catch(() => {});
     }
+  }
+
+  /** Restaura áudio + mapa + sync do Drive usando queryParams (após F5). */
+  private tryRestoreFromUrl(audioId: string, folderIds: string): void {
+    const token = getDriveTokenFromCache();
+    if (!token) {
+      this.restoreError.set('Sessão do Drive expirada. Abra pelo Kit Ensaio e conecte de novo.');
+      return;
+    }
+    this.restoringFromUrl.set(true);
+    this.restoreError.set(null);
+    loadRecordingContextFromDrive(token, audioId, folderIds)
+      .then((ctx) => {
+        this.backingAudioUrl.set(ctx.backingAudioUrl);
+        this.fileName.set(ctx.fileName);
+        this.mapBacksUrl.set(ctx.mapBacksUrl);
+        this.mapBacksFileName.set(ctx.mapBacksFileName);
+        this.mapBacksMimeType.set(ctx.mapBacksMimeType);
+        this.syncMapUrl.set(ctx.syncMapUrl);
+        this.loadMapAndSyncFromCurrentUrls();
+      })
+      .catch((err) => {
+        this.restoreError.set((err as Error)?.message ?? 'Não foi possível recarregar. Abra pelo Kit Ensaio.');
+      })
+      .finally(() => this.restoringFromUrl.set(false));
   }
 
   ngAfterViewChecked(): void {
@@ -416,6 +462,11 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
     this.mediaRecorder.stop();
     this.backingPlayerRef()?.pause();
     this.isRecording.set(false);
+  }
+
+  /** Move o áudio de apoio para o tempo indicado (clique no tempo da lista de seções). */
+  seekBackingTo(time: number): void {
+    this.backingPlayerRef()?.seekTo(time);
   }
 
   downloadRecording() {

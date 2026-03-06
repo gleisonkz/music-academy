@@ -87,7 +87,22 @@
         }
         <div class="list-header">
           <h2 class="list-title">Conteúdo da pasta</h2>
-          <div class="view-toggle" aria-label="Visualização">
+          <div class="list-header-actions">
+            <button
+              type="button"
+              z-button
+              zType="outline"
+              zSize="sm"
+              class="refresh-folder-btn"
+              (click)="refreshCurrentFolder()"
+              [disabled]="isLoading()"
+              title="Atualizar lista (após alterações no Drive)"
+              aria-label="Atualizar lista"
+            >
+              <span class="material-icons" [class.spin]="isLoading()">refresh</span>
+              Atualizar
+            </button>
+            <div class="view-toggle" aria-label="Visualização">
             <button
               type="button"
               class="view-toggle-btn"
@@ -108,6 +123,7 @@
             >
               <span class="material-icons">grid_view</span>
             </button>
+            </div>
           </div>
         </div>
         @if (isLoading()) {
@@ -164,6 +180,7 @@
                             <span class="use-in-recording-label">Usar na gravação</span>
                           }
                         </button>
+                        @if (canWriteToKitEnsaio() === true) {
                         <button
                           type="button"
                           z-button
@@ -182,6 +199,7 @@
                             <span class="use-in-sync-editor-label">{{ hasSyncMapInContext() ? 'Editar Sync Map' : 'Criar Sync Map' }}</span>
                           }
                         </button>
+                        }
                       </div>
                     }
                   </div>

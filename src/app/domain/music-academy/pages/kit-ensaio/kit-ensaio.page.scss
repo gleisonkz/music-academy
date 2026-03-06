@@ -140,6 +140,19 @@
   margin-bottom: 1rem;
 }
 
+.list-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.refresh-folder-btn {
+  .material-icons {
+    font-size: 1.125rem;
+    margin-right: 0.25rem;
+  }
+}
+
 .list-title {
   font-size: 1rem;
   font-weight: 600;

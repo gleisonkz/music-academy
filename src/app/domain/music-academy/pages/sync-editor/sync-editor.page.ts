@@ -14,6 +14,7 @@ import { CommonModule } from '@angular/common';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
+import { SyncPointsListComponent } from '../../components/sync-points-list';
 import { ZardSharedModule } from 'src/app/shared/modules/zard-shared.module';
 import { TrackAudioPlayerComponent } from '../../components/track-audio-player/track-audio-player.component';
 import type { RecordingState } from '../recording/recording.page';
@@ -28,7 +29,7 @@ export interface SyncPoint {
 @Component({
   selector: 'app-sync-editor-page',
   standalone: true,
-  imports: [ZardSharedModule, CommonModule, TrackAudioPlayerComponent],
+  imports: [ZardSharedModule, CommonModule, TrackAudioPlayerComponent, SyncPointsListComponent],
   templateUrl: './sync-editor.page.html',
   styleUrls: ['./sync-editor.page.scss'],
 })
@@ -223,8 +224,9 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
     this.syncPoints.set(list);
   }
 
-  /** Baixa o JSON de sincronia como arquivo no computador do usuário (não depende de login). */
+  /** Baixa o JSON de sincronia como arquivo no computador do usuário (não depende de login). Pausa o áudio ao salvar. */
   saveJsonLocal(): void {
+    this.backingPlayerRef()?.pause();
     const list = this.syncPoints();
     if (list.length === 0) return;
     const audioName = this.fileName() || 'audio';
@@ -240,8 +242,9 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
     URL.revokeObjectURL(url);
   }
 
-  /** Salva o JSON de sincronia na raiz da música no Google Drive (quando aberto pelo Kit Ensaio). */
+  /** Salva o JSON de sincronia na raiz da música no Google Drive (quando aberto pelo Kit Ensaio). Atualiza arquivo existente com o mesmo nome, ou cria um novo. Pausa o áudio ao salvar. */
   async saveJsonToDrive(): Promise<void> {
+    this.backingPlayerRef()?.pause();
     const folderId = this.driveFolderId();
     const token = this.driveAccessToken();
     const list = this.syncPoints();
@@ -252,36 +255,40 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
     const baseName = audioName.replace(/\.[^.]+$/, '') || audioName;
     const fileName = `SYNC-MAP-${baseName}.json`;
     const json = JSON.stringify(list, null, 2);
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    };
     try {
-      const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: fileName,
-          parents: [folderId],
-        }),
-      });
-      if (!createRes.ok) {
-        const err = await createRes.json().catch(() => ({}));
-        throw new Error((err as { error?: { message?: string } }).error?.message ?? `Erro ${createRes.status}`);
-      }
-      const created = (await createRes.json()) as { id: string };
-      const uploadRes = await fetch(
-        `https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(created.id)}?uploadType=media`,
-        {
-          method: 'PATCH',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: json,
+      const listUrl = `https://www.googleapis.com/drive/v3/files?q='${encodeURIComponent(folderId)}'+in+parents+and+trashed=false&fields=files(id,name)`;
+      const listRes = await fetch(listUrl, { headers: { Authorization: `Bearer ${token}` } });
+      if (!listRes.ok) throw new Error(`Erro ${listRes.status} ao listar pasta.`);
+      const listData = (await listRes.json()) as { files?: { id: string; name: string }[] };
+      const existing = (listData.files ?? []).find((f) => f.name === fileName);
+      const fileId = existing?.id;
+
+      if (fileId) {
+        const uploadRes = await fetch(
+          `https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(fileId)}?uploadType=media`,
+          { method: 'PATCH', headers: { ...headers, 'Content-Type': 'application/json' }, body: json }
+        );
+        if (!uploadRes.ok) throw new Error(`Erro ${uploadRes.status} ao atualizar o arquivo.`);
+      } else {
+        const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ name: fileName, parents: [folderId] }),
+        });
+        if (!createRes.ok) {
+          const err = await createRes.json().catch(() => ({}));
+          throw new Error((err as { error?: { message?: string } }).error?.message ?? `Erro ${createRes.status}`);
         }
-      );
-      if (!uploadRes.ok) {
-        throw new Error(`Erro ${uploadRes.status} ao enviar o conteúdo.`);
+        const created = (await createRes.json()) as { id: string };
+        const uploadRes = await fetch(
+          `https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(created.id)}?uploadType=media`,
+          { method: 'PATCH', headers: { ...headers, 'Content-Type': 'application/json' }, body: json }
+        );
+        if (!uploadRes.ok) throw new Error(`Erro ${uploadRes.status} ao enviar o conteúdo.`);
       }
     } catch (err) {
       this.driveSaveError.set((err as Error)?.message ?? 'Não foi possível salvar no Drive.');

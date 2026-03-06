@@ -28,7 +28,8 @@ export class TrackAudioPlayerComponent {
   readonly isPlaying = signal(false);
   readonly currentTime = signal(0);
   readonly duration = signal(0);
-  readonly volume = signal(1);
+  /** Volume 0–1. Padrão 50%. */
+  readonly volume = signal(0.5);
 
   /** Emitido a cada timeupdate do áudio (para sincronizar mapa/lyrics na página pai). */
   readonly timeUpdate = output<number>();
@@ -67,6 +68,7 @@ export class TrackAudioPlayerComponent {
   loadAudio(): void {
     const el = this.audio;
     if (!el?.src) return;
+    el.volume = this.volume();
     el.load();
     this.duration.set(this.durationSeconds() || 0);
   }

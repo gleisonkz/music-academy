@@ -1,0 +1,27 @@
+<ul class="sync-list">
+  @for (point of points(); track $index) {
+    <li class="sync-list-item">
+      <button
+        type="button"
+        class="sync-list-time-btn"
+        (click)="onSeek(point.time)"
+        [attr.title]="'Ir para ' + formatTime(point.time)"
+        [attr.aria-label]="'Ir para ' + formatTime(point.time)"
+      >
+        {{ formatTime(point.time) }}
+      </button>
+      <span class="sync-list-block" [title]="labelFor(point)">{{ labelFor(point) }}</span>
+      @if (showRemoveButton()) {
+        <button
+          type="button"
+          class="sync-list-remove"
+          (click)="onRemove($index)"
+          title="Remover"
+          aria-label="Remover"
+        >
+          <span class="material-icons">close</span>
+        </button>
+      }
+    </li>
+  }
+</ul>

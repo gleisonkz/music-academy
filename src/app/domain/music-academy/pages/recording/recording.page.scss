@@ -24,6 +24,24 @@
   font-size: 0.9375rem;
   margin: 0 0 2.25rem 0;
   line-height: 1.5;
+
+  .spin {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 0.35rem;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.restore-error {
+  color: var(--error-color, #f87171);
+  margin: 0 0 1rem 0;
+  font-size: 0.9375rem;
 }
 
 .dropzone {
@@ -33,7 +51,9 @@
   padding: 3rem 2rem;
   text-align: center;
   background: rgba(255, 255, 255, 0.03);
-  transition: border-color 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
 
   &.dragging {
     border-color: var(--primary-color, #00fbfb);
@@ -148,6 +168,20 @@
   }
 }
 
+.recording-sync-list-section {
+  padding-top: 1rem;
+  margin-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+  .section-label {
+    margin-bottom: 0.5rem;
+  }
+
+  ma-sync-points-list {
+    display: block;
+  }
+}
+
 .result-section {
   padding-top: 0.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -195,7 +229,6 @@
   overflow: auto;
   padding: 1rem;
   background: #fff;
-
 }
 
 .recording-map-html {
@@ -357,27 +390,6 @@
   margin: 2rem 0;
 }
 
-.recording-sync-badge {
-  position: fixed;
-  top: 0.75rem;
-  left: 0.75rem;
-  z-index: 10;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.4rem 0.75rem;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--primary-contrast-color, #0a0a0a);
-  background: var(--primary-color, #00fbfb);
-  border-radius: 2rem;
-  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.2);
-
-  .material-icons {
-    font-size: 1.125rem;
-  }
-}
-
 .recording-sidebar .sync-indicator {
   display: flex;
   align-items: center;
@@ -413,7 +425,9 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   .material-icons {
     font-size: 1.5rem;
   }

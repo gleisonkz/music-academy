@@ -1,0 +1,64 @@
+.sync-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+}
+
+.sync-list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.8125rem;
+  border-radius: 4px;
+  margin-bottom: 2px;
+  background: rgba(255, 255, 255, 0.05);
+
+  .sync-list-time-btn {
+    font-variant-numeric: tabular-nums;
+    min-width: 3rem;
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: inherit;
+    color: var(--primary-color, #00fbfb);
+    cursor: pointer;
+    text-align: left;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .sync-list-block {
+    flex: 1;
+    min-width: 0;
+    opacity: 0.9;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sync-list-remove {
+    padding: 0.15rem;
+    border: none;
+    background: none;
+    color: var(--foreground);
+    opacity: 0.6;
+    cursor: pointer;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    .material-icons {
+      font-size: 1rem;
+    }
+
+    &:hover {
+      opacity: 1;
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+}

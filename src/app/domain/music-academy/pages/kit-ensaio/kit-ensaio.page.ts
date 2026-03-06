@@ -1,3 +1,4 @@
+import { KitEnsaioPermissionService } from 'src/app/shared/services/kit-ensaio-permission.service';
 import { ZardSharedModule } from 'src/app/shared/modules/zard-shared.module';
 
 import { CommonModule } from '@angular/common';
@@ -43,6 +44,8 @@ export interface DriveItem {
   mimeType: string;
 }
 
+const DRIVE_WRITE_ROLES = new Set(['owner', 'organizer', 'fileOrganizer', 'writer']);
+
 @Component({
   selector: 'app-kit-ensaio-page',
   standalone: true,
@@ -52,6 +55,7 @@ export interface DriveItem {
 })
 export class KitEnsaioPage implements OnInit {
   private readonly router = inject(Router);
+  private readonly permissionService = inject(KitEnsaioPermissionService);
 
   readonly isConnected = signal(false);
   readonly isConnecting = signal(false);
@@ -88,6 +92,9 @@ export class KitEnsaioPage implements OnInit {
     return items.filter((item) => (item.name || '').toLowerCase().includes(q));
   });
 
+  /** Exposto para o template: só mostrar Criar/Editar Sync Map quando true. */
+  readonly canWriteToKitEnsaio = this.permissionService.canWriteToKitEnsaio;
+
   private accessToken: string | null = null;
 
   get hasClientId(): boolean {
@@ -104,6 +111,7 @@ export class KitEnsaioPage implements OnInit {
       this.error.set(null);
       this.listFolders();
       this.loadLastUsedFromStorage();
+      this.checkDriveWritePermission();
       return;
     }
     this.tryConnectGoogle();
@@ -140,6 +148,40 @@ export class KitEnsaioPage implements OnInit {
     } catch {
       // ignore
     }
+  }
+
+  /**
+   * Verifica se o usuário logado tem permissão de escrita na pasta do Kit Ensaio (Drive API).
+   * Atualiza KitEnsaioPermissionService para menu e botões Criar/Editar Sync Map.
+   */
+  private checkDriveWritePermission(): void {
+    if (!this.accessToken) {
+      this.permissionService.setCanWrite(false);
+      return;
+    }
+    const aboutUrl = 'https://www.googleapis.com/drive/v3/about?fields=user';
+    this.apiFetch<{ user?: { emailAddress?: string } }>(aboutUrl)
+      .then((about) => {
+        const email = (about.user?.emailAddress ?? '').trim().toLowerCase();
+        if (!email) {
+          this.permissionService.setCanWrite(false);
+          return;
+        }
+        const permUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(KIT_ENSAIO_FOLDER_ID)}?fields=permissions`;
+        return this.apiFetch<{ permissions?: { type: string; role: string; emailAddress?: string }[] }>(permUrl).then(
+          (file) => {
+            const perms = file.permissions ?? [];
+            const canWrite = perms.some(
+              (p) =>
+                p.type === 'user' &&
+                (p.emailAddress ?? '').toLowerCase() === email &&
+                DRIVE_WRITE_ROLES.has((p.role ?? '').toLowerCase())
+            );
+            this.permissionService.setCanWrite(canWrite);
+          }
+        );
+      })
+      .catch(() => this.permissionService.setCanWrite(false));
   }
 
   private loadViewPreference(): void {
@@ -185,6 +227,7 @@ export class KitEnsaioPage implements OnInit {
           this.error.set(null);
           this.listFolders();
           this.loadLastUsedFromStorage();
+          this.checkDriveWritePermission();
         }
       },
     });
@@ -199,6 +242,7 @@ export class KitEnsaioPage implements OnInit {
         this.clearTokenCache();
         this.accessToken = null;
         this.isConnected.set(false);
+        this.permissionService.setCanWrite(false);
         this.error.set('Sessão expirada. Recarregue a página para conectar de novo.');
       }
       if (!res.ok) throw new Error(`Erro ${res.status}: ${res.statusText}`);
@@ -216,7 +260,7 @@ export class KitEnsaioPage implements OnInit {
     this.error.set(null);
     this.isLoading.set(true);
     this.hasSyncMapInContext.set(null);
-    const url = `https://www.googleapis.com/drive/v3/files?q='${encodeURIComponent(folderId)}'+in+parents&fields=files(id,name,webViewLink,mimeType)&orderBy=name`;
+    const url = `https://www.googleapis.com/drive/v3/files?q='${encodeURIComponent(folderId)}'+in+parents+and+trashed=false&fields=files(id,name,webViewLink,mimeType)&orderBy=name`;
     this.apiFetch<{ files?: DriveItem[] }>(url)
       .then((data) => {
         const files = data.files || [];
@@ -229,7 +273,8 @@ export class KitEnsaioPage implements OnInit {
         this.currentItems.set(sorted);
         const isRoot = this.breadcrumb().length === 1;
         const hasAudioInFolder = sorted.some((item) => this.isAudioItem(item));
-        if (isRoot || !hasAudioInFolder) {
+        const canWrite = this.canWriteToKitEnsaio() === true;
+        if (isRoot || !hasAudioInFolder || !canWrite) {
           this.hasSyncMapInContext.set(false);
           this.isLoading.set(false);
           return;
@@ -288,6 +333,14 @@ export class KitEnsaioPage implements OnInit {
     const slice = bc.slice(0, index + 1);
     const { id, name } = slice[slice.length - 1];
     this.breadcrumb.set(slice);
+    this.listContents(id, name);
+  }
+
+  /** Atualiza o conteúdo da pasta atual (útil após apagar/alterar arquivos no Drive em outra aba). */
+  refreshCurrentFolder(): void {
+    const bc = this.breadcrumb();
+    if (bc.length === 0) return;
+    const { id, name } = bc[bc.length - 1];
     this.listContents(id, name);
   }
 
@@ -355,7 +408,7 @@ export class KitEnsaioPage implements OnInit {
     const searchName = MAPA_BACKS_NAME.toUpperCase();
     for (let i = breadcrumb.length - 1; i >= 0; i--) {
       const folderId = breadcrumb[i].id;
-      const listUrl = `https://www.googleapis.com/drive/v3/files?q='${encodeURIComponent(folderId)}'+in+parents&fields=files(id,name,mimeType)`;
+      const listUrl = `https://www.googleapis.com/drive/v3/files?q='${encodeURIComponent(folderId)}'+in+parents+and+trashed=false&fields=files(id,name,mimeType)`;
       const data = await this.apiFetch<{ files?: DriveItem[] }>(listUrl).catch(() => ({ files: [] }));
       const files = data.files || [];
       const mapBacks = files.find((f) => f.name?.toUpperCase().includes(searchName));
@@ -390,7 +443,7 @@ export class KitEnsaioPage implements OnInit {
     const searchPart = SYNC_MAP_NAME_PART.toUpperCase();
     for (let i = breadcrumb.length - 1; i >= 0; i--) {
       const folderId = breadcrumb[i].id;
-      const listUrl = `https://www.googleapis.com/drive/v3/files?q='${encodeURIComponent(folderId)}'+in+parents&fields=files(id,name,mimeType)`;
+      const listUrl = `https://www.googleapis.com/drive/v3/files?q='${encodeURIComponent(folderId)}'+in+parents+and+trashed=false&fields=files(id,name,mimeType)`;
       const data = await this.apiFetch<{ files?: DriveItem[] }>(listUrl).catch(() => ({ files: [] }));
       const files = data.files || [];
       const syncMapFile = files.find((f) => {
@@ -431,7 +484,10 @@ export class KitEnsaioPage implements OnInit {
 
       this.saveLastUsedAudio(item);
 
+      const bc = this.breadcrumb();
+      const folderIds = bc.map((c) => c.id).join(',');
       this.router.navigate(['/music-academy/recording'], {
+        queryParams: { audioId: item.id, folderIds },
         state: {
           backingAudioUrl: objectUrl,
           fileName: item.name,
@@ -466,7 +522,9 @@ export class KitEnsaioPage implements OnInit {
       const mapBacks = await this.loadMapBacksRecursive(last.breadcrumb);
       const syncMap = await this.loadSyncMapRecursive(last.breadcrumb);
 
+      const folderIds = last.breadcrumb.map((c) => c.id).join(',');
       this.router.navigate(['/music-academy/recording'], {
+        queryParams: { audioId: last.itemId, folderIds },
         state: {
           backingAudioUrl: objectUrl,
           fileName: last.itemName,
