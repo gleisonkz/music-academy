@@ -168,6 +168,7 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
 
     effect(() => {
       this.enumeratedBlocksCount();
+      this.syncPoints();
       const container = this.mapContainerRef()?.nativeElement;
       const content = container?.querySelector('.map-html-content');
       if (!content) return;
@@ -175,20 +176,21 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
       const blocks = content.querySelectorAll<HTMLElement>('[data-block-index]');
       if (activeIdx === null) {
         blocks.forEach((el) => this.clearSpotlightStyles(el));
-        return;
+      } else {
+        const sectionMap = buildSectionHeaderMap(blocks);
+        const activeSectionHeaderIdx = sectionMap.get(activeIdx) ?? null;
+        blocks.forEach((el) => {
+          const idx = Number(el.getAttribute('data-block-index'));
+          const isExcluded = isExcludedFromSpotlight(el.textContent?.trim() ?? '');
+          const isActive = isExcluded || idx === activeIdx || (activeSectionHeaderIdx !== null && idx === activeSectionHeaderIdx);
+          this.applySpotlightToBlock(el, isActive);
+        });
+        const activeEl = content.querySelector(`[data-block-index="${activeIdx}"]`);
+        if (activeEl) {
+          (activeEl as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
       }
-      const sectionMap = buildSectionHeaderMap(blocks);
-      const activeSectionHeaderIdx = sectionMap.get(activeIdx) ?? null;
-      blocks.forEach((el) => {
-        const idx = Number(el.getAttribute('data-block-index'));
-        const isExcluded = isExcludedFromSpotlight(el.textContent?.trim() ?? '');
-        const isActive = isExcluded || idx === activeIdx || (activeSectionHeaderIdx !== null && idx === activeSectionHeaderIdx);
-        this.applySpotlightToBlock(el, isActive);
-      });
-      const activeEl = content.querySelector(`[data-block-index="${activeIdx}"]`);
-      if (activeEl) {
-        (activeEl as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
+      this.applySeekableToBlocks(content);
     });
   }
 
@@ -213,6 +215,69 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
     el.style.removeProperty('opacity');
     el.style.removeProperty('filter');
     el.style.removeProperty('transition');
+  }
+
+  /** Reaplica o estado de spotlight num bloco (ex.: após sair do hover seekable). */
+  private refreshSpotlightForBlock(block: HTMLElement): void {
+    const content = this.mapContainerRef()?.nativeElement?.querySelector('.map-html-content');
+    const blocks = content?.querySelectorAll<HTMLElement>('[data-block-index]');
+    if (!blocks?.length) return;
+    const activeIdx = this.activeBlockIndex();
+    if (activeIdx === null) {
+      this.clearSpotlightStyles(block);
+      return;
+    }
+    const idx = Number(block.dataset['blockIndex']);
+    if (!Number.isInteger(idx)) return;
+    const sectionMap = buildSectionHeaderMap(blocks);
+    const activeSectionHeaderIdx = sectionMap.get(activeIdx) ?? null;
+    const isExcluded = isExcludedFromSpotlight(block.textContent?.trim() ?? '');
+    const isActive =
+      isExcluded || idx === activeIdx || (activeSectionHeaderIdx !== null && idx === activeSectionHeaderIdx);
+    this.applySpotlightToBlock(block, isActive);
+  }
+
+  /** Clique na área do mapa: se for em um bloco com sync point, move o áudio para essa seção. */
+  onMapAreaClick(event: MouseEvent): void {
+    if (this.syncPoints().length === 0) return;
+    const target = event.target as HTMLElement;
+    const blockEl = target.closest?.('[data-block-index]') as HTMLElement | null;
+    if (!blockEl) return;
+    const blockIndex = Number(blockEl.dataset['blockIndex']);
+    if (!Number.isInteger(blockIndex)) return;
+    const point = this.syncPoints().find((p) => p.blockIndex === blockIndex);
+    if (!point) return;
+    this.seekBackingTo(point.time);
+  }
+
+  private lastHoveredSeekableBlock: HTMLElement | null = null;
+
+  /** Hover na área do mapa: contorno só na área do texto + opacity 1 (funciona em texto com ou sem preenchimento). */
+  onMapAreaMouseOver(event: MouseEvent): void {
+    const block = (event.target as HTMLElement).closest?.('[data-block-index].seekable') as HTMLElement | null;
+    if (block === this.lastHoveredSeekableBlock) return;
+    this.clearSeekableHover();
+    if (!block) return;
+    this.lastHoveredSeekableBlock = block;
+    block.style.setProperty('opacity', '1', 'important');
+    block.style.setProperty('width', 'fit-content', 'important');
+    block.style.setProperty('box-shadow', '0 0 0 2px rgba(0, 251, 251, 0.9)', 'important');
+    block.style.setProperty('border-radius', '0.25rem', 'important');
+  }
+
+  onMapAreaMouseLeave(): void {
+    this.clearSeekableHover();
+  }
+
+  private clearSeekableHover(): void {
+    if (!this.lastHoveredSeekableBlock) return;
+    const block = this.lastHoveredSeekableBlock;
+    block.style.removeProperty('opacity');
+    block.style.removeProperty('width');
+    block.style.removeProperty('box-shadow');
+    block.style.removeProperty('border-radius');
+    this.lastHoveredSeekableBlock = null;
+    this.refreshSpotlightForBlock(block);
   }
 
   /**
@@ -353,6 +418,25 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
     const count = enumerateMapBlocks(content);
     this.enumeratedForHtml = html;
     this.enumeratedBlocksCount.set(count);
+    // Aplica seekable logo após enumerar blocos para o hover (cursor pointer) funcionar antes de qualquer clique.
+    this.applySeekableToBlocks(content);
+  }
+
+  /** Marca blocos que têm sync point como clicáveis; cursor via JS para vencer estilos do Docs/innerHTML. */
+  private applySeekableToBlocks(content: ParentNode): void {
+    const blocks = content.querySelectorAll<HTMLElement>('[data-block-index]');
+    const points = this.syncPoints();
+    blocks.forEach((el) => {
+      const idx = Number(el.dataset['blockIndex']);
+      const hasSyncPoint = Number.isInteger(idx) && points.some((p) => p.blockIndex === idx);
+      if (hasSyncPoint) {
+        el.classList.add('seekable');
+        el.style.setProperty('cursor', 'pointer', 'important');
+      } else {
+        el.classList.remove('seekable');
+        el.style.removeProperty('cursor');
+      }
+    });
   }
 
   /** Arquivo de áudio enviado (backing track) */

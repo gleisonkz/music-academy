@@ -285,6 +285,7 @@
       opacity 0.3s ease,
       filter 0.3s ease !important;
   }
+  // Cursor pointer em blocos seekable é aplicado via JS (applySeekableToBlocks) para vencer estilos do Docs.
   :deep([data-block-index].active) {
     opacity: 1 !important;
     filter: brightness(1) !important;

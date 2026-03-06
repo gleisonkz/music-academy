@@ -37,7 +37,13 @@
   </div>
   } } @else {
   <div class="recording-layout">
-    <div class="recording-map-area" #mapContainer>
+    <div
+      class="recording-map-area"
+      #mapContainer
+      (click)="onMapAreaClick($event)"
+      (mouseover)="onMapAreaMouseOver($event)"
+      (mouseleave)="onMapAreaMouseLeave()"
+    >
       @if (hasMapBacks()) { @if (mapBacksIsHtml()) {
       <div class="recording-map-html" [class.loaded]="mapBacksHtml() !== null">
         @if (mapBacksHtml() !== null && mapBacksSafeHtml(); as safeHtml) {
