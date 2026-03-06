@@ -72,6 +72,14 @@ function isSectionHeaderBlock(el: HTMLElement): boolean {
   return isBold && text.length < 100;
 }
 
+/** Títulos de seção que podem receber ponto de sync no Sync Editor (os demais não são clicáveis). */
+const SYNC_ALLOWED_SECTION_HEADERS: RegExp[] = [/^Introdução\b/i, /^Interlúdio\b/i, /^Solo\b/i];
+
+function isAllowedSectionHeaderForSync(text: string): boolean {
+  const t = (text ?? '').trim();
+  return t.length > 0 && SYNC_ALLOWED_SECTION_HEADERS.some((p) => p.test(t));
+}
+
 function buildSectionHeaderMap(blocks: NodeListOf<HTMLElement>): Map<number, number> {
   const map = new Map<number, number>();
   let lastSectionIdx: number | null = null;
@@ -325,6 +333,7 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
     const target = (event.target as HTMLElement).closest('[data-block-index]');
     if (!target) return;
     const el = target as HTMLElement;
+    if (this.isBlockNonClickable(el)) return;
     const indexStr = el.dataset['blockIndex'];
     if (indexStr == null) return;
     const blockIndex = Number.parseInt(indexStr, 10);
@@ -335,13 +344,14 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
     this.addSyncPoint({ time, blockIndex, label: label || undefined });
   }
 
-  /** Aplica destaque no hover com !important para vencer estilos inline do Google Docs. */
+  /** Aplica destaque no hover com !important para vencer estilos inline do Google Docs. Blocos excluídos não ficam clicáveis. */
   onMapMouseOver(event: MouseEvent): void {
     this.clearAllHoverStyles();
     const el = (event.target as HTMLElement).closest('[data-block-index]') as HTMLElement | null;
     const container = this.mapContainerRef()?.nativeElement;
-    if (container) container.style.cursor = el ? 'pointer' : 'default';
-    if (el) this.applyHoverStyles(el);
+    const clickable = el != null && !this.isBlockNonClickable(el);
+    if (container) container.style.cursor = clickable ? 'pointer' : 'default';
+    if (el && clickable) this.applyHoverStyles(el);
   }
 
   onMapMouseLeave(): void {
@@ -365,6 +375,15 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
       el.style.removeProperty('background');
       el.style.removeProperty('box-shadow');
     });
+  }
+
+  /** Blocos vazios, exclusão do spotlight e títulos de seção (exceto Introdução, Interlúdio, Solo) não recebem ponto de sync. */
+  private isBlockNonClickable(el: HTMLElement): boolean {
+    const text = el.textContent?.trim() ?? '';
+    if (!text) return true;
+    if (isExcludedFromSpotlight(text)) return true;
+    if (isSectionHeaderBlock(el) && !isAllowedSectionHeaderForSync(text)) return true;
+    return false;
   }
 
   /** Adiciona um ponto de sync. Se já existir um ponto com o mesmo blockIndex, ele é substituído pelo novo (evita duplicatas). */
