@@ -42,6 +42,9 @@ Thumbs.db
 .nx/workspace-data
 
 .angular
-.firebase/**
-.firebase/*
+
+# Firebase (cache e deploy)
+.firebase/
+
 .cache/*
+hosting
