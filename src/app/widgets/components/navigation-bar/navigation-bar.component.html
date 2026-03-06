@@ -4,7 +4,7 @@
       class="nav-item"
       [routerLink]="[menu.link]"
       routerLinkActive="active"
-      (click)="menuChange.emit(menu)"
+      (click)="onMenuClick($event, menu)"
     >
       <div class="content flex row-start gap-4">
         <span class="material-icons nav-icon" [attr.aria-hidden]="true">{{ menu.icon }}</span>

@@ -224,9 +224,18 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.route.queryParamMap.subscribe((params) => {
+      if (params.get('reset') === '1') {
+        this.resetToInitialState();
+        this.router.navigate(['/music-academy/recording'], { replaceUrl: true });
+      }
+    });
+
     const audioId = this.route.snapshot.queryParamMap.get('audioId');
     const folderIds = this.route.snapshot.queryParamMap.get('folderIds');
     const hasState = !!this.backingAudioUrl();
+    const reset = this.route.snapshot.queryParamMap.get('reset');
+    if (reset === '1') return;
 
     if (!hasState && audioId && folderIds) {
       this.tryRestoreFromUrl(audioId, folderIds);
@@ -234,6 +243,35 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
     }
 
     this.loadMapAndSyncFromCurrentUrls();
+  }
+
+  /** Volta ao estado inicial (dropzone) quando o usuário clica em "Gravação" no menu já estando na página. */
+  private resetToInitialState(): void {
+    this.stopRecording();
+    this.clearBackingTrack();
+    this.recordedBlob.set(null);
+    const recordedUrl = this.recordedUrl();
+    if (recordedUrl) {
+      URL.revokeObjectURL(recordedUrl);
+      this.recordedUrl.set(null);
+    }
+    const mapUrl = this.mapBacksUrl();
+    if (mapUrl) {
+      URL.revokeObjectURL(mapUrl);
+    }
+    const syncUrl = this.syncMapUrl();
+    if (syncUrl) URL.revokeObjectURL(syncUrl);
+    this.mapBacksUrl.set(null);
+    this.mapBacksFileName.set('');
+    this.mapBacksMimeType.set('');
+    this.mapBacksHtml.set(null);
+    this.mapBacksText.set(null);
+    this.syncMapUrl.set(null);
+    this.syncPoints.set([]);
+    this.syncEditorContext.set(null);
+    this.restoreError.set(null);
+    this.restoringFromUrl.set(false);
+    this.enumeratedForHtml = null;
   }
 
   /** Carrega HTML/texto do mapa e JSON de sync a partir dos URLs já setados. */
