@@ -365,10 +365,11 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
     });
   }
 
+  /** Adiciona um ponto de sync. Se já existir um ponto com o mesmo blockIndex, ele é substituído pelo novo (evita duplicatas). */
   addSyncPoint(point: SyncPoint): void {
     const current = this.syncPoints();
-    const withoutSameTime = current.filter((p) => p.time !== point.time);
-    const list = [...withoutSameTime, point].sort((a, b) => a.time - b.time);
+    const withoutSameBlock = current.filter((p) => p.blockIndex !== point.blockIndex);
+    const list = [...withoutSameBlock, point].sort((a, b) => a.time - b.time);
     this.syncPoints.set(list);
   }
 
