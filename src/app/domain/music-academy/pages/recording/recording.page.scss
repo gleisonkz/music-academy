@@ -34,8 +34,12 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .restore-error {
@@ -259,6 +263,22 @@
   box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.08);
   font-size: 1rem;
   line-height: 1.5;
+
+  // Efeito spotlight: seções inativas escurecidas, só a ativa em destaque
+  // :deep() para atingir nós do innerHTML (sem atributo de encapsulamento); !important para vencer estilos inline do Docs
+  :deep([data-block-index]) {
+    opacity: 0.4 !important;
+    filter: brightness(0.7) !important;
+    transition:
+      opacity 0.3s ease,
+      filter 0.3s ease !important;
+  }
+  :deep([data-block-index].active) {
+    opacity: 1 !important;
+    filter: brightness(1) !important;
+    box-shadow: 0 0 0 1px rgba(0, 251, 251, 0.25) !important;
+    border-radius: 0.25rem !important;
+  }
 
   @media (max-width: 768px) {
     width: 100%;

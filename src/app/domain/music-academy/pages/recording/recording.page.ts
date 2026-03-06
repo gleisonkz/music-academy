@@ -113,39 +113,46 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
     effect(() => {
       this.enumeratedBlocksCount();
       const container = this.mapContainerRef()?.nativeElement;
-      const activeIdx = this.activeBlockIndex();
-      if (!container || activeIdx === null) return;
-      const content = container.querySelector('.map-html-content');
+      const content = container?.querySelector('.map-html-content');
       if (!content) return;
-      content.querySelectorAll('[data-block-index].active').forEach((el) => this.clearActiveStyles(el as HTMLElement));
+      const activeIdx = this.activeBlockIndex();
+      const blocks = content.querySelectorAll<HTMLElement>('[data-block-index]');
+      if (activeIdx === null) {
+        blocks.forEach((el) => this.clearSpotlightStyles(el));
+        return;
+      }
+      blocks.forEach((el) => {
+        const isActive = el.getAttribute('data-block-index') === String(activeIdx);
+        this.applySpotlightToBlock(el, isActive);
+      });
       const activeEl = content.querySelector(`[data-block-index="${activeIdx}"]`);
       if (activeEl) {
-        activeEl.classList.add('active');
-        this.applyActiveStyles(activeEl as HTMLElement);
         (activeEl as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     });
   }
 
-  /** Aplica destaque inline com !important para vencer estilos do Google Docs (fonte maior + text-shadow colorido). */
-  private applyActiveStyles(el: HTMLElement): void {
-    el.style.setProperty('transition', 'transform 0.25s ease, text-shadow 0.25s ease', 'important');
-    el.style.setProperty('transform', 'scale(1.08)', 'important');
-    el.style.setProperty('font-weight', 'bold', 'important');
-    el.style.setProperty(
-      'text-shadow',
-      '0 0 12px rgba(0, 251, 251, 0.9), 0 0 24px rgba(0, 251, 251, 0.5)',
-      'important'
-    );
+  /** Aplica efeito spotlight por bloco: inativos escurecidos, ativo normal (inline para vencer estilos do Docs). */
+  private applySpotlightToBlock(el: HTMLElement, isActive: boolean): void {
+    if (isActive) {
+      el.classList.add('active');
+      el.style.setProperty('opacity', '1', 'important');
+      el.style.setProperty('filter', 'none', 'important');
+      el.style.setProperty('transition', 'opacity 0.3s ease, filter 0.3s ease', 'important');
+    } else {
+      el.classList.remove('active');
+      el.style.setProperty('opacity', '0.4', 'important');
+      el.style.setProperty('filter', 'brightness(0.7)', 'important');
+      el.style.setProperty('transition', 'opacity 0.3s ease, filter 0.3s ease', 'important');
+    }
   }
 
-  /** Remove estilos de destaque aplicados inline. */
-  private clearActiveStyles(el: HTMLElement): void {
+  /** Remove estilos de spotlight (volta ao normal). */
+  private clearSpotlightStyles(el: HTMLElement): void {
     el.classList.remove('active');
+    el.style.removeProperty('opacity');
+    el.style.removeProperty('filter');
     el.style.removeProperty('transition');
-    el.style.removeProperty('transform');
-    el.style.removeProperty('font-weight');
-    el.style.removeProperty('text-shadow');
   }
 
   /** Corrige HTML do Docs: remove clip à esquerda, injeta estilo e wrapper com zona segura. */
