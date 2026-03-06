@@ -13,6 +13,7 @@ import {
     TrackAudioPlayerComponent
 } from '../../components/track-audio-player/track-audio-player.component';
 import { KitEnsaioPermissionService } from 'src/app/shared/services/kit-ensaio-permission.service';
+import { KIT_ENSAIO_FOLDER_ID } from '../kit-ensaio/kit-ensaio.page';
 import { getDriveTokenFromCache } from '../../shared/drive-token';
 import { loadRecordingContextFromDrive } from '../../shared/load-recording-context';
 import { enumerateMapBlocks, normalizeDocHtml } from '../../shared/map-backs-doc';
@@ -308,7 +309,7 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
     }
   }
 
-  /** Restaura áudio + mapa + sync do Drive usando queryParams (após F5). */
+  /** Restaura áudio + mapa + sync do Drive usando queryParams (após F5). Permissão e contexto em paralelo. */
   private tryRestoreFromUrl(audioId: string, folderIds: string): void {
     const token = getDriveTokenFromCache();
     if (!token) {
@@ -317,8 +318,10 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
     }
     this.restoringFromUrl.set(true);
     this.restoreError.set(null);
-    loadRecordingContextFromDrive(token, audioId, folderIds)
-      .then((ctx) => {
+    const contextPromise = loadRecordingContextFromDrive(token, audioId, folderIds);
+    const permissionPromise = this.permissionService.checkWritePermission(token, KIT_ENSAIO_FOLDER_ID);
+    Promise.all([contextPromise, permissionPromise])
+      .then(([ctx]) => {
         this.backingAudioUrl.set(ctx.backingAudioUrl);
         this.fileName.set(ctx.fileName);
         this.mapBacksUrl.set(ctx.mapBacksUrl);

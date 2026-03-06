@@ -1,7 +1,5 @@
 import { Route } from '@angular/router';
 
-import { recordingPermissionResolver } from './recording-permission.resolver';
-
 export const MUSIC_ACADEMY_ROUTES: Route[] = [
   {
     path: '',
@@ -38,7 +36,6 @@ export const MUSIC_ACADEMY_ROUTES: Route[] = [
       },
       {
         path: 'recording',
-        resolve: { _recordingPermission: recordingPermissionResolver },
         loadComponent: async () => (await import('./pages/recording')).RecordingPage,
       },
       {
