@@ -14,6 +14,7 @@ import {
 } from '../../components/track-audio-player/track-audio-player.component';
 import { KitEnsaioPermissionService } from 'src/app/shared/services/kit-ensaio-permission.service';
 import { KIT_ENSAIO_FOLDER_ID } from '../kit-ensaio/kit-ensaio.page';
+import { RecordingSyncEditorNavService } from '../../shared/recording-sync-editor-nav.service';
 import { getDriveTokenFromCache } from '../../shared/drive-token';
 import { loadRecordingContextFromDrive } from '../../shared/load-recording-context';
 import { enumerateMapBlocks, normalizeDocHtml } from '../../shared/map-backs-doc';
@@ -104,6 +105,7 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly permissionService = inject(KitEnsaioPermissionService);
+  private readonly syncEditorNav = inject(RecordingSyncEditorNavService);
 
   /** Contexto para abrir o Sync Editor (pasta + token); setado ao vir do Kit Ensaio ou após restore por URL. */
   private readonly syncEditorContext = signal<{ driveFolderId?: string; driveAccessToken?: string } | null>(null);
@@ -597,6 +599,7 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
     const backingUrl = this.backingAudioUrl();
     const mapUrl = this.mapBacksUrl();
     if (!backingUrl || !mapUrl) return;
+    this.syncEditorNav.skipRevokeBlobUrls.set(true);
     const ctx = this.syncEditorContext();
     const audioId = this.route.snapshot.queryParamMap.get('audioId');
     const folderIds = this.route.snapshot.queryParamMap.get('folderIds');
@@ -627,12 +630,18 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.clearBackingTrack();
+    const skipRevoke = this.syncEditorNav.skipRevokeBlobUrls();
+    if (skipRevoke) {
+      this.syncEditorNav.skipRevokeBlobUrls.set(false);
+    }
+    if (!skipRevoke) {
+      this.clearBackingTrack();
+      const mapUrl = this.mapBacksUrl();
+      if (mapUrl) URL.revokeObjectURL(mapUrl);
+      const syncUrl = this.syncMapUrl();
+      if (syncUrl) URL.revokeObjectURL(syncUrl);
+    }
     const url = this.recordedUrl();
     if (url) URL.revokeObjectURL(url);
-    const mapUrl = this.mapBacksUrl();
-    if (mapUrl) URL.revokeObjectURL(mapUrl);
-    const syncUrl = this.syncMapUrl();
-    if (syncUrl) URL.revokeObjectURL(syncUrl);
   }
 }
