@@ -43,6 +43,10 @@ export const MUSIC_ACADEMY_ROUTES: Route[] = [
         loadComponent: async () => (await import('./pages/kit-ensaio')).KitEnsaioPage,
       },
       {
+        path: 'sync-editor',
+        loadComponent: async () => (await import('./pages/sync-editor/index')).SyncEditorPage,
+      },
+      {
         path: 'backing-practice',
         loadChildren: async () => (await import('../../domain/backing-practice/backing-practice.routes')).BACKING_PRACTICE_ROUTES,
       },

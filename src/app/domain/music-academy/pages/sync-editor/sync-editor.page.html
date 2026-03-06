@@ -1,0 +1,160 @@
+<div class="sync-editor-page">
+  @if (!canEdit()) {
+  <div class="sync-editor-empty">
+    <h1 class="sync-editor-title">Editor de Sincronia</h1>
+    <p class="sync-editor-subtitle">
+      Gere o JSON de sincronia (tempo + bloco) do mapa. Toque o áudio e clique
+      em cada bloco do mapa no momento certo; depois exporte o JSON.
+    </p>
+    <p class="sync-editor-hint">
+      Para usar o editor, abra pelo <strong>Kit Ensaio</strong>: escolha uma
+      pasta com um áudio e um arquivo "MAPA BACKS" (Google Docs em HTML) e
+      clique em <strong>Editor de Sincronia</strong> no arquivo de áudio.
+    </p>
+    <a z-button zType="default" (click)="goToKitEnsaio()"> Abrir Kit Ensaio </a>
+  </div>
+  } @else {
+  <div class="sync-editor-layout">
+    <div
+      class="sync-editor-map-area"
+      #mapContainer
+      (click)="onMapClick($event)"
+      (mouseover)="onMapMouseOver($event)"
+      (mouseleave)="onMapMouseLeave()"
+    >
+      @if (mapBacksIsHtml()) {
+      <div
+        class="sync-editor-map-html"
+        [class.loaded]="mapBacksHtml() !== null"
+      >
+        @if (mapBacksHtml() !== null && mapBacksSafeHtml(); as safeHtml) {
+        <div class="map-html-content" [innerHTML]="safeHtml"></div>
+        } @else {
+        <p class="map-loading">Carregando mapa...</p>
+        }
+      </div>
+      } @else if (mapBacksIsText()) {
+      <div
+        class="sync-editor-map-text"
+        [class.loaded]="mapBacksText() !== null"
+      >
+        @if (mapBacksText() !== null) {
+        <pre class="map-text-content">{{ mapBacksText() }}</pre>
+        } @else {
+        <p class="map-loading">Carregando mapa...</p>
+        }
+      </div>
+      } @else {
+      <p class="map-loading">
+        Mapa em HTML é necessário para o editor. Use o Kit Ensaio com um MAPA
+        BACKS em Google Docs.
+      </p>
+      }
+    </div>
+
+    <aside class="sync-editor-sidebar">
+      <z-card class="sync-editor-card">
+        <div class="backing-section">
+          <h2 class="section-label">Áudio de apoio</h2>
+          <p class="file-name">{{ fileName() }}</p>
+          <ma-track-audio-player
+            #backingPlayer
+            [src]="backingAudioUrl()"
+            class="backing-audio"
+          />
+        </div>
+
+        <div class="instructions-section">
+          <h2 class="section-label">Como usar</h2>
+          <p class="section-hint">
+            Dê play no áudio e clique em cada <strong>parágrafo</strong> do mapa
+            no momento em que ele começa.
+          </p>
+        </div>
+
+        <div class="sync-actions-section">
+          <h2 class="section-label">Pontos ({{ syncPoints().length }})</h2>
+          <div class="export-actions">
+            @if (syncPoints().length > 0) {
+            <button
+              z-button
+              zType="outline"
+              zSize="sm"
+              (click)="saveJsonLocal()"
+              type="button"
+              title="Baixar JSON no seu computador"
+            >
+              <span class="material-icons">download</span>
+              Salvar local
+            </button>
+            }
+            <div class="load-json-wrap">
+              <input
+                type="file"
+                accept=".json,application/json"
+                class="load-json-input"
+                (change)="onLoadJsonFile($event)"
+              />
+              <button z-button zType="outline" zSize="sm" type="button" title="Restaurar de um JSON salvo">
+                <span class="material-icons">upload_file</span>
+                Carregar JSON
+              </button>
+            </div>
+            @if (canSaveToDrive()) {
+            <button
+              z-button
+              zType="outline"
+              zSize="sm"
+              (click)="saveJsonToDrive()"
+              [disabled]="savingToDrive()"
+              type="button"
+              title="Salvar na raiz da música no Google Drive"
+            >
+              @if (savingToDrive()) {
+              <span class="material-icons spin">sync</span>
+              Salvando… } @else {
+              <span class="material-icons">cloud_upload</span>
+              Salvar no Drive }
+            </button>
+            }
+          </div>
+          @if (driveSaveError()) {
+          <p class="drive-save-error">{{ driveSaveError() }}</p>
+          }
+        </div>
+
+        @if (syncPoints().length > 0) {
+        <div class="sync-list-section">
+          <h2 class="section-label">Lista</h2>
+          <ul class="sync-list">
+            @for (point of syncPoints(); track $index) {
+            <li class="sync-list-item">
+              <button
+                type="button"
+                class="sync-list-time-btn"
+                (click)="seekBackingTo(point.time)"
+                [attr.title]="'Ir para ' + formatTime(point.time)"
+                aria-label="Ir para {{ formatTime(point.time) }}"
+              >
+                {{ formatTime(point.time) }}
+              </button>
+              <span class="sync-list-block" [title]="point.label || ('bloco ' + point.blockIndex)">{{ point.label || ('bloco ' + point.blockIndex) }}</span>
+              <button
+                type="button"
+                class="sync-list-remove"
+                (click)="removeSyncPoint($index)"
+                title="Remover"
+                aria-label="Remover"
+              >
+                <span class="material-icons">close</span>
+              </button>
+            </li>
+            }
+          </ul>
+        </div>
+        }
+      </z-card>
+    </aside>
+  </div>
+  }
+</div>

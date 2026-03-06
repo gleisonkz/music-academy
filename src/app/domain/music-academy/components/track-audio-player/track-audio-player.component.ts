@@ -5,6 +5,7 @@ import {
   effect,
   ElementRef,
   input,
+  output,
   signal,
   viewChild,
 } from '@angular/core';
@@ -28,6 +29,9 @@ export class TrackAudioPlayerComponent {
   readonly currentTime = signal(0);
   readonly duration = signal(0);
   readonly volume = signal(1);
+
+  /** Emitido a cada timeupdate do áudio (para sincronizar mapa/lyrics na página pai). */
+  readonly timeUpdate = output<number>();
 
   readonly currentFormatted = computed(() => this.formatTime(this.currentTime()));
   readonly durationFormatted = computed(() => {
@@ -95,7 +99,11 @@ export class TrackAudioPlayerComponent {
 
   onTimeUpdate(): void {
     const el = this.audio;
-    if (el) this.currentTime.set(el.currentTime);
+    if (el) {
+      const t = el.currentTime;
+      this.currentTime.set(t);
+      this.timeUpdate.emit(t);
+    }
   }
 
   onLoadedMetadata(): void {
@@ -119,6 +127,14 @@ export class TrackAudioPlayerComponent {
 
   onPause(): void {
     this.isPlaying.set(false);
+  }
+
+  /** Define o tempo atual do áudio em segundos (para seek pela lista de pontos). */
+  seekTo(seconds: number): void {
+    const el = this.audio;
+    if (!el || !Number.isFinite(seconds) || seconds < 0) return;
+    el.currentTime = seconds;
+    this.currentTime.set(el.currentTime);
   }
 
   onSeek(event: Event): void {

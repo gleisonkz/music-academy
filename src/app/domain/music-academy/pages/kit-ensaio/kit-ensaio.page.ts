@@ -9,8 +9,15 @@ const GOOGLE_CLIENT_ID = '216430399393-s4bsm8fiti6978mm4elmmkphh6npa30q.apps.goo
 
 const DRIVE_TOKEN_STORAGE_KEY = 'music-academy-drive-token';
 const KIT_ENSAIO_VIEW_KEY = 'music-academy-kit-ensaio-view';
+const LAST_USED_AUDIO_KEY = 'music-academy-kit-ensaio-last-used-audio';
 /** Tempo que mantemos o token em cache no localStorage (1 dia). */
 const TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000;
+
+export interface LastUsedAudio {
+  itemId: string;
+  itemName: string;
+  breadcrumb: { id: string; name: string }[];
+}
 
 /** Pasta pública do Kit Ensaio (qualquer um com o link pode ver). */
 export const KIT_ENSAIO_FOLDER_ID = '1K8URtmzX0MOWtEcB_NSzBhcqNzFVBy83';
@@ -20,6 +27,8 @@ const FOLDER_MIME = 'application/vnd.google-apps.folder';
 const GOOGLE_DOCS_MIME = 'application/vnd.google-apps.document';
 /** Nome do arquivo de mapa de backs — busca case-insensitive. */
 const MAPA_BACKS_NAME = 'MAPA BACKS';
+/** Parte do nome para buscar JSON de sincronia do mapa (ex.: sync-map-1772755577509.json). */
+const SYNC_MAP_NAME_PART = 'sync-map';
 
 export interface DriveFolder {
   id: string;
@@ -55,10 +64,18 @@ export class KitEnsaioPage implements OnInit {
   readonly breadcrumb = signal<{ id: string; name: string }[]>([]);
   /** ID do arquivo sendo carregado para "Usar na gravação" (evita cliques duplos). */
   readonly loadingForRecording = signal<string | null>(null);
+  /** ID do arquivo sendo carregado para "Editor de Sincronia". */
+  readonly loadingForSyncEditor = signal<string | null>(null);
+  /** true enquanto carrega "Abrir último na gravação". */
+  readonly loadingLastUsed = signal(false);
+  /** Último áudio usado (gravação ou editor), lido do localStorage. */
+  readonly lastUsedAudio = signal<LastUsedAudio | null>(null);
   /** Filtro de pesquisa (só no primeiro nível). */
   readonly searchFilter = signal('');
   /** Visualização: lista ou grade (só afeta desktop; preferência salva no localStorage). */
   readonly viewMode = signal<'list' | 'grid'>('grid');
+  /** Se na pasta atual (ou acima) existe um sync map; null = ainda verificando. */
+  readonly hasSyncMapInContext = signal<boolean | null>(null);
 
   readonly isFirstLevel = computed(() => this.breadcrumb().length === 1);
 
@@ -86,6 +103,7 @@ export class KitEnsaioPage implements OnInit {
       this.isConnected.set(true);
       this.error.set(null);
       this.listFolders();
+      this.loadLastUsedFromStorage();
       return;
     }
     this.tryConnectGoogle();
@@ -153,7 +171,7 @@ export class KitEnsaioPage implements OnInit {
     }
     const client = g.accounts.oauth2.initTokenClient({
       client_id: GOOGLE_CLIENT_ID,
-      scope: 'https://www.googleapis.com/auth/drive.readonly',
+      scope: 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/drive.file',
       callback: (response: { access_token?: string; error?: string }) => {
         this.isConnecting.set(false);
         if (response.error) {
@@ -166,6 +184,7 @@ export class KitEnsaioPage implements OnInit {
           this.isConnected.set(true);
           this.error.set(null);
           this.listFolders();
+          this.loadLastUsedFromStorage();
         }
       },
     });
@@ -196,6 +215,7 @@ export class KitEnsaioPage implements OnInit {
   listContents(folderId: string, folderName: string): void {
     this.error.set(null);
     this.isLoading.set(true);
+    this.hasSyncMapInContext.set(null);
     const url = `https://www.googleapis.com/drive/v3/files?q='${encodeURIComponent(folderId)}'+in+parents&fields=files(id,name,webViewLink,mimeType)&orderBy=name`;
     this.apiFetch<{ files?: DriveItem[] }>(url)
       .then((data) => {
@@ -207,11 +227,27 @@ export class KitEnsaioPage implements OnInit {
           return (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' });
         });
         this.currentItems.set(sorted);
-        this.isLoading.set(false);
+        const isRoot = this.breadcrumb().length === 1;
+        const hasAudioInFolder = sorted.some((item) => this.isAudioItem(item));
+        if (isRoot || !hasAudioInFolder) {
+          this.hasSyncMapInContext.set(false);
+          this.isLoading.set(false);
+          return;
+        }
+        this.loadSyncMapRecursive()
+          .then((s) => {
+            this.hasSyncMapInContext.set(!!s);
+            this.isLoading.set(false);
+          })
+          .catch(() => {
+            this.hasSyncMapInContext.set(false);
+            this.isLoading.set(false);
+          });
       })
       .catch((err) => {
         this.error.set(err?.message || 'Falha ao listar conteúdo.');
         this.isLoading.set(false);
+        this.hasSyncMapInContext.set(false);
       });
   }
 
@@ -259,24 +295,66 @@ export class KitEnsaioPage implements OnInit {
     return item.mimeType === FOLDER_MIME;
   }
 
+  /** Verifica se o item é um arquivo de sync map (mesmo critério da busca recursiva). */
+  private isSyncMapFile(item: DriveItem): boolean {
+    const name = (item.name || '').toUpperCase();
+    const mime = (item.mimeType || '').toLowerCase();
+    return name.includes(SYNC_MAP_NAME_PART.toUpperCase()) && (name.endsWith('.JSON') || mime.includes('json'));
+  }
+
   /** Retorna true se o item for reconhecido como áudio (para mostrar botão "Usar na gravação"). */
   isAudioItem(item: DriveItem): boolean {
     return this.getFileIcon(item) === 'music_note';
+  }
+
+  private loadLastUsedFromStorage(): void {
+    try {
+      const raw = localStorage.getItem(LAST_USED_AUDIO_KEY);
+      if (!raw) {
+        this.lastUsedAudio.set(null);
+        return;
+      }
+      const data = JSON.parse(raw) as LastUsedAudio;
+      if (data?.itemId && data?.itemName && Array.isArray(data?.breadcrumb)) {
+        this.lastUsedAudio.set(data);
+      } else {
+        this.lastUsedAudio.set(null);
+      }
+    } catch {
+      this.lastUsedAudio.set(null);
+    }
+  }
+
+  private saveLastUsedAudio(item: DriveItem): void {
+    const bc = this.breadcrumb();
+    if (bc.length < 1) return;
+    try {
+      const data: LastUsedAudio = {
+        itemId: item.id,
+        itemName: item.name,
+        breadcrumb: bc.map((c) => ({ id: c.id, name: c.name })),
+      };
+      localStorage.setItem(LAST_USED_AUDIO_KEY, JSON.stringify(data));
+      this.lastUsedAudio.set(data);
+    } catch {
+      // ignore
+    }
   }
 
   /**
    * Busca o arquivo "MAPA BACKS" de forma recursiva: começa na pasta do áudio e sobe as pastas
    * até a raiz (nível da pasta da música / Kit Ensaio). Se não achar em nenhum nível, lança erro.
    * Google Docs é exportado como PDF para exibição.
+   * @param bc breadcrumb a usar; se omitido, usa o da pasta atual.
    */
-  private async loadMapBacksRecursive(): Promise<{ url: string; fileName: string; mimeType: string }> {
-    const bc = this.breadcrumb();
-    if (bc.length < 1 || !this.accessToken) {
+  private async loadMapBacksRecursive(bc?: { id: string; name: string }[]): Promise<{ url: string; fileName: string; mimeType: string }> {
+    const breadcrumb = bc ?? this.breadcrumb();
+    if (breadcrumb.length < 1 || !this.accessToken) {
       throw new Error('MAPA BACKS não encontrado: nenhuma pasta para buscar.');
     }
     const searchName = MAPA_BACKS_NAME.toUpperCase();
-    for (let i = bc.length - 1; i >= 0; i--) {
-      const folderId = bc[i].id;
+    for (let i = breadcrumb.length - 1; i >= 0; i--) {
+      const folderId = breadcrumb[i].id;
       const listUrl = `https://www.googleapis.com/drive/v3/files?q='${encodeURIComponent(folderId)}'+in+parents&fields=files(id,name,mimeType)`;
       const data = await this.apiFetch<{ files?: DriveItem[] }>(listUrl).catch(() => ({ files: [] }));
       const files = data.files || [];
@@ -301,6 +379,39 @@ export class KitEnsaioPage implements OnInit {
     );
   }
 
+  /**
+   * Busca recursiva por um arquivo cujo nome contenha "sync-map" (ex.: sync-map-1772755577509.json).
+   * Percorre as mesmas pastas do breadcrumb (da pasta do áudio até a raiz). Retorna null se não achar.
+   * @param bc breadcrumb a usar; se omitido, usa o da pasta atual.
+   */
+  private async loadSyncMapRecursive(bc?: { id: string; name: string }[]): Promise<{ url: string } | null> {
+    const breadcrumb = bc ?? this.breadcrumb();
+    if (breadcrumb.length < 1 || !this.accessToken) return null;
+    const searchPart = SYNC_MAP_NAME_PART.toUpperCase();
+    for (let i = breadcrumb.length - 1; i >= 0; i--) {
+      const folderId = breadcrumb[i].id;
+      const listUrl = `https://www.googleapis.com/drive/v3/files?q='${encodeURIComponent(folderId)}'+in+parents&fields=files(id,name,mimeType)`;
+      const data = await this.apiFetch<{ files?: DriveItem[] }>(listUrl).catch(() => ({ files: [] }));
+      const files = data.files || [];
+      const syncMapFile = files.find((f) => {
+        const name = (f.name || '').toUpperCase();
+        const mime = (f.mimeType || '').toLowerCase();
+        return name.includes(searchPart) && (name.endsWith('.JSON') || mime.includes('json'));
+      });
+      if (!syncMapFile) continue;
+
+      const downloadUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(syncMapFile.id)}?alt=media`;
+      const res = await fetch(downloadUrl, {
+        headers: { Authorization: `Bearer ${this.accessToken}` },
+      });
+      if (!res.ok) continue;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      return { url };
+    }
+    return null;
+  }
+
   /** Baixa o áudio e o MAPA BACKS (busca recursiva) e navega para Gravação. Se o mapa não for encontrado, exibe erro e não navega. */
   async useInRecording(item: DriveItem): Promise<void> {
     if (!this.isAudioItem(item) || !this.accessToken) return;
@@ -316,6 +427,9 @@ export class KitEnsaioPage implements OnInit {
       const objectUrl = URL.createObjectURL(blob);
 
       const mapBacks = await this.loadMapBacksRecursive();
+      const syncMap = await this.loadSyncMapRecursive();
+
+      this.saveLastUsedAudio(item);
 
       this.router.navigate(['/music-academy/recording'], {
         state: {
@@ -324,12 +438,90 @@ export class KitEnsaioPage implements OnInit {
           mapBacksUrl: mapBacks.url,
           mapBacksFileName: mapBacks.fileName,
           mapBacksMimeType: mapBacks.mimeType,
+          syncMapUrl: syncMap?.url,
         },
       });
     } catch (err) {
       this.error.set((err as Error)?.message ?? 'Não foi possível carregar para a gravação.');
     } finally {
       this.loadingForRecording.set(null);
+    }
+  }
+
+  /** Carrega o último áudio usado (gravado no localStorage) e abre na Gravação. */
+  async openLastUsedInRecording(): Promise<void> {
+    const last = this.lastUsedAudio();
+    if (!last || !this.accessToken) return;
+    this.loadingLastUsed.set(true);
+    this.error.set(null);
+    try {
+      const url = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(last.itemId)}?alt=media`;
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${this.accessToken}` },
+      });
+      if (!res.ok) throw new Error(`Erro ${res.status} ao baixar o áudio.`);
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+
+      const mapBacks = await this.loadMapBacksRecursive(last.breadcrumb);
+      const syncMap = await this.loadSyncMapRecursive(last.breadcrumb);
+
+      this.router.navigate(['/music-academy/recording'], {
+        state: {
+          backingAudioUrl: objectUrl,
+          fileName: last.itemName,
+          mapBacksUrl: mapBacks.url,
+          mapBacksFileName: mapBacks.fileName,
+          mapBacksMimeType: mapBacks.mimeType,
+          syncMapUrl: syncMap?.url,
+        },
+      });
+    } catch (err) {
+      this.error.set((err as Error)?.message ?? 'Não foi possível carregar o último áudio.');
+    } finally {
+      this.loadingLastUsed.set(false);
+    }
+  }
+
+  /** Carrega áudio + MAPA BACKS e navega para o Editor de Sincronia (mesmo state que Gravação). */
+  async useInSyncEditor(item: DriveItem): Promise<void> {
+    if (!this.isAudioItem(item) || !this.accessToken) return;
+    this.loadingForSyncEditor.set(item.id);
+    this.error.set(null);
+    try {
+      const url = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(item.id)}?alt=media`;
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${this.accessToken}` },
+      });
+      if (!res.ok) throw new Error(`Erro ${res.status} ao baixar o áudio.`);
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+
+      const mapBacks = await this.loadMapBacksRecursive();
+      const syncMap = await this.loadSyncMapRecursive();
+
+      this.saveLastUsedAudio(item);
+
+      const bc = this.breadcrumb();
+      // Raiz da música = 1 pasta abaixo de KIT ENSAIO (breadcrumb[0] = raiz, breadcrumb[1] = pasta da música)
+      const musicRootFolderId = bc.length >= 2 ? bc[1].id : bc[0]?.id;
+
+      this.router.navigate(['/music-academy/sync-editor'], {
+        state: {
+          backingAudioUrl: objectUrl,
+          fileName: item.name,
+          mapBacksUrl: mapBacks.url,
+          mapBacksFileName: mapBacks.fileName,
+          mapBacksMimeType: mapBacks.mimeType,
+          syncMapUrl: syncMap?.url,
+          driveFolderId: musicRootFolderId,
+          driveAccessToken: this.accessToken ?? undefined,
+        },
+      });
+    } catch (err) {
+      this.error.set((err as Error)?.message ?? 'Não foi possível abrir o Editor de Sincronia.');
+    } finally {
+      this.loadingForSyncEditor.set(null);
     }
   }
 

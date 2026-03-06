@@ -23,7 +23,7 @@
     </div>
   } @else {
     <div class="recording-layout">
-      <div class="recording-map-area">
+      <div class="recording-map-area" #mapContainer>
         @if (hasMapBacks()) {
           @if (mapBacksIsHtml()) {
             <div class="recording-map-html" [class.loaded]="mapBacksHtml() !== null">
@@ -65,8 +65,21 @@
         <span class="material-icons">tune</span>
       </button>
 
+      @if (syncPoints().length > 0) {
+        <div class="recording-sync-badge" title="JSON de sincronia encontrado no Drive — mapa acompanha o áudio">
+          <span class="material-icons">schedule</span>
+          <span>Sincronia ativa ({{ syncPoints().length }} pontos)</span>
+        </div>
+      }
+
       <aside class="recording-sidebar" [class.closed]="!sidebarOpen()">
         <z-card class="recording-card">
+          @if (syncPoints().length > 0) {
+            <div class="sync-indicator" title="Mapa sincronizado com o áudio">
+              <span class="material-icons">sync</span>
+              <span>Mapa sincronizado</span>
+            </div>
+          }
           <div class="backing-section">
             <div class="justify-between">
               <div>
@@ -82,6 +95,7 @@
             <ma-track-audio-player
               #backingPlayer
               [src]="backingAudioUrl()"
+              (timeUpdate)="onBackingTimeUpdate($event)"
               class="backing-audio"
             />
           </div>

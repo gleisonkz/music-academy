@@ -43,6 +43,11 @@ export const MENUS: Menu[] = [
     link: '/music-academy/kit-ensaio',
   },
   {
+    icon: 'schedule',
+    title: 'Editor de Sincronia',
+    link: '/music-academy/sync-editor',
+  },
+  {
     icon: 'quiz',
     title: 'Quizz',
     link: '/music-academy/quizz',

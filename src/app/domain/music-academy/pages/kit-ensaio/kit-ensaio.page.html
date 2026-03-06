@@ -32,6 +32,30 @@
       </div>
     }
 
+    @if (isConnected() && lastUsedAudio(); as lastUsed) {
+      <div class="last-used-bar">
+        <button
+          type="button"
+          z-button
+          zType="outline"
+          zSize="sm"
+          class="last-used-btn"
+          [disabled]="loadingLastUsed()"
+          (click)="openLastUsedInRecording()"
+          [attr.title]="'Abrir na gravação: ' + lastUsed.itemName"
+        >
+          @if (loadingLastUsed()) {
+            <span class="material-icons spin">sync</span>
+            <span>Carregando…</span>
+          } @else {
+            <span class="material-icons">history</span>
+            <span>Abrir último na gravação</span>
+            <span class="last-used-name">{{ lastUsed.itemName }}</span>
+          }
+        </button>
+      </div>
+    }
+
     @if (breadcrumb().length > 0) {
       <div class="drive-browser">
         <nav class="breadcrumb" aria-label="Navegação da pasta">
@@ -87,7 +111,20 @@
           </div>
         </div>
         @if (isLoading()) {
-          <p class="loading-msg">Carregando...</p>
+          <ul class="items-list skeleton-list" [class.view-list]="viewMode() === 'list'" [class.view-grid]="viewMode() === 'grid'" aria-hidden="true">
+            @for (i of [1,2,3,4,5,6]; track i) {
+              <li class="skeleton-item">
+                <div class="skeleton-icon"></div>
+                <div class="skeleton-line"></div>
+                @if (i <= 2) {
+                  <div class="skeleton-actions">
+                    <span class="skeleton-btn"></span>
+                    <span class="skeleton-btn"></span>
+                  </div>
+                }
+              </li>
+            }
+          </ul>
         } @else {
           <ul class="items-list" [class.view-list]="viewMode() === 'list'" [class.view-grid]="viewMode() === 'grid'">
             @for (item of filteredItems(); track item.id) {
@@ -108,24 +145,44 @@
                       <span class="file-row-name">{{ item.name }}</span>
                     </a>
                     @if (isAudioItem(item)) {
-                      <button
-                        type="button"
-                        z-button
-                        zType="outline"
-                        zSize="sm"
-                        class="use-in-recording-btn"
-                        [attr.title]="loadingForRecording() === item.id ? 'Carregando…' : 'Usar na gravação'"
-                        [disabled]="loadingForRecording() !== null"
-                        (click)="useInRecording(item); $event.preventDefault(); $event.stopPropagation()"
-                      >
-                        @if (loadingForRecording() === item.id) {
-                          <span class="material-icons spin">sync</span>
-                          <span class="use-in-recording-label">Carregando…</span>
-                        } @else {
-                          <span class="material-icons">mic</span>
-                          <span class="use-in-recording-label">Usar na gravação</span>
-                        }
-                      </button>
+                      <div class="file-row-actions">
+                        <button
+                          type="button"
+                          z-button
+                          zType="outline"
+                          zSize="sm"
+                          class="use-in-recording-btn"
+                          [attr.title]="loadingForRecording() === item.id ? 'Carregando…' : 'Usar na gravação'"
+                          [disabled]="loadingForRecording() !== null || loadingForSyncEditor() !== null"
+                          (click)="useInRecording(item); $event.preventDefault(); $event.stopPropagation()"
+                        >
+                          @if (loadingForRecording() === item.id) {
+                            <span class="material-icons spin">sync</span>
+                            <span class="use-in-recording-label">Carregando…</span>
+                          } @else {
+                            <span class="material-icons">mic</span>
+                            <span class="use-in-recording-label">Usar na gravação</span>
+                          }
+                        </button>
+                        <button
+                          type="button"
+                          z-button
+                          zType="outline"
+                          zSize="sm"
+                          class="use-in-sync-editor-btn"
+                          [attr.title]="loadingForSyncEditor() === item.id ? 'Carregando…' : (hasSyncMapInContext() ? 'Editar Sync Map' : 'Criar Sync Map')"
+                          [disabled]="loadingForRecording() !== null || loadingForSyncEditor() !== null"
+                          (click)="useInSyncEditor(item); $event.preventDefault(); $event.stopPropagation()"
+                        >
+                          @if (loadingForSyncEditor() === item.id) {
+                            <span class="material-icons spin">sync</span>
+                            <span class="use-in-sync-editor-label">Carregando…</span>
+                          } @else {
+                            <span class="material-icons">schedule</span>
+                            <span class="use-in-sync-editor-label">{{ hasSyncMapInContext() ? 'Editar Sync Map' : 'Criar Sync Map' }}</span>
+                          }
+                        </button>
+                      </div>
                     }
                   </div>
                 }

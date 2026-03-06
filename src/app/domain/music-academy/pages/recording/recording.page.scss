@@ -357,6 +357,45 @@
   margin: 2rem 0;
 }
 
+.recording-sync-badge {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--primary-contrast-color, #0a0a0a);
+  background: var(--primary-color, #00fbfb);
+  border-radius: 2rem;
+  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.2);
+
+  .material-icons {
+    font-size: 1.125rem;
+  }
+}
+
+.recording-sidebar .sync-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--primary-color, #00fbfb);
+  background: rgba(0, 251, 251, 0.12);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(0, 251, 251, 0.35);
+
+  .material-icons {
+    font-size: 1.125rem;
+  }
+}
+
 .recording-sidebar-toggle {
   position: fixed;
   bottom: 1.25rem;
@@ -398,6 +437,10 @@
   box-shadow: -0.25rem 0 1.5rem rgba(0, 0, 0, 0.2);
   z-index: 11;
   transition: transform 0.3s ease-in-out;
+
+  @media (min-width: 768px) {
+    width: 50%;
+  }
 
   &.closed {
     transform: translateX(100%);
