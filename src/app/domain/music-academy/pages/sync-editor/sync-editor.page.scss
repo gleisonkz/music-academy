@@ -184,6 +184,12 @@
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.preview-spotlight-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 
   button.active {
     border-color: var(--primary-color, #00fbfb);

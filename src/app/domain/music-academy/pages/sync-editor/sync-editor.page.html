@@ -77,25 +77,40 @@
           />
         </div>
 
-        @if (syncPoints().length > 0) {
         <div class="preview-spotlight-section">
-          <button
-            z-button
-            zType="outline"
-            zSize="sm"
-            type="button"
-            (click)="previewSpotlight.set(!previewSpotlight())"
-            [class.active]="previewSpotlight()"
-            title="Ver como ficará o destaque na página de Gravação"
-          >
-            <span class="material-icons">visibility</span>
-            {{ previewSpotlight() ? 'Desligar preview' : 'Preview spotlight' }}
-          </button>
+          <div class="preview-spotlight-buttons">
+            <button
+              z-button
+              zType="outline"
+              zSize="sm"
+              (click)="goToRecording()"
+              type="button"
+              title="Abrir esta música na página de Gravação"
+            >
+              <span class="material-icons" aria-hidden="true">mic</span>
+              Abrir na gravação
+            </button>
+            @if (syncPoints().length > 0) {
+            <button
+              z-button
+              zType="outline"
+              zSize="sm"
+              type="button"
+              (click)="previewSpotlight.set(!previewSpotlight())"
+              [class.active]="previewSpotlight()"
+              title="Ver como ficará o destaque na página de Gravação"
+            >
+              <span class="material-icons">visibility</span>
+              {{ previewSpotlight() ? 'Desligar preview' : 'Preview spotlight' }}
+            </button>
+            }
+          </div>
+          @if (syncPoints().length > 0) {
           <p class="preview-spotlight-hint">
             Dê play no áudio para ver o destaque em tempo real.
           </p>
+          }
         </div>
-        }
 
         <div class="instructions-section">
           <h2 class="section-label">Como usar</h2>

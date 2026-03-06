@@ -504,4 +504,28 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
   goToKitEnsaio(): void {
     this.router.navigate(['/music-academy/kit-ensaio']);
   }
+
+  /** Navega para a página de Gravação com o mesmo contexto (áudio, mapa, sync map) para continuar de lá. */
+  goToRecording(): void {
+    const backing = this.backingAudioUrl();
+    const mapUrl = this.mapBacksUrl();
+    const syncUrl = this.syncMapUrl();
+    if (!backing || !mapUrl) return;
+    const state: RecordingState = {
+      backingAudioUrl: backing,
+      fileName: this.fileName() || undefined,
+      mapBacksUrl: mapUrl,
+      mapBacksFileName: this.mapBacksFileName() || undefined,
+      mapBacksMimeType: this.mapBacksMimeType() || undefined,
+      syncMapUrl: syncUrl ?? undefined,
+      driveFolderId: this.driveFolderId() ?? undefined,
+      driveAccessToken: this.driveAccessToken() ?? undefined,
+    };
+    const queryParams = this.route.snapshot.queryParams as { audioId?: string; folderIds?: string };
+    const extras: { state: RecordingState; queryParams?: Record<string, string> } = { state };
+    if (queryParams.audioId && queryParams.folderIds) {
+      extras.queryParams = { audioId: queryParams.audioId, folderIds: queryParams.folderIds };
+    }
+    this.router.navigate(['/music-academy/recording'], extras);
+  }
 }
