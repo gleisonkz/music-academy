@@ -297,7 +297,9 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
         this.syncMapUrl.set(ctx.syncMapUrl);
         const ids = folderIds.split(',').map((id) => id.trim()).filter(Boolean);
         if (ids.length > 0) {
-          this.driveFolderId.set(ids[ids.length - 1]);
+          // Mesma regra do Kit Ensaio: pasta da música = 1 nível abaixo de KIT ENSAIO (ids[1])
+          const musicRootFolderId = ids.length >= 2 ? ids[1] : ids[0];
+          this.driveFolderId.set(musicRootFolderId);
           this.driveAccessToken.set(token);
         }
         this.loadMapAndSyncFromCurrentUrls();
