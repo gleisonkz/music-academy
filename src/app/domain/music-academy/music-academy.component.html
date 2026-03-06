@@ -1,10 +1,10 @@
 <div class="music-academy-container" [class.drawer-open]="drawerOpened()">
   <header class="toolbar toolbar-header">
-    <button (click)="toggleDrawer()" z-button zType="ghost" zSize="sm" type="button" aria-label="Abrir menu">
-      <span class="material-icons icon-menu">menu</span>
-    </button>
     <button type="button" class="toolbar-title" (click)="navigateToDashboard()">
       Music Academy
+    </button>
+    <button (click)="toggleDrawer()" z-button zType="ghost" zSize="sm" type="button" [attr.aria-label]="drawerOpened() ? 'Fechar menu' : 'Abrir menu'">
+      <span class="material-icons icon-menu">{{ drawerOpened() ? 'close' : 'menu' }}</span>
     </button>
   </header>
 
