@@ -263,7 +263,7 @@ export class KitEnsaioPage implements OnInit {
     const url = `https://www.googleapis.com/drive/v3/files?q='${encodeURIComponent(folderId)}'+in+parents+and+trashed=false&fields=files(id,name,webViewLink,mimeType)&orderBy=name`;
     this.apiFetch<{ files?: DriveItem[] }>(url)
       .then((data) => {
-        const files = data.files || [];
+        const files = (data.files || []).filter((f) => !this.isSyncMapFile(f));
         const sorted = [...files].sort((a, b) => {
           const aFolder = a.mimeType === FOLDER_MIME ? 0 : 1;
           const bFolder = b.mimeType === FOLDER_MIME ? 0 : 1;
