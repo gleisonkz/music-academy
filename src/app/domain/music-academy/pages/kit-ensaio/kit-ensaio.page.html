@@ -1,219 +1,231 @@
 <div class="kit-ensaio-page">
   <h1 class="page-title">Kit Ensaio</h1>
   <p class="page-subtitle">
-    Pasta do Google Drive com o material de ensaio. A conexão é feita automaticamente e o login é lembrado por cerca de 1 hora.
+    Pasta do Google Drive com o material de ensaio. A conexão é feita
+    automaticamente e o login é lembrado por cerca de 1 hora.
   </p>
 
   @if (!hasClientId) {
-    <z-card class="main-card setup-card">
-      <h2 class="section-label">Configuração necessária</h2>
-      <p class="section-hint">
-        Crie um projeto no
-        <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud Console</a>,
-        ative a API do Google Drive e crie um Client ID (OAuth 2.0, tipo "Aplicativo da Web"). Cole o Client ID em <code>kit-ensaio.page.ts</code> (const <code>GOOGLE_CLIENT_ID</code>).
-      </p>
-    </z-card>
-  } @else {
-    @if (!isConnected() && isConnecting()) {
-      <p class="status-msg">
-        <span class="material-icons spin">sync</span>
-        Conectando ao Google…
-      </p>
+  <z-card class="main-card setup-card">
+    <h2 class="section-label">Configuração necessária</h2>
+    <p class="section-hint">
+      Crie um projeto no
+      <a href="https://console.cloud.google.com/" target="_blank" rel="noopener"
+        >Google Cloud Console</a
+      >, ative a API do Google Drive e crie um Client ID (OAuth 2.0, tipo
+      "Aplicativo da Web"). Cole o Client ID em
+      <code>kit-ensaio.page.ts</code> (const <code>GOOGLE_CLIENT_ID</code>).
+    </p>
+  </z-card>
+  } @else { @if (!isConnected() && isConnecting()) {
+  <p class="status-msg">
+    <span class="material-icons spin">sync</span>
+    Conectando ao Google…
+  </p>
+  } @if (error()) {
+  <div class="error-block">
+    <p class="error-msg">{{ error() }}</p>
+    @if (!isConnected()) {
+    <button z-button zType="default" (click)="tryConnectGoogle()" type="button">
+      Tentar novamente
+    </button>
     }
-
-    @if (error()) {
-      <div class="error-block">
-        <p class="error-msg">{{ error() }}</p>
-        @if (!isConnected()) {
-          <button z-button zType="default" (click)="tryConnectGoogle()" type="button">
-            Tentar novamente
-          </button>
-        }
-      </div>
+  </div>
+  } @if (isConnected() && lastUsedAudio(); as lastUsed) {
+  <div class="last-used-bar">
+    <button
+      type="button"
+      z-button
+      zType="outline"
+      zSize="sm"
+      class="last-used-btn"
+      [disabled]="loadingLastUsed()"
+      (click)="openLastUsedInRecording()"
+      [attr.title]="'Abrir na gravação: ' + lastUsed.itemName"
+    >
+      @if (loadingLastUsed()) {
+      <span class="material-icons spin">sync</span>
+      <span>Carregando…</span>
+      } @else {
+      <span class="material-icons">history</span>
+      <span>Abrir último na gravação</span>
+      <span class="last-used-name">{{ lastUsed.itemName }}</span>
+      }
+    </button>
+  </div>
+  } @if (breadcrumb().length > 0) {
+  <div class="drive-browser">
+    <nav class="breadcrumb" aria-label="Navegação da pasta">
+      @for (crumb of breadcrumb(); track crumb.id; let i = $index) { @if (i > 0)
+      {
+      <span class="breadcrumb-sep" aria-hidden="true">/</span>
+      }
+      <button type="button" class="breadcrumb-link" (click)="navigateTo(i)">
+        {{ crumb.name }}
+      </button>
+      }
+    </nav>
+    @if (isFirstLevel()) {
+    <div class="search-wrap">
+      <span class="material-icons search-icon" aria-hidden="true">search</span>
+      <input
+        type="search"
+        class="search-input"
+        placeholder="Filtrar pastas e arquivos..."
+        [value]="searchFilter()"
+        (input)="searchFilter.set($any($event.target).value)"
+        aria-label="Filtrar lista"
+      />
+    </div>
     }
-
-    @if (isConnected() && lastUsedAudio(); as lastUsed) {
-      <div class="last-used-bar">
+    <div class="list-header">
+      <h2 class="list-title">Conteúdo da pasta</h2>
+      <div class="list-header-actions">
         <button
           type="button"
           z-button
           zType="outline"
           zSize="sm"
-          class="last-used-btn"
-          [disabled]="loadingLastUsed()"
-          (click)="openLastUsedInRecording()"
-          [attr.title]="'Abrir na gravação: ' + lastUsed.itemName"
+          class="refresh-folder-btn"
+          (click)="refreshCurrentFolder()"
+          [disabled]="isLoading()"
+          title="Atualizar lista (após alterações no Drive)"
+          aria-label="Atualizar lista"
         >
-          @if (loadingLastUsed()) {
-            <span class="material-icons spin">sync</span>
-            <span>Carregando…</span>
-          } @else {
-            <span class="material-icons">history</span>
-            <span>Abrir último na gravação</span>
-            <span class="last-used-name">{{ lastUsed.itemName }}</span>
-          }
+          <span class="material-icons" [class.spin]="isLoading()">refresh</span>
+          Atualizar
         </button>
+        <div class="view-toggle" aria-label="Visualização">
+          <button
+            type="button"
+            class="view-toggle-btn"
+            [class.active]="viewMode() === 'list'"
+            (click)="setViewMode('list')"
+            title="Lista"
+            [attr.aria-pressed]="viewMode() === 'list'"
+          >
+            <span class="material-icons">view_list</span>
+          </button>
+          <button
+            type="button"
+            class="view-toggle-btn"
+            [class.active]="viewMode() === 'grid'"
+            (click)="setViewMode('grid')"
+            title="Grade"
+            [attr.aria-pressed]="viewMode() === 'grid'"
+          >
+            <span class="material-icons">grid_view</span>
+          </button>
+        </div>
       </div>
-    }
-
-    @if (breadcrumb().length > 0) {
-      <div class="drive-browser">
-        <nav class="breadcrumb" aria-label="Navegação da pasta">
-          @for (crumb of breadcrumb(); track crumb.id; let i = $index) {
-            @if (i > 0) {
-              <span class="breadcrumb-sep" aria-hidden="true">/</span>
-            }
-            <button
-              type="button"
-              class="breadcrumb-link"
-              (click)="navigateTo(i)"
-            >
-              {{ crumb.name }}
-            </button>
-          }
-        </nav>
-        @if (isFirstLevel()) {
-          <div class="search-wrap">
-            <span class="material-icons search-icon" aria-hidden="true">search</span>
-            <input
-              type="search"
-              class="search-input"
-              placeholder="Filtrar pastas e arquivos..."
-              [value]="searchFilter()"
-              (input)="searchFilter.set($any($event.target).value)"
-              aria-label="Filtrar lista"
-            />
-          </div>
+    </div>
+    @if (isLoading()) {
+    <ul
+      class="items-list skeleton-list"
+      [class.view-list]="viewMode() === 'list'"
+      [class.view-grid]="viewMode() === 'grid'"
+      aria-hidden="true"
+    >
+      @for (i of [1,2,3,4,5,6]; track i) {
+      <li class="skeleton-item">
+        <div class="skeleton-icon"></div>
+        <div class="skeleton-line"></div>
+        @if (i <= 2) {
+        <div class="skeleton-actions">
+          <span class="skeleton-btn"></span>
+          <span class="skeleton-btn"></span>
+        </div>
         }
-        <div class="list-header">
-          <h2 class="list-title">Conteúdo da pasta</h2>
-          <div class="list-header-actions">
+      </li>
+      }
+    </ul>
+    } @else {
+    <ul
+      class="items-list"
+      [class.view-list]="viewMode() === 'list'"
+      [class.view-grid]="viewMode() === 'grid'"
+    >
+      @for (item of filteredItems(); track item.id) {
+      <li>
+        @if (isDriveFolder(item)) {
+        <button
+          type="button"
+          class="item-link folder-link"
+          (click)="openFolder(item)"
+        >
+          <span class="material-icons">folder</span>
+          {{ item.name }}
+        </button>
+        } @else {
+        <div class="file-row">
+          <a
+            [href]="item.webViewLink"
+            target="_blank"
+            rel="noopener"
+            class="item-link file-link"
+            [class]="'item-link file-link ' + (item | driveFileIconClass)"
+          >
+            <span class="material-icons file-row-icon" aria-hidden="true"
+              >{{ item | driveFileIcon }}</span
+            >
+            <span class="file-row-name">{{ item.name }}</span>
+          </a>
+          @if (isAudioItem(item)) {
+          <div class="file-row-actions">
             <button
               type="button"
               z-button
               zType="outline"
               zSize="sm"
-              class="refresh-folder-btn"
-              (click)="refreshCurrentFolder()"
-              [disabled]="isLoading()"
-              title="Atualizar lista (após alterações no Drive)"
-              aria-label="Atualizar lista"
+              class="use-in-recording-btn"
+              [attr.title]="loadingForRecording() === item.id ? 'Carregando…' : 'Usar na gravação'"
+              [disabled]="loadingForRecording() !== null || loadingForSyncEditor() !== null"
+              (click)="useInRecording(item); $event.preventDefault(); $event.stopPropagation()"
             >
-              <span class="material-icons" [class.spin]="isLoading()">refresh</span>
-              Atualizar
+              @if (loadingForRecording() === item.id) {
+              <span class="material-icons spin">sync</span>
+              <span class="use-in-recording-label">Carregando…</span>
+              } @else {
+              <span class="material-icons">mic</span>
+              <span class="use-in-recording-label">Usar na gravação</span>
+              }
             </button>
-            <div class="view-toggle" aria-label="Visualização">
+            @if (canWriteToKitEnsaio() === true) {
             <button
               type="button"
-              class="view-toggle-btn"
-              [class.active]="viewMode() === 'list'"
-              (click)="setViewMode('list')"
-              title="Lista"
-              [attr.aria-pressed]="viewMode() === 'list'"
+              z-button
+              zType="outline"
+              zSize="sm"
+              class="use-in-sync-editor-btn"
+              [attr.title]="loadingForSyncEditor() === item.id ? 'Carregando…' : (hasSyncMapInContext() ? 'Editar Sync Map' : 'Criar Sync Map')"
+              [disabled]="loadingForRecording() !== null || loadingForSyncEditor() !== null"
+              (click)="useInSyncEditor(item); $event.preventDefault(); $event.stopPropagation()"
             >
-              <span class="material-icons">view_list</span>
+              @if (loadingForSyncEditor() === item.id) {
+              <span class="material-icons spin">sync</span>
+              <span class="use-in-sync-editor-label">Carregando…</span>
+              } @else {
+              <span class="material-icons">schedule</span>
+              <span class="use-in-sync-editor-label"
+                >{{ hasSyncMapInContext() ? 'Editar Sync Map' : 'Criar Sync Map'
+                }}</span
+              >
+              }
             </button>
-            <button
-              type="button"
-              class="view-toggle-btn"
-              [class.active]="viewMode() === 'grid'"
-              (click)="setViewMode('grid')"
-              title="Grade"
-              [attr.aria-pressed]="viewMode() === 'grid'"
-            >
-              <span class="material-icons">grid_view</span>
-            </button>
-            </div>
+            }
           </div>
-        </div>
-        @if (isLoading()) {
-          <ul class="items-list skeleton-list" [class.view-list]="viewMode() === 'list'" [class.view-grid]="viewMode() === 'grid'" aria-hidden="true">
-            @for (i of [1,2,3,4,5,6]; track i) {
-              <li class="skeleton-item">
-                <div class="skeleton-icon"></div>
-                <div class="skeleton-line"></div>
-                @if (i <= 2) {
-                  <div class="skeleton-actions">
-                    <span class="skeleton-btn"></span>
-                    <span class="skeleton-btn"></span>
-                  </div>
-                }
-              </li>
-            }
-          </ul>
-        } @else {
-          <ul class="items-list" [class.view-list]="viewMode() === 'list'" [class.view-grid]="viewMode() === 'grid'">
-            @for (item of filteredItems(); track item.id) {
-              <li>
-                @if (isDriveFolder(item)) {
-                  <button
-                    type="button"
-                    class="item-link folder-link"
-                    (click)="openFolder(item)"
-                  >
-                    <span class="material-icons">folder</span>
-                    {{ item.name }}
-                  </button>
-                } @else {
-                  <div class="file-row">
-                    <a [href]="item.webViewLink" target="_blank" rel="noopener" class="item-link file-link" [class]="'item-link file-link ' + getFileIconClass(item)">
-                      <span class="material-icons file-row-icon" aria-hidden="true">{{ getFileIcon(item) }}</span>
-                      <span class="file-row-name">{{ item.name }}</span>
-                    </a>
-                    @if (isAudioItem(item)) {
-                      <div class="file-row-actions">
-                        <button
-                          type="button"
-                          z-button
-                          zType="outline"
-                          zSize="sm"
-                          class="use-in-recording-btn"
-                          [attr.title]="loadingForRecording() === item.id ? 'Carregando…' : 'Usar na gravação'"
-                          [disabled]="loadingForRecording() !== null || loadingForSyncEditor() !== null"
-                          (click)="useInRecording(item); $event.preventDefault(); $event.stopPropagation()"
-                        >
-                          @if (loadingForRecording() === item.id) {
-                            <span class="material-icons spin">sync</span>
-                            <span class="use-in-recording-label">Carregando…</span>
-                          } @else {
-                            <span class="material-icons">mic</span>
-                            <span class="use-in-recording-label">Usar na gravação</span>
-                          }
-                        </button>
-                        @if (canWriteToKitEnsaio() === true) {
-                        <button
-                          type="button"
-                          z-button
-                          zType="outline"
-                          zSize="sm"
-                          class="use-in-sync-editor-btn"
-                          [attr.title]="loadingForSyncEditor() === item.id ? 'Carregando…' : (hasSyncMapInContext() ? 'Editar Sync Map' : 'Criar Sync Map')"
-                          [disabled]="loadingForRecording() !== null || loadingForSyncEditor() !== null"
-                          (click)="useInSyncEditor(item); $event.preventDefault(); $event.stopPropagation()"
-                        >
-                          @if (loadingForSyncEditor() === item.id) {
-                            <span class="material-icons spin">sync</span>
-                            <span class="use-in-sync-editor-label">Carregando…</span>
-                          } @else {
-                            <span class="material-icons">schedule</span>
-                            <span class="use-in-sync-editor-label">{{ hasSyncMapInContext() ? 'Editar Sync Map' : 'Criar Sync Map' }}</span>
-                          }
-                        </button>
-                        }
-                      </div>
-                    }
-                  </div>
-                }
-              </li>
-            }
-          </ul>
-          @if (filteredItems().length === 0) {
-            <p class="empty-msg">
-              {{ searchFilter().trim() ? 'Nenhum resultado para "' + searchFilter().trim() + '".' : 'Nenhum arquivo ou pasta nesta pasta.' }}
-            </p>
           }
+        </div>
         }
-      </div>
-    }
-  }
+      </li>
+      }
+    </ul>
+    @if (filteredItems().length === 0) {
+    <p class="empty-msg">
+      {{ searchFilter().trim() ? 'Nenhum resultado para "' +
+      searchFilter().trim() + '".' : 'Nenhum arquivo ou pasta nesta pasta.' }}
+    </p>
+    } }
+  </div>
+  } }
 </div>

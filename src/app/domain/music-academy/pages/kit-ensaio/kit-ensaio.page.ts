@@ -5,6 +5,8 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { DriveFileIconClassPipe, DriveFileIconPipe, getDriveFileIcon } from './drive-file-icon.pipe';
+
 /** Client ID do OAuth 2.0 (Google Cloud Console > APIs & Services > Credentials). */
 const GOOGLE_CLIENT_ID = '216430399393-s4bsm8fiti6978mm4elmmkphh6npa30q.apps.googleusercontent.com';
 
@@ -46,10 +48,18 @@ export interface DriveItem {
 
 const DRIVE_WRITE_ROLES = new Set(['owner', 'organizer', 'fileOrganizer', 'writer']);
 
+/** Normaliza string para busca: minúsculas e sem acentos (ex.: "Incêndia" → "incendia"). */
+function normalizeForSearch(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Mark}/gu, '');
+}
+
 @Component({
   selector: 'app-kit-ensaio-page',
   standalone: true,
-  imports: [ZardSharedModule, CommonModule],
+  imports: [ZardSharedModule, CommonModule, DriveFileIconPipe, DriveFileIconClassPipe],
   templateUrl: './kit-ensaio.page.html',
   styleUrls: ['./kit-ensaio.page.scss'],
 })
@@ -83,13 +93,16 @@ export class KitEnsaioPage implements OnInit {
 
   readonly isFirstLevel = computed(() => this.breadcrumb().length === 1);
 
-  /** Itens da pasta atual; no primeiro nível, filtrados pela pesquisa. */
+  /** Itens da pasta atual; no primeiro nível, filtrados pela pesquisa (com normalização de acentos). */
   readonly filteredItems = computed(() => {
     const items = this.currentItems();
     if (!this.isFirstLevel()) return items;
-    const q = (this.searchFilter() || '').trim().toLowerCase();
+    const q = (this.searchFilter() || '').trim();
     if (!q) return items;
-    return items.filter((item) => (item.name || '').toLowerCase().includes(q));
+    const qNorm = normalizeForSearch(q);
+    return items.filter((item) =>
+      normalizeForSearch(item.name || '').includes(qNorm)
+    );
   });
 
   /** Exposto para o template: só mostrar Criar/Editar Sync Map quando true. */
@@ -255,15 +268,28 @@ export class KitEnsaioPage implements OnInit {
     return this.apiFetch<{ name: string }>(url).then((d) => d.name || 'Pasta');
   }
 
-  /** Lista pastas e arquivos dentro da pasta (multinível). */
+  /** Lista pastas e arquivos dentro da pasta (multinível), com paginação para carregar todos os itens. */
   listContents(folderId: string, folderName: string): void {
     this.error.set(null);
     this.isLoading.set(true);
     this.hasSyncMapInContext.set(null);
-    const url = `https://www.googleapis.com/drive/v3/files?q='${encodeURIComponent(folderId)}'+in+parents+and+trashed=false&fields=files(id,name,webViewLink,mimeType)&orderBy=name`;
-    this.apiFetch<{ files?: DriveItem[] }>(url)
-      .then((data) => {
-        const files = (data.files || []).filter((f) => !this.isSyncMapFile(f));
+    const baseUrl = `https://www.googleapis.com/drive/v3/files?q='${encodeURIComponent(folderId)}'+in+parents+and+trashed=false&fields=files(id,name,webViewLink,mimeType),nextPageToken&orderBy=name&pageSize=100`;
+    const fetchPage = (pageToken?: string): Promise<{ files: DriveItem[]; nextPageToken?: string }> => {
+      const url = pageToken ? `${baseUrl}&pageToken=${encodeURIComponent(pageToken)}` : baseUrl;
+      return this.apiFetch<{ files?: DriveItem[]; nextPageToken?: string }>(url).then((data) => ({
+        files: data.files || [],
+        nextPageToken: data.nextPageToken,
+      }));
+    };
+    const fetchAllPages = (acc: DriveItem[] = [], token?: string): Promise<DriveItem[]> =>
+      fetchPage(token).then(({ files, nextPageToken }) => {
+        const combined = [...acc, ...files];
+        if (nextPageToken) return fetchAllPages(combined, nextPageToken);
+        return combined;
+      });
+    fetchAllPages()
+      .then((allFiles) => {
+        const files = allFiles.filter((f) => !this.isSyncMapFile(f));
         const sorted = [...files].sort((a, b) => {
           const aFolder = a.mimeType === FOLDER_MIME ? 0 : 1;
           const bFolder = b.mimeType === FOLDER_MIME ? 0 : 1;
@@ -357,7 +383,7 @@ export class KitEnsaioPage implements OnInit {
 
   /** Retorna true se o item for reconhecido como áudio (para mostrar botão "Usar na gravação"). */
   isAudioItem(item: DriveItem): boolean {
-    return this.getFileIcon(item) === 'music_note';
+    return getDriveFileIcon(item) === 'music_note';
   }
 
   private loadLastUsedFromStorage(): void {
@@ -585,28 +611,4 @@ export class KitEnsaioPage implements OnInit {
     }
   }
 
-  /** Ícone do Material Icons conforme tipo do arquivo (mimeType ou extensão). */
-  getFileIcon(item: DriveItem): string {
-    const mime = (item.mimeType || '').toLowerCase();
-    const name = (item.name || '').toLowerCase();
-    if (mime.startsWith('audio/') || /\.(mp3|wav|ogg|m4a|flac|aac|wma)(\?|$)/i.test(name)) return 'music_note';
-    if (mime.startsWith('video/') || /\.(mp4|webm|mkv|avi|mov)(\?|$)/i.test(name)) return 'videocam';
-    if (mime === 'application/pdf' || name.endsWith('.pdf')) return 'picture_as_pdf';
-    if (mime.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i.test(name)) return 'image';
-    if (mime.startsWith('text/') || mime.includes('google-apps.document') || /\.(txt|md|csv)(\?|$)/i.test(name)) return 'text_snippet';
-    if (mime.includes('spreadsheet') || /\.(xls|xlsx)(\?|$)/i.test(name)) return 'table_chart';
-    if (mime.includes('presentation') || /\.(ppt|pptx)(\?|$)/i.test(name)) return 'slideshow';
-    return 'description';
-  }
-
-  /** Classe CSS para cor do ícone por tipo (opcional). */
-  getFileIconClass(item: DriveItem): string {
-    const icon = this.getFileIcon(item);
-    if (icon === 'music_note') return 'file-audio';
-    if (icon === 'videocam') return 'file-video';
-    if (icon === 'picture_as_pdf') return 'file-pdf';
-    if (icon === 'text_snippet') return 'file-text';
-    if (icon === 'image') return 'file-image';
-    return 'file-default';
-  }
 }
