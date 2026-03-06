@@ -2,13 +2,15 @@
   @if (!hasBackingTrack()) {
   <h1 class="recording-title">Gravação</h1>
   @if (restoringFromUrl()) {
-    <p class="recording-subtitle">
-      <span class="material-icons spin">sync</span>
-      Recarregando áudio e mapa…
-    </p>
+  <p class="recording-subtitle">
+    <span class="material-icons spin">sync</span>
+    Recarregando áudio e mapa…
+  </p>
   } @else if (restoreError()) {
-    <p class="restore-error">{{ restoreError() }}</p>
-    <a z-button zType="default" routerLink="/music-academy/kit-ensaio">Abrir Kit Ensaio</a>
+  <p class="restore-error">{{ restoreError() }}</p>
+  <a z-button zType="default" routerLink="/music-academy/kit-ensaio"
+    >Abrir Kit Ensaio</a
+  >
   } @else {
   <p class="recording-subtitle">
     Envie um áudio de apoio (backing track), dê play e grave sua voz ou
@@ -33,8 +35,7 @@
     </p>
     <p class="dropzone-hint">MP3, WAV, OGG, M4A, AAC</p>
   </div>
-  }
-  } @else {
+  } } @else {
   <div class="recording-layout">
     <div class="recording-map-area" #mapContainer>
       @if (hasMapBacks()) { @if (mapBacksIsHtml()) {
@@ -119,7 +120,10 @@
         <div class="record-section mt-20">
           <h2 class="section-label">Gravar com o microfone</h2>
           <p class="section-hint">
-            O áudio de apoio será reproduzido ao iniciar a gravação. A gravação captura <strong>somente o microfone</strong> (sua voz ou instrumento). No celular, use <strong>fones de ouvido</strong> para ouvir o apoio e evitar que ele entre na gravação.
+            O áudio de apoio será reproduzido ao iniciar a gravação. A gravação
+            captura <strong>somente o microfone</strong> (sua voz ou
+            instrumento). No celular, use <strong>fones de ouvido</strong> para
+            ouvir o apoio e evitar que ele entre na gravação.
           </p>
           @if (!isRecording()) {
           <button
@@ -150,7 +154,9 @@
 
         @if (syncPoints().length > 0) {
         <div class="recording-sync-list-section">
-          <h2 class="section-label">Seções do mapa</h2>
+          <h2 class="section-label">
+            Seções do Mapa ({{ syncPoints().length }})
+          </h2>
           <ma-sync-points-list
             [points]="syncPoints()"
             [showRemoveButton]="false"

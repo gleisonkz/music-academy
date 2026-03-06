@@ -3,13 +3,15 @@
   <div class="sync-editor-empty">
     <h1 class="sync-editor-title">Editor de Sincronia</h1>
     @if (restoringFromUrl()) {
-      <p class="sync-editor-subtitle">
-        <span class="material-icons spin">sync</span>
-        Recarregando áudio e mapa…
-      </p>
+    <p class="sync-editor-subtitle">
+      <span class="material-icons spin">sync</span>
+      Recarregando áudio e mapa…
+    </p>
     } @else if (restoreError()) {
-      <p class="restore-error">{{ restoreError() }}</p>
-      <a z-button zType="default" routerLink="/music-academy/kit-ensaio">Abrir Kit Ensaio</a>
+    <p class="restore-error">{{ restoreError() }}</p>
+    <a z-button zType="default" routerLink="/music-academy/kit-ensaio"
+      >Abrir Kit Ensaio</a
+    >
     } @else {
     <p class="sync-editor-subtitle">
       Gere o JSON de sincronia (tempo + bloco) do mapa. Toque o áudio e clique
@@ -89,7 +91,9 @@
             <span class="material-icons">visibility</span>
             {{ previewSpotlight() ? 'Desligar preview' : 'Preview spotlight' }}
           </button>
-          <p class="preview-spotlight-hint">Dê play no áudio para ver o destaque em tempo real.</p>
+          <p class="preview-spotlight-hint">
+            Dê play no áudio para ver o destaque em tempo real.
+          </p>
         </div>
         }
 
@@ -124,7 +128,13 @@
                 class="load-json-input"
                 (change)="onLoadJsonFile($event)"
               />
-              <button z-button zType="outline" zSize="sm" type="button" title="Restaurar de um JSON salvo">
+              <button
+                z-button
+                zType="outline"
+                zSize="sm"
+                type="button"
+                title="Restaurar de um JSON salvo"
+              >
                 <span class="material-icons">upload_file</span>
                 Carregar JSON
               </button>
@@ -154,7 +164,9 @@
 
         @if (syncPoints().length > 0) {
         <div class="sync-list-section">
-          <h2 class="section-label">Lista</h2>
+          <h2 class="section-label">
+            Seções do Mapa ({{ syncPoints().length }})
+          </h2>
           <ma-sync-points-list
             [points]="syncPoints()"
             [showRemoveButton]="true"
