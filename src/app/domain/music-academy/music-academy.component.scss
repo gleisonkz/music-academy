@@ -18,6 +18,19 @@
   }
 }
 
+// Desktop (>= 991px, igual BREAKPOINTS.largeTablet): menu sempre aberto e empurra o conteúdo
+@media (min-width: 991px) {
+  .music-academy-container.drawer-open {
+    .toolbar-header {
+      margin-left: 250px;
+    }
+
+    .drawer-content {
+      margin-left: 250px;
+    }
+  }
+}
+
 .toolbar-title {
   background: none;
   border: none;

@@ -3,9 +3,11 @@
     <button type="button" class="toolbar-title" (click)="navigateToDashboard()">
       Music Academy
     </button>
-    <button (click)="toggleDrawer()" z-button zType="ghost" zSize="sm" type="button" [attr.aria-label]="drawerOpened() ? 'Fechar menu' : 'Abrir menu'">
+    @if (drawerMode() === 'over') {
+    <button (click)="toggleDrawer()" z-button zType="ghost" zSize="sm" type="button" [attr.aria-label]="drawerOpened() ? 'Fechar menu' : 'Abrir menu'" class="toolbar-menu-btn">
       <span class="material-icons icon-menu">{{ drawerOpened() ? 'close' : 'menu' }}</span>
     </button>
+    }
   </header>
 
   <div class="drawer-container">
