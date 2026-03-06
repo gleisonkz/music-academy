@@ -563,8 +563,10 @@ export class KitEnsaioPage implements OnInit {
       const bc = this.breadcrumb();
       // Raiz da música = 1 pasta abaixo de KIT ENSAIO (breadcrumb[0] = raiz, breadcrumb[1] = pasta da música)
       const musicRootFolderId = bc.length >= 2 ? bc[1].id : bc[0]?.id;
+      const folderIds = bc.map((c) => c.id).join(',');
 
       this.router.navigate(['/music-academy/sync-editor'], {
+        queryParams: { audioId: item.id, folderIds },
         state: {
           backingAudioUrl: objectUrl,
           fileName: item.name,

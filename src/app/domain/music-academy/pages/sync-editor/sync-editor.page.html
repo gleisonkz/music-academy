@@ -2,6 +2,15 @@
   @if (!canEdit()) {
   <div class="sync-editor-empty">
     <h1 class="sync-editor-title">Editor de Sincronia</h1>
+    @if (restoringFromUrl()) {
+      <p class="sync-editor-subtitle">
+        <span class="material-icons spin">sync</span>
+        Recarregando áudio e mapa…
+      </p>
+    } @else if (restoreError()) {
+      <p class="restore-error">{{ restoreError() }}</p>
+      <a z-button zType="default" routerLink="/music-academy/kit-ensaio">Abrir Kit Ensaio</a>
+    } @else {
     <p class="sync-editor-subtitle">
       Gere o JSON de sincronia (tempo + bloco) do mapa. Toque o áudio e clique
       em cada bloco do mapa no momento certo; depois exporte o JSON.
@@ -12,6 +21,7 @@
       clique em <strong>Editor de Sincronia</strong> no arquivo de áudio.
     </p>
     <a z-button zType="default" (click)="goToKitEnsaio()"> Abrir Kit Ensaio </a>
+    }
   </div>
   } @else {
   <div class="sync-editor-layout">
@@ -60,9 +70,28 @@
           <ma-track-audio-player
             #backingPlayer
             [src]="backingAudioUrl()"
+            (timeUpdate)="onBackingTimeUpdate($event)"
             class="backing-audio"
           />
         </div>
+
+        @if (syncPoints().length > 0) {
+        <div class="preview-spotlight-section">
+          <button
+            z-button
+            zType="outline"
+            zSize="sm"
+            type="button"
+            (click)="previewSpotlight.set(!previewSpotlight())"
+            [class.active]="previewSpotlight()"
+            title="Ver como ficará o destaque na página de Gravação"
+          >
+            <span class="material-icons">visibility</span>
+            {{ previewSpotlight() ? 'Desligar preview' : 'Preview spotlight' }}
+          </button>
+          <p class="preview-spotlight-hint">Dê play no áudio para ver o destaque em tempo real.</p>
+        </div>
+        }
 
         <div class="instructions-section">
           <h2 class="section-label">Como usar</h2>

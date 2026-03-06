@@ -23,6 +23,24 @@
   font-size: 0.9375rem;
   margin: 0 0 1rem 0;
   line-height: 1.5;
+
+  .spin {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 0.35rem;
+    animation: sync-editor-spin 1s linear infinite;
+  }
+}
+
+@keyframes sync-editor-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.restore-error {
+  color: var(--error-color, #f87171);
+  margin: 0 0 1rem 0;
+  font-size: 0.9375rem;
 }
 
 .sync-editor-hint {
@@ -155,6 +173,25 @@
 .backing-audio {
   width: 100%;
   margin-top: 0.5rem;
+}
+
+.preview-spotlight-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+  button.active {
+    border-color: var(--primary-color, #00fbfb);
+    color: var(--primary-color, #00fbfb);
+  }
+}
+
+.preview-spotlight-hint {
+  font-size: 0.8125rem;
+  color: var(--foreground);
+  opacity: 0.75;
+  margin: 0.35rem 0 0 0;
+  line-height: 1.4;
 }
 
 .sync-actions-section {

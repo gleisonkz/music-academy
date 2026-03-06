@@ -12,13 +12,96 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer } from '@angular/platform-browser';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
+import { getDriveTokenFromCache } from '../../shared/drive-token';
+import { loadRecordingContextFromDrive } from '../../shared/load-recording-context';
 import { enumerateMapBlocks, normalizeDocHtml } from '../../shared/map-backs-doc';
 import { SyncPointsListComponent } from '../../components/sync-points-list';
 import { ZardSharedModule } from 'src/app/shared/modules/zard-shared.module';
 import { TrackAudioPlayerComponent } from '../../components/track-audio-player/track-audio-player.component';
 import type { RecordingState } from '../recording/recording.page';
+
+/** Retorna o blockIndex ativo para o tempo t dado os pontos de sync (mesma lógica da Gravação). */
+function getActiveBlockIndexFromTime(
+  t: number,
+  points: { time: number; blockIndex: number }[]
+): number | null {
+  if (points.length === 0) return null;
+  for (let i = points.length - 1; i >= 0; i--) {
+    if (points[i].time <= t) return points[i].blockIndex;
+  }
+  return null;
+}
+
+const SPOTLIGHT_EXCLUSION_TERMS = [
+  'UNÍSSONO PLENO',
+  'UNÍSSONO OITAVADO',
+  'ABERTO',
+  'DOBRA DE NAIPES',
+  'DOBRA DE NAIPE',
+  'CONTRA-TEMPO',
+];
+
+function isExcludedFromSpotlight(blockText: string): boolean {
+  const normalized = blockText.trim().toUpperCase();
+  if (!normalized) return false;
+  return SPOTLIGHT_EXCLUSION_TERMS.some((term) => normalized.includes(term));
+}
+
+const SECTION_HEADER_PATTERNS: RegExp[] = [
+  /^Introdução\b/i,
+  /^Interlúdio\b/i,
+  /^Verso\s*\d/i,
+  /^Refrão\b/i,
+  /^Ponte\b/i,
+  /^Coda\b/i,
+  /^Preparação\b/i,
+  /^Bridge\b/i,
+  / - \(\dº?\s*vez\)/,
+  / - \[\s*[\w\s]+\]$/,
+];
+
+function isSectionHeaderBlock(el: HTMLElement): boolean {
+  const text = (el.textContent ?? '').trim();
+  if (!text) return false;
+  if (SECTION_HEADER_PATTERNS.some((p) => p.test(text))) return true;
+  const isBold =
+    el.querySelector('b, strong') != null ||
+    (typeof getComputedStyle !== 'undefined' && Number.parseInt(getComputedStyle(el).fontWeight, 10) >= 600);
+  return isBold && text.length < 100;
+}
+
+function buildSectionHeaderMap(blocks: NodeListOf<HTMLElement>): Map<number, number> {
+  const map = new Map<number, number>();
+  let lastSectionIdx: number | null = null;
+  blocks.forEach((el, i) => {
+    if (isSectionHeaderBlock(el)) lastSectionIdx = i;
+    map.set(i, lastSectionIdx ?? i);
+  });
+  return map;
+}
+
+function applySpotlightToBlock(el: HTMLElement, isActive: boolean): void {
+  if (isActive) {
+    el.classList.add('active');
+    el.style.setProperty('opacity', '1', 'important');
+    el.style.setProperty('filter', 'none', 'important');
+    el.style.setProperty('transition', 'opacity 0.3s ease, filter 0.3s ease', 'important');
+  } else {
+    el.classList.remove('active');
+    el.style.setProperty('opacity', '0.4', 'important');
+    el.style.setProperty('filter', 'brightness(0.7)', 'important');
+    el.style.setProperty('transition', 'opacity 0.3s ease, filter 0.3s ease', 'important');
+  }
+}
+
+function clearSpotlightStyles(el: HTMLElement): void {
+  el.classList.remove('active');
+  el.style.removeProperty('opacity');
+  el.style.removeProperty('filter');
+  el.style.removeProperty('transition');
+}
 
 export interface SyncPoint {
   time: number;
@@ -30,7 +113,7 @@ export interface SyncPoint {
 @Component({
   selector: 'app-sync-editor-page',
   standalone: true,
-  imports: [ZardSharedModule, CommonModule, TrackAudioPlayerComponent, SyncPointsListComponent],
+  imports: [ZardSharedModule, CommonModule, RouterLink, TrackAudioPlayerComponent, SyncPointsListComponent],
   templateUrl: './sync-editor.page.html',
   styleUrls: ['./sync-editor.page.scss'],
 })
@@ -38,8 +121,18 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
   private readonly mapContainerRef = viewChild<ElementRef<HTMLElement>>('mapContainer');
   private readonly backingPlayerRef = viewChild<TrackAudioPlayerComponent>('backingPlayer');
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly cdr = inject(ChangeDetectorRef);
+
+  /** Mensagem de erro ao restaurar contexto da URL (ex.: token expirado). */
+  restoreError = signal<string | null>(null);
+  /** true enquanto restaura contexto do Drive após F5. */
+  restoringFromUrl = signal(false);
+  /** Tempo atual do áudio de apoio (para preview do spotlight). */
+  backingCurrentTime = signal(0);
+  /** Liga/desliga o preview do efeito spotlight ao dar play. */
+  previewSpotlight = signal(false);
 
   /** State vindo do Kit Ensaio (mesmo que Gravação). */
   backingAudioUrl = signal<string | null>(null);
@@ -101,9 +194,59 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
         this.cdr.markForCheck();
       }
     });
+
+    effect(() => {
+      if (!this.previewSpotlight()) {
+        const container = this.mapContainerRef()?.nativeElement;
+        const content = container?.querySelector('.map-html-content');
+        if (content) {
+          content.querySelectorAll<HTMLElement>('[data-block-index]').forEach(clearSpotlightStyles);
+        }
+        return;
+      }
+      this.mapBacksHtml();
+      const container = this.mapContainerRef()?.nativeElement;
+      const content = container?.querySelector('.map-html-content');
+      if (!content) return;
+      const blocks = content.querySelectorAll<HTMLElement>('[data-block-index]');
+      const activeIdx = getActiveBlockIndexFromTime(this.backingCurrentTime(), this.syncPoints());
+      if (activeIdx === null) {
+        blocks.forEach(clearSpotlightStyles);
+        return;
+      }
+      const sectionMap = buildSectionHeaderMap(blocks);
+      const activeSectionHeaderIdx = sectionMap.get(activeIdx) ?? null;
+      blocks.forEach((el) => {
+        const idx = Number(el.getAttribute('data-block-index'));
+        const isExcluded = isExcludedFromSpotlight(el.textContent?.trim() ?? '');
+        const isActive =
+          isExcluded ||
+          idx === activeIdx ||
+          (activeSectionHeaderIdx !== null && idx === activeSectionHeaderIdx);
+        applySpotlightToBlock(el, isActive);
+      });
+    });
+  }
+
+  onBackingTimeUpdate(t: number): void {
+    this.backingCurrentTime.set(t);
   }
 
   ngOnInit(): void {
+    const audioId = this.route.snapshot.queryParamMap.get('audioId');
+    const folderIds = this.route.snapshot.queryParamMap.get('folderIds');
+    const hasState = !!this.backingAudioUrl();
+
+    if (!hasState && audioId && folderIds) {
+      this.tryRestoreFromUrl(audioId, folderIds);
+      return;
+    }
+
+    this.loadMapAndSyncFromCurrentUrls();
+  }
+
+  /** Carrega HTML/texto do mapa e JSON de sync a partir dos URLs já setados. */
+  private loadMapAndSyncFromCurrentUrls(): void {
     const url = this.mapBacksUrl();
     const mime = (this.mapBacksMimeType() || '').toLowerCase();
     if (url && (mime.includes('text/plain') || mime.includes('text/html'))) {
@@ -133,6 +276,36 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
         })
         .catch(() => {});
     }
+  }
+
+  /** Restaura áudio + mapa + sync do Drive usando queryParams (após F5). */
+  private tryRestoreFromUrl(audioId: string, folderIds: string): void {
+    const token = getDriveTokenFromCache();
+    if (!token) {
+      this.restoreError.set('Sessão do Drive expirada. Abra pelo Kit Ensaio e conecte de novo.');
+      return;
+    }
+    this.restoringFromUrl.set(true);
+    this.restoreError.set(null);
+    loadRecordingContextFromDrive(token, audioId, folderIds)
+      .then((ctx) => {
+        this.backingAudioUrl.set(ctx.backingAudioUrl);
+        this.fileName.set(ctx.fileName);
+        this.mapBacksUrl.set(ctx.mapBacksUrl);
+        this.mapBacksFileName.set(ctx.mapBacksFileName);
+        this.mapBacksMimeType.set(ctx.mapBacksMimeType);
+        this.syncMapUrl.set(ctx.syncMapUrl);
+        const ids = folderIds.split(',').map((id) => id.trim()).filter(Boolean);
+        if (ids.length > 0) {
+          this.driveFolderId.set(ids[ids.length - 1]);
+          this.driveAccessToken.set(token);
+        }
+        this.loadMapAndSyncFromCurrentUrls();
+      })
+      .catch((err) => {
+        this.restoreError.set((err as Error)?.message ?? 'Não foi possível recarregar. Abra pelo Kit Ensaio.');
+      })
+      .finally(() => this.restoringFromUrl.set(false));
   }
 
   ngAfterViewChecked(): void {
