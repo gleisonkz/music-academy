@@ -602,9 +602,21 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
     this.syncEditorNav.skipRevokeBlobUrls.set(true);
     const ctx = this.syncEditorContext();
     const audioId = this.route.snapshot.queryParamMap.get('audioId');
-    const folderIds = this.route.snapshot.queryParamMap.get('folderIds');
+    const folderIdsParam = this.route.snapshot.queryParamMap.get('folderIds');
     const queryParams =
-      audioId && folderIds ? { audioId, folderIds } : undefined;
+      audioId && folderIdsParam ? { audioId, folderIds: folderIdsParam } : undefined;
+    // Se não temos contexto Drive (ex.: veio do Kit Ensaio "Usar na gravação" sem driveFolderId no state),
+    // derivamos da URL para o Sync Editor poder mostrar "Salvar no Drive".
+    const driveFolderId =
+      ctx?.driveFolderId ??
+      (queryParams && folderIdsParam
+        ? (() => {
+            const ids = folderIdsParam.split(',').map((id) => id.trim()).filter(Boolean);
+            return ids[1] ?? ids[0] ?? undefined;
+          })()
+        : undefined);
+    const driveAccessToken =
+      ctx?.driveAccessToken ?? (queryParams ? getDriveTokenFromCache() ?? undefined : undefined);
     this.router.navigate(['/music-academy/sync-editor'], {
       queryParams,
       state: {
@@ -614,8 +626,8 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
         mapBacksFileName: this.mapBacksFileName(),
         mapBacksMimeType: this.mapBacksMimeType(),
         syncMapUrl: this.syncMapUrl() ?? undefined,
-        driveFolderId: ctx?.driveFolderId,
-        driveAccessToken: ctx?.driveAccessToken ?? (queryParams ? getDriveTokenFromCache() ?? undefined : undefined),
+        driveFolderId,
+        driveAccessToken,
       } as RecordingState,
     });
   }
