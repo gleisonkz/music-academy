@@ -12,6 +12,7 @@ import { SyncPointsListComponent } from '../../components/sync-points-list';
 import {
     TrackAudioPlayerComponent
 } from '../../components/track-audio-player/track-audio-player.component';
+import { KitEnsaioPermissionService } from 'src/app/shared/services/kit-ensaio-permission.service';
 import { getDriveTokenFromCache } from '../../shared/drive-token';
 import { loadRecordingContextFromDrive } from '../../shared/load-recording-context';
 import { enumerateMapBlocks, normalizeDocHtml } from '../../shared/map-backs-doc';
@@ -101,6 +102,10 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly permissionService = inject(KitEnsaioPermissionService);
+
+  /** Contexto para abrir o Sync Editor (pasta + token); setado ao vir do Kit Ensaio ou após restore por URL. */
+  private readonly syncEditorContext = signal<{ driveFolderId?: string; driveAccessToken?: string } | null>(null);
 
   /** Pontos de sincronia (time, blockIndex) carregados do JSON do Drive ou manual. */
   syncPoints = signal<SyncPoint[]>([]);
@@ -130,6 +135,12 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
     }
     if (state?.syncMapUrl) {
       this.syncMapUrl.set(state.syncMapUrl);
+    }
+    if (state?.driveFolderId || state?.driveAccessToken) {
+      this.syncEditorContext.set({
+        driveFolderId: state.driveFolderId,
+        driveAccessToken: state.driveAccessToken,
+      });
     }
 
     effect(
@@ -276,6 +287,11 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
         this.mapBacksFileName.set(ctx.mapBacksFileName);
         this.mapBacksMimeType.set(ctx.mapBacksMimeType);
         this.syncMapUrl.set(ctx.syncMapUrl);
+        const ids = folderIds.split(',').map((id) => id.trim()).filter(Boolean);
+        this.syncEditorContext.set({
+          driveFolderId: ids[1] ?? ids[0],
+          driveAccessToken: token,
+        });
         this.loadMapAndSyncFromCurrentUrls();
       })
       .catch((err) => {
@@ -302,6 +318,8 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
   backingAudioUrl = signal<string | null>(null);
   /** Nome do arquivo para exibição */
   fileName = signal<string>('');
+  /** true apenas quando o áudio foi carregado pelo usuário (dropzone/input); false quando veio do Drive/Kit Ensaio. */
+  backingLoadedByUser = signal(false);
 
   /** Mapa da música (MAPA BACKS) vindo do Kit Ensaio — URL, nome e mime para exibição. */
   mapBacksUrl = signal<string | null>(null);
@@ -395,6 +413,7 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
     this.audioFile.set(file);
     this.backingAudioUrl.set(url);
     this.fileName.set(file.name);
+    this.backingLoadedByUser.set(true);
   }
 
   private clearBackingTrack() {
@@ -404,6 +423,7 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
     this.audioFile.set(null);
     this.fileName.set('');
     this.backingCurrentTime.set(0);
+    this.backingLoadedByUser.set(false);
   }
 
   /** Chamado a cada timeupdate do áudio de apoio; atualiza o signal para o effect de sincronia reagir. */
@@ -524,6 +544,36 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
       'https://wa.me/?text=' + encodeURIComponent('Minha gravação do Music Academy. Baixe o áudio pelo botão "Download" na página.'),
       '_blank',
     );
+  }
+
+  /** Exposto para o template: só mostrar botão "Editar sync map" para quem pode acessar o Sync Editor. */
+  readonly canShowSyncEditorButton = computed(
+    () => this.permissionService.canWriteToKitEnsaio() === true && this.hasBackingTrack() && this.hasMapBacks()
+  );
+
+  /** Navega para o Editor de Sincronia com a música atual (áudio + mapa + contexto Drive se houver). */
+  goToSyncEditor(): void {
+    const backingUrl = this.backingAudioUrl();
+    const mapUrl = this.mapBacksUrl();
+    if (!backingUrl || !mapUrl) return;
+    const ctx = this.syncEditorContext();
+    const audioId = this.route.snapshot.queryParamMap.get('audioId');
+    const folderIds = this.route.snapshot.queryParamMap.get('folderIds');
+    const queryParams =
+      audioId && folderIds ? { audioId, folderIds } : undefined;
+    this.router.navigate(['/music-academy/sync-editor'], {
+      queryParams,
+      state: {
+        backingAudioUrl: backingUrl,
+        fileName: this.fileName(),
+        mapBacksUrl: mapUrl,
+        mapBacksFileName: this.mapBacksFileName(),
+        mapBacksMimeType: this.mapBacksMimeType(),
+        syncMapUrl: this.syncMapUrl() ?? undefined,
+        driveFolderId: ctx?.driveFolderId,
+        driveAccessToken: ctx?.driveAccessToken ?? (queryParams ? getDriveTokenFromCache() ?? undefined : undefined),
+      } as RecordingState,
+    });
   }
 
   removeBackingTrack() {

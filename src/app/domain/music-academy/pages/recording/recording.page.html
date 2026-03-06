@@ -98,6 +98,20 @@
               <p class="file-name">{{ fileName() }}</p>
             </div>
             <div class="backing-actions">
+              @if (canShowSyncEditorButton()) {
+              <button
+                z-button
+                zType="outline"
+                zSize="sm"
+                (click)="goToSyncEditor()"
+                type="button"
+                title="Abrir Editor de Sincronia para esta música"
+              >
+                <span class="material-icons" aria-hidden="true">edit_note</span>
+                Editar sync map
+              </button>
+              }
+              @if (backingLoadedByUser()) {
               <button
                 z-button
                 zType="outline"
@@ -105,8 +119,10 @@
                 (click)="removeBackingTrack()"
                 type="button"
               >
+                <span class="material-icons" aria-hidden="true">upload_file</span>
                 Trocar arquivo
               </button>
+              }
             </div>
           </div>
           <ma-track-audio-player
