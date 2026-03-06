@@ -50,6 +50,42 @@ function isExcludedFromSpotlight(blockText: string): boolean {
   return SPOTLIGHT_EXCLUSION_TERMS.some((term) => normalized.includes(term));
 }
 
+/** Padrões que indicam título de seção (Introdução, Verso 1, Refrão, etc.). */
+const SECTION_HEADER_PATTERNS: RegExp[] = [
+  /^Introdução\b/i,
+  /^Interlúdio\b/i,
+  /^Verso\s*\d/i,
+  /^Refrão\b/i,
+  /^Ponte\b/i,
+  /^Coda\b/i,
+  /^Coro\b/i,
+  /^Preparação\b/i,
+  /^Bridge\b/i,
+  / - \(\dº?\s*vez\)/, // " - (1º vez)"
+  / - \[\s*[\w\s]+\]$/, // " - [CONTRALTO MELODIA]"
+];
+
+function isSectionHeaderBlock(el: HTMLElement): boolean {
+  const text = (el.textContent ?? '').trim();
+  if (!text) return false;
+  const matchesPattern = SECTION_HEADER_PATTERNS.some((p) => p.test(text));
+  if (matchesPattern) return true;
+  const isBold =
+    el.querySelector('b, strong') != null || (typeof getComputedStyle !== 'undefined' && Number.parseInt(getComputedStyle(el).fontWeight, 10) >= 600);
+  return isBold && text.length < 100;
+}
+
+/** Para cada índice de bloco, retorna o índice do título da seção a que pertence (ou o próprio se for título). */
+function buildSectionHeaderMap(blocks: NodeListOf<HTMLElement>): Map<number, number> {
+  const map = new Map<number, number>();
+  let lastSectionIdx: number | null = null;
+  blocks.forEach((el, i) => {
+    if (isSectionHeaderBlock(el as HTMLElement)) lastSectionIdx = i;
+    map.set(i, lastSectionIdx ?? i);
+  });
+  return map;
+}
+
 @Component({
   selector: 'app-recording-page',
   standalone: true,
@@ -127,9 +163,12 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
         blocks.forEach((el) => this.clearSpotlightStyles(el));
         return;
       }
+      const sectionMap = buildSectionHeaderMap(blocks);
+      const activeSectionHeaderIdx = sectionMap.get(activeIdx) ?? null;
       blocks.forEach((el) => {
+        const idx = Number(el.getAttribute('data-block-index'));
         const isExcluded = isExcludedFromSpotlight(el.textContent?.trim() ?? '');
-        const isActive = isExcluded || el.getAttribute('data-block-index') === String(activeIdx);
+        const isActive = isExcluded || idx === activeIdx || (activeSectionHeaderIdx !== null && idx === activeSectionHeaderIdx);
         this.applySpotlightToBlock(el, isActive);
       });
       const activeEl = content.querySelector(`[data-block-index="${activeIdx}"]`);
