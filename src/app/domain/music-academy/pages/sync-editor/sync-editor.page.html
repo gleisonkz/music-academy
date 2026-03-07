@@ -9,9 +9,30 @@
     </p>
     } @else if (restoreError()) {
     <p class="restore-error">{{ restoreError() }}</p>
-    <a z-button zType="default" routerLink="/music-academy/kit-ensaio"
-      >Abrir Kit Ensaio</a
-    >
+    @if (canRetryRestoreWithLogin()) {
+    <div class="restore-actions">
+      <button
+        z-button
+        zType="default"
+        type="button"
+        (click)="retryRestoreWithNewLogin()"
+        [disabled]="reconnectInProgress()"
+      >
+        @if (reconnectInProgress()) {
+        <span class="material-icons spin">sync</span>
+        Conectando… } @else {
+        <span class="material-icons">login</span>
+        Conectar de novo }
+      </button>
+      <a z-button zType="outline" routerLink="/music-academy/kit-ensaio">
+        Abrir Kit Ensaio
+      </a>
+    </div>
+    } @else {
+    <a z-button zType="default" routerLink="/music-academy/kit-ensaio">
+      Abrir Kit Ensaio
+    </a>
+    }
     } @else {
     <p class="sync-editor-subtitle">
       Gere o JSON de sincronia (tempo + bloco) do mapa. Toque o áudio e clique

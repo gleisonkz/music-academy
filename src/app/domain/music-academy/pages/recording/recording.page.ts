@@ -15,7 +15,7 @@ import {
 import { KitEnsaioPermissionService } from 'src/app/shared/services/kit-ensaio-permission.service';
 import { KIT_ENSAIO_FOLDER_ID } from '../kit-ensaio/kit-ensaio.page';
 import { RecordingSyncEditorNavService } from '../../shared/recording-sync-editor-nav.service';
-import { getDriveTokenFromCache } from '../../shared/drive-token';
+import { getDriveTokenFromCache, requestDriveToken } from '../../shared/drive-token';
 import { loadRecordingContextFromDrive } from '../../shared/load-recording-context';
 import { enumerateMapBlocks, normalizeDocHtml } from '../../shared/map-backs-doc';
 
@@ -124,6 +124,8 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
   restoreError = signal<string | null>(null);
   /** true enquanto restaura contexto do Drive após F5. */
   restoringFromUrl = signal(false);
+  /** true enquanto refaz login do Drive para tentar restaurar na mesma página. */
+  reconnectInProgress = signal(false);
 
   constructor() {
     const state = this.router.getCurrentNavigation()?.extras?.state as RecordingState | undefined;
@@ -373,6 +375,30 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
           }
         })
         .catch(() => {});
+    }
+  }
+
+  /** true quando a URL tem audioId e folderIds, permitindo "Conectar de novo" e manter a página. */
+  canRetryRestoreWithLogin(): boolean {
+    const audioId = this.route.snapshot.queryParamMap.get('audioId');
+    const folderIds = this.route.snapshot.queryParamMap.get('folderIds');
+    return !!(audioId && folderIds);
+  }
+
+  /** Refaz login no Drive e tenta restaurar o contexto na mesma página (sem ir para o Kit Ensaio). */
+  async retryRestoreWithNewLogin(): Promise<void> {
+    const audioId = this.route.snapshot.queryParamMap.get('audioId');
+    const folderIds = this.route.snapshot.queryParamMap.get('folderIds');
+    if (!audioId || !folderIds) return;
+    this.reconnectInProgress.set(true);
+    this.restoreError.set(null);
+    try {
+      await requestDriveToken();
+      this.tryRestoreFromUrl(audioId, folderIds);
+    } catch (err) {
+      this.restoreError.set((err as Error)?.message ?? 'Não foi possível conectar.');
+    } finally {
+      this.reconnectInProgress.set(false);
     }
   }
 
