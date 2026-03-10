@@ -1,32 +1,20 @@
-import {
-  AfterViewChecked,
-  ChangeDetectorRef,
-  Component,
-  computed,
-  effect,
-  ElementRef,
-  inject,
-  OnInit,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { ZardSharedModule } from 'src/app/shared/modules/zard-shared.module';
+
 import { CommonModule } from '@angular/common';
+import { AfterViewChecked, ChangeDetectorRef, Component, computed, effect, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
+import { SyncPointsListComponent } from '../../components/sync-points-list';
+import { TrackAudioPlayerComponent } from '../../components/track-audio-player/track-audio-player.component';
 import { getDriveTokenFromCache, requestDriveToken } from '../../shared/drive-token';
 import { loadRecordingContextFromDrive } from '../../shared/load-recording-context';
 import { enumerateMapBlocks, normalizeDocHtml } from '../../shared/map-backs-doc';
-import { SyncPointsListComponent } from '../../components/sync-points-list';
-import { ZardSharedModule } from 'src/app/shared/modules/zard-shared.module';
-import { TrackAudioPlayerComponent } from '../../components/track-audio-player/track-audio-player.component';
+
 import type { RecordingState } from '../recording/recording.page';
 
 /** Retorna o blockIndex ativo para o tempo t dado os pontos de sync (mesma lógica da Gravação). */
-function getActiveBlockIndexFromTime(
-  t: number,
-  points: { time: number; blockIndex: number }[]
-): number | null {
+function getActiveBlockIndexFromTime(t: number, points: { time: number; blockIndex: number }[]): number | null {
   if (points.length === 0) return null;
   for (let i = points.length - 1; i >= 0; i--) {
     if (points[i].time <= t) return points[i].blockIndex;
@@ -34,14 +22,7 @@ function getActiveBlockIndexFromTime(
   return null;
 }
 
-const SPOTLIGHT_EXCLUSION_TERMS = [
-  'UNÍSSONO PLENO',
-  'UNÍSSONO OITAVADO',
-  'ABERTO',
-  'DOBRA DE NAIPES',
-  'DOBRA DE NAIPE',
-  'CONTRA-TEMPO',
-];
+const SPOTLIGHT_EXCLUSION_TERMS = ['UNÍSSONO PLENO', 'UNÍSSONO OITAVADO', 'ABERTO', 'DOBRA DE NAIPES', 'DOBRA DE NAIPE', 'CONTRA-TEMPO'];
 
 function isExcludedFromSpotlight(blockText: string): boolean {
   const normalized = blockText.trim().toUpperCase();
@@ -67,8 +48,7 @@ function isSectionHeaderBlock(el: HTMLElement): boolean {
   if (!text) return false;
   if (SECTION_HEADER_PATTERNS.some((p) => p.test(text))) return true;
   const isBold =
-    el.querySelector('b, strong') != null ||
-    (typeof getComputedStyle !== 'undefined' && Number.parseInt(getComputedStyle(el).fontWeight, 10) >= 600);
+    el.querySelector('b, strong') != null || (typeof getComputedStyle !== 'undefined' && Number.parseInt(getComputedStyle(el).fontWeight, 10) >= 600);
   return isBold && text.length < 100;
 }
 
@@ -118,6 +98,10 @@ export interface SyncPoint {
   label?: string;
 }
 
+const SIDEBAR_WIDTH_MIN = 352;
+const SIDEBAR_WIDTH_MAX = 990;
+const SIDEBAR_WIDTH_DEFAULT = 352; // 22rem
+
 @Component({
   selector: 'app-sync-editor-page',
   standalone: true,
@@ -126,6 +110,7 @@ export interface SyncPoint {
   styleUrls: ['./sync-editor.page.scss'],
 })
 export class SyncEditorPage implements OnInit, AfterViewChecked {
+  private readonly layoutRef = viewChild<ElementRef<HTMLElement>>('layoutRef');
   private readonly mapContainerRef = viewChild<ElementRef<HTMLElement>>('mapContainer');
   private readonly backingPlayerRef = viewChild<TrackAudioPlayerComponent>('backingPlayer');
   private readonly router = inject(Router);
@@ -139,6 +124,8 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
   restoringFromUrl = signal(false);
   /** true enquanto refaz login do Drive para tentar restaurar na mesma página. */
   reconnectInProgress = signal(false);
+  /** Largura em px da sidebar (arrastando o divisor). */
+  sidebarWidth = signal(SIDEBAR_WIDTH_DEFAULT);
   /** Tempo atual do áudio de apoio (para preview do spotlight). */
   backingCurrentTime = signal(0);
   /** Liga/desliga o preview do efeito spotlight ao dar play. */
@@ -175,12 +162,7 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
   readonly hasBackingTrack = computed(() => !!this.backingAudioUrl());
   readonly hasMapBacks = computed(() => !!this.mapBacksUrl());
   readonly canEdit = computed(() => this.hasBackingTrack() && this.hasMapBacks() && this.mapBacksIsHtml());
-  readonly canSaveToDrive = computed(
-    () =>
-      this.syncPoints().length > 0 &&
-      !!this.driveFolderId() &&
-      !!this.driveAccessToken()
-  );
+  readonly canSaveToDrive = computed(() => this.syncPoints().length > 0 && !!this.driveFolderId() && !!this.driveAccessToken());
 
   constructor() {
     const state = this.router.getCurrentNavigation()?.extras?.state as RecordingState | undefined;
@@ -229,10 +211,7 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
       blocks.forEach((el) => {
         const idx = Number(el.getAttribute('data-block-index'));
         const isExcluded = isExcludedFromSpotlight(el.textContent?.trim() ?? '');
-        const isActive =
-          isExcluded ||
-          idx === activeIdx ||
-          (activeSectionHeaderIdx !== null && idx === activeSectionHeaderIdx);
+        const isActive = isExcluded || idx === activeIdx || (activeSectionHeaderIdx !== null && idx === activeSectionHeaderIdx);
         applySpotlightToBlock(el, isActive);
       });
     });
@@ -329,7 +308,10 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
         this.mapBacksFileName.set(ctx.mapBacksFileName);
         this.mapBacksMimeType.set(ctx.mapBacksMimeType);
         this.syncMapUrl.set(ctx.syncMapUrl);
-        const ids = folderIds.split(',').map((id) => id.trim()).filter(Boolean);
+        const ids = folderIds
+          .split(',')
+          .map((id) => id.trim())
+          .filter(Boolean);
         if (ids.length > 0) {
           // Mesma regra do Kit Ensaio: pasta da música = 1 nível abaixo de KIT ENSAIO (ids[1])
           const musicRootFolderId = ids.length >= 2 ? ids[1] : ids[0];
@@ -384,6 +366,29 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
     const container = this.mapContainerRef()?.nativeElement;
     if (container) container.style.cursor = 'default';
     this.clearAllHoverStyles();
+  }
+
+  /** Inicia o redimensionamento da sidebar ao arrastar o divisor. */
+  startResize(event: MouseEvent): void {
+    event.preventDefault();
+    const layout = this.layoutRef()?.nativeElement;
+    if (!layout) return;
+    const onMove = (e: MouseEvent): void => {
+      const rect = layout.getBoundingClientRect();
+      let w = rect.right - e.clientX;
+      w = Math.max(SIDEBAR_WIDTH_MIN, Math.min(SIDEBAR_WIDTH_MAX, w));
+      this.sidebarWidth.set(w);
+    };
+    const onUp = (): void => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
   }
 
   private applyHoverStyles(el: HTMLElement): void {
@@ -469,10 +474,11 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
       const fileId = existing?.id;
 
       if (fileId) {
-        const uploadRes = await fetch(
-          `https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(fileId)}?uploadType=media`,
-          { method: 'PATCH', headers: { ...headers, 'Content-Type': 'application/json' }, body: json }
-        );
+        const uploadRes = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(fileId)}?uploadType=media`, {
+          method: 'PATCH',
+          headers: { ...headers, 'Content-Type': 'application/json' },
+          body: json,
+        });
         if (!uploadRes.ok) throw new Error(`Erro ${uploadRes.status} ao atualizar o arquivo.`);
       } else {
         const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
@@ -485,10 +491,11 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
           throw new Error((err as { error?: { message?: string } }).error?.message ?? `Erro ${createRes.status}`);
         }
         const created = (await createRes.json()) as { id: string };
-        const uploadRes = await fetch(
-          `https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(created.id)}?uploadType=media`,
-          { method: 'PATCH', headers: { ...headers, 'Content-Type': 'application/json' }, body: json }
-        );
+        const uploadRes = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(created.id)}?uploadType=media`, {
+          method: 'PATCH',
+          headers: { ...headers, 'Content-Type': 'application/json' },
+          body: json,
+        });
         if (!uploadRes.ok) throw new Error(`Erro ${uploadRes.status} ao enviar o conteúdo.`);
       }
     } catch (err) {

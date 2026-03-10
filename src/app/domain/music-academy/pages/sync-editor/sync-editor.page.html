@@ -47,7 +47,7 @@
     }
   </div>
   } @else {
-  <div class="sync-editor-layout">
+  <div class="sync-editor-layout" #layoutRef>
     <div
       class="sync-editor-map-area"
       #mapContainer
@@ -85,7 +85,18 @@
       }
     </div>
 
-    <aside class="sync-editor-sidebar">
+    <div
+      class="sync-editor-resize-handle"
+      (mousedown)="startResize($event)"
+      title="Arrastar para ajustar a largura"
+      role="separator"
+      aria-label="Redimensionar painel"
+    ></div>
+
+    <aside
+      class="sync-editor-sidebar"
+      [style.width.px]="sidebarWidth()"
+    >
       <z-card class="sync-editor-card">
         <div class="backing-section">
           <h2 class="section-label">Áudio de apoio</h2>

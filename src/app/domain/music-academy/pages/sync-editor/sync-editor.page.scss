@@ -136,13 +136,27 @@
   margin: 1rem 0;
 }
 
+.sync-editor-resize-handle {
+  flex-shrink: 0;
+  width: 6px;
+  cursor: col-resize;
+  background: transparent;
+  transition: background 0.15s ease;
+
+  &:hover,
+  &:active {
+    background: rgba(0, 251, 251, 0.2);
+  }
+}
+
 .sync-editor-sidebar {
   flex-shrink: 0;
+  min-width: 260px;
   padding: 1rem;
   overflow-y: auto;
   background: var(--background-elevated, rgba(255, 255, 255, 0.04));
   border-left: 1px solid rgba(255, 255, 255, 0.08);
-  width: min(22rem, 100vw);
+  /* Largura controlada por [style.width.px] no template (sidebarWidth) */
 }
 
 .sync-editor-card {
