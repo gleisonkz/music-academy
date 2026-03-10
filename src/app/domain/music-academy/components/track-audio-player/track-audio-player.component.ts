@@ -139,6 +139,12 @@ export class TrackAudioPlayerComponent {
     this.currentTime.set(el.currentTime);
   }
 
+  /** Dá play se o áudio estiver pausado (útil após seek ao clicar na seção). */
+  playIfPaused(): void {
+    const el = this.audio;
+    if (el?.paused) el.play().catch(() => {});
+  }
+
   onSeek(event: Event): void {
     const el = this.audio;
     const input = event.target as HTMLInputElement;

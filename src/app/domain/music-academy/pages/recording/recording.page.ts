@@ -659,9 +659,12 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
     this.isRecording.set(false);
   }
 
-  /** Move o áudio de apoio para o tempo indicado (clique no tempo da lista de seções). */
+  /** Move o áudio de apoio para o tempo indicado (clique na lista de seções ou no mapa). Se estiver pausado, dá play. */
   seekBackingTo(time: number): void {
-    this.backingPlayerRef()?.seekTo(time);
+    const player = this.backingPlayerRef();
+    if (!player) return;
+    player.seekTo(time);
+    player.playIfPaused();
   }
 
   downloadRecording() {
