@@ -1,0 +1,46 @@
+<div class="landing-page">
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <img
+        src="assets/icons/icon-512x512.png"
+        alt="Music Academy"
+        class="hero-logo"
+        width="96"
+        height="96"
+      />
+      <h1 class="hero-title">Music Academy</h1>
+      <p class="hero-tagline">
+        Tudo que você precisa para praticar, gravar e evoluir na música.
+      </p>
+      <p class="hero-sub">
+        Escolha uma ferramenta abaixo e comece.
+      </p>
+    </div>
+  </section>
+
+  <section class="features" aria-label="Funcionalidades">
+    <h2 class="features-heading">O que você pode fazer</h2>
+    <div class="features-grid">
+      @for (feature of features; track feature.link) {
+      <a
+        [routerLink]="feature.link"
+        class="feature-card"
+        [attr.aria-label]="feature.title"
+      >
+        <span class="feature-icon material-icons" aria-hidden="true">{{ feature.icon }}</span>
+        <h3 class="feature-title">{{ feature.title }}</h3>
+        <p class="feature-desc">{{ feature.description }}</p>
+        <span class="feature-cta">
+          Acessar
+          <span class="material-icons" aria-hidden="true">arrow_forward</span>
+        </span>
+      </a>
+      }
+    </div>
+  </section>
+
+  <footer class="landing-footer">
+    <p>© {{ year }} Music Academy</p>
+  </footer>
+</div>

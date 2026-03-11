@@ -1,19 +1,17 @@
 import { Route } from '@angular/router';
+import { authGuard } from '../../guards/auth.guard';
 
 export const MUSIC_ACADEMY_ROUTES: Route[] = [
   {
     path: '',
-    redirectTo: 'dashboard',
+    redirectTo: '/',
     pathMatch: 'full',
   },
   {
     path: '',
     loadComponent: async () => (await import('./music-academy.component')).MusicAcademyComponent,
+    canActivate: [authGuard],
     children: [
-      {
-        path: 'dashboard',
-        loadComponent: async () => (await import('./pages/dashboard/dashboard.component')).DashboardComponent,
-      },
       {
         path: 'note-ear-training',
         loadComponent: async () =>  (await import('./pages/note-ear-training/note-ear-training.component')).NoteEarTrainingComponent,

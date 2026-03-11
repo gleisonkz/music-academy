@@ -1,9 +1,9 @@
 import { Menu } from '../models/interfaces/menu';
 
 export const DASHBOARD: Menu = {
-  icon: 'music_note',
-  title: 'Dashboard',
-  link: '/music-academy/dashboard',
+  icon: 'home',
+  title: 'Início',
+  link: '/',
 };
 
 export const MENUS: Menu[] = [

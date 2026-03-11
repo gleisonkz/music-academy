@@ -3,8 +3,13 @@ import { Route } from '@angular/router';
 export const APP_ROUTES: Route[] = [
   {
     path: '',
-    redirectTo: 'music-academy/dashboard',
-    pathMatch: 'full',
+    loadComponent: async () =>
+      (await import('./domain/music-academy/pages/landing-page')).LandingPageComponent,
+  },
+  {
+    path: 'login',
+    loadComponent: async () =>
+      (await import('./domain/music-academy/pages/login')).LoginPage,
   },
   {
     path: 'music-academy',

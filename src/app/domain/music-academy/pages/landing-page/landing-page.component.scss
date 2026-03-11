@@ -1,0 +1,188 @@
+// Página isolada (fora do layout do app): ocupa a tela inteira com fundo do tema
+.landing-page {
+  min-height: 100vh;
+  padding-bottom: 3rem;
+  background: #050c10;
+  color: #f9fafb;
+}
+
+// —— Hero ——
+.hero {
+  position: relative;
+  padding: 3rem 1.5rem 3.5rem;
+  text-align: center;
+  overflow: hidden;
+}
+
+.hero-glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(0, 251, 251, 0.18) 0%, transparent 50%),
+    radial-gradient(circle at 80% 60%, rgba(0, 251, 251, 0.08) 0%, transparent 45%);
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 32rem;
+  margin: 0 auto;
+}
+
+.hero-logo {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  border-radius: 1.25rem;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  margin-bottom: 1rem;
+}
+
+.hero-title {
+  margin: 0 0 0.5rem;
+  font-family: 'DynaPuff', system-ui, sans-serif;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--foreground, #f9fafb);
+}
+
+.hero-tagline {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1rem, 2.5vw, 1.125rem);
+  color: var(--foreground);
+  opacity: 0.95;
+  line-height: 1.5;
+}
+
+.hero-sub {
+  margin: 0;
+  font-size: 0.9375rem;
+  opacity: 0.75;
+}
+
+// —— Features ——
+.features {
+  padding: 2.5rem 1.5rem 3rem;
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+.features-heading {
+  margin: 0 0 1.75rem;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--foreground);
+  text-align: center;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.feature-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: rgba(0, 251, 251, 0.25);
+    background: rgba(0, 251, 251, 0.06);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color, #00fbfb);
+    outline-offset: 2px;
+  }
+}
+
+.feature-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  background: rgba(0, 251, 251, 0.12);
+  color: var(--primary-color, #00fbfb);
+  font-size: 1.35rem;
+  margin-bottom: 1rem;
+}
+
+.feature-title {
+  margin: 0 0 0.4rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.feature-desc {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  opacity: 0.85;
+  flex: 1;
+}
+
+.feature-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--primary-color, #00fbfb);
+
+  .material-icons {
+    font-size: 1rem;
+    transition: transform 0.2s ease;
+  }
+}
+
+.feature-card:hover .feature-cta .material-icons {
+  transform: translateX(3px);
+}
+
+// —— Footer ——
+.landing-footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: 0.8125rem;
+  opacity: 0.55;
+}
+
+// Responsivo
+@media (max-width: 768px) {
+  .hero {
+    padding: 2rem 1rem 2.5rem;
+  }
+
+  .features {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .feature-card {
+    padding: 1.25rem;
+  }
+}
