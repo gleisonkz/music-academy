@@ -139,6 +139,25 @@ export class TrackAudioPlayerComponent {
     this.currentTime.set(el.currentTime);
   }
 
+  /** Volta 1 segundo no áudio. */
+  skipBack(): void {
+    const el = this.audio;
+    if (!el) return;
+    const t = Math.max(0, el.currentTime - 1);
+    el.currentTime = t;
+    this.currentTime.set(t);
+  }
+
+  /** Avança 1 segundo no áudio. */
+  skipForward(): void {
+    const el = this.audio;
+    if (!el) return;
+    const d = this.duration() || this.durationSeconds() || 0;
+    const t = d > 0 ? Math.min(d, el.currentTime + 1) : el.currentTime + 1;
+    el.currentTime = t;
+    this.currentTime.set(t);
+  }
+
   /** Dá play se o áudio estiver pausado (útil após seek ao clicar na seção). */
   playIfPaused(): void {
     const el = this.audio;

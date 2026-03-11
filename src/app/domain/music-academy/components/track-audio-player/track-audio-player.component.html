@@ -11,46 +11,78 @@
       (ended)="onPause()"
     ></audio>
 
-    <button
-      type="button"
-      class="player-btn play-pause"
-      (click)="togglePlay()"
-      [attr.aria-label]="isPlaying() ? 'Pausar' : 'Reproduzir'"
-    >
-      @if (isPlaying()) {
-        <span class="material-icons">pause</span>
-      } @else {
-        <span class="material-icons">play_arrow</span>
-      }
-    </button>
-
-    <span class="time-display">{{ currentFormatted() }} / {{ durationFormatted() }}</span>
-
-    <div class="progress-wrap">
-      <input
-        type="range"
-        class="progress-range"
-        min="0"
-        max="100"
-        step="0.1"
-        [value]="progressPercent()"
-        (input)="onSeek($event)"
-        aria-label="Posição do áudio"
-      />
+    <div class="player-row">
+      <div class="volume-wrap">
+        <span
+          class="material-icons volume-icon"
+          aria-hidden="true"
+          title="Volume"
+          >volume_up</span
+        >
+        <input
+          type="range"
+          class="volume-range"
+          min="0"
+          max="1"
+          step="0.05"
+          [value]="volume()"
+          (input)="onVolumeChange($event)"
+          aria-label="Volume"
+        />
+      </div>
+      <div class="player-controls">
+        <button
+          type="button"
+          class="player-btn"
+          (click)="skipBack()"
+          aria-label="Voltar 1 segundo"
+          title="Voltar 1 s"
+        >
+          <span class="material-icons">replay_10</span>
+        </button>
+        <button
+          type="button"
+          class="player-btn play-pause"
+          (click)="togglePlay()"
+          [attr.aria-label]="isPlaying() ? 'Pausar' : 'Reproduzir'"
+        >
+          @if (isPlaying()) {
+            <span class="material-icons">pause</span>
+          } @else {
+            <span class="material-icons">play_arrow</span>
+          }
+        </button>
+        <button
+          type="button"
+          class="player-btn"
+          (click)="skipForward()"
+          aria-label="Avançar 1 segundo"
+          title="Avançar 1 s"
+        >
+          <span class="material-icons">forward_10</span>
+        </button>
+      </div>
     </div>
 
-    <div class="volume-wrap">
-      <span class="material-icons volume-icon" aria-hidden="true">volume_up</span>
-      <input
-        type="range"
-        class="volume-range"
-        min="0"
-        max="1"
-        step="0.05"
-        [value]="volume()"
-        (input)="onVolumeChange($event)"
-        aria-label="Volume"
-      />
+    <div class="progress-row">
+      <span class="progress-time progress-time-current">{{
+        currentFormatted()
+      }}</span>
+      <div class="progress-wrap">
+        <input
+          type="range"
+          class="progress-range"
+          min="0"
+          max="100"
+          step="0.1"
+          [value]="progressPercent()"
+          (input)="onSeek($event)"
+          aria-label="Posição do áudio"
+        />
+      </div>
+      <span class="progress-time progress-time-duration">{{
+        durationFormatted()
+      }}</span>
     </div>
   </div>
 }
