@@ -2,12 +2,14 @@ import { MENUS } from 'src/app/shared/constants/menus';
 import { Menu } from 'src/app/shared/models/interfaces/menu';
 import { ZardSharedModule } from 'src/app/shared/modules/zard-shared.module';
 import { KitEnsaioPermissionService } from 'src/app/shared/services/kit-ensaio-permission.service';
+import { clearDriveTokenCache } from 'src/app/domain/music-academy/shared/drive-token';
 
 import { Component, EventEmitter, inject, Output, computed } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 
 const SYNC_EDITOR_LINK = '/music-academy/sync-editor';
 const RECORDING_LINK = '/music-academy/recording';
+const LOGOUT_LINK = '__logout__';
 
 @Component({
   selector: 'app-navigation-bar',
@@ -31,6 +33,12 @@ export class NavigationBarComponent {
 
   /** Ao clicar em "Gravação" já estando na página de gravação, força reset (estado inicial com dropzone). */
   protected onMenuClick(event: MouseEvent, menu: Menu): void {
+    if (menu.link === LOGOUT_LINK) {
+      event.preventDefault();
+      clearDriveTokenCache();
+      this.router.navigate(['/']);
+      return;
+    }
     if (menu.link === RECORDING_LINK && this.router.url.includes('recording')) {
       event.preventDefault();
       this.router.navigate([RECORDING_LINK], { queryParams: { reset: '1' } });

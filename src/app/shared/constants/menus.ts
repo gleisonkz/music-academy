@@ -52,4 +52,9 @@ export const MENUS: Menu[] = [
     title: 'Quizz',
     link: '/music-academy/quizz',
   },
+  {
+    icon: 'logout',
+    title: 'Sair',
+    link: '__logout__',
+  },
 ];

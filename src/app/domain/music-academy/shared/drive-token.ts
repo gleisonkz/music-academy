@@ -70,3 +70,12 @@ export function requestDriveToken(): Promise<string> {
     client.requestAccessToken();
   });
 }
+
+/** Remove o token do Drive do cache (usado no logout). */
+export function clearDriveTokenCache(): void {
+  try {
+    localStorage.removeItem(DRIVE_TOKEN_STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+}
