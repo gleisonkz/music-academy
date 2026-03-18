@@ -7,6 +7,16 @@ export const APP_ROUTES: Route[] = [
       (await import('./domain/music-academy/pages/landing-page')).LandingPageComponent,
   },
   {
+    path: 'privacy-policy',
+    loadComponent: async () =>
+      (await import('./domain/music-academy/pages/privacy-policy')).PrivacyPolicyPage,
+  },
+  {
+    path: 'terms-of-service',
+    loadComponent: async () =>
+      (await import('./domain/music-academy/pages/terms-of-service')).TermsOfServicePage,
+  },
+  {
     path: 'login',
     loadComponent: async () =>
       (await import('./domain/music-academy/pages/login')).LoginPage,

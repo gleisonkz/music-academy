@@ -73,5 +73,18 @@ export class LandingPageComponent {
       description: 'Teste seu conhecimento musical com perguntas e desafios. Aprenda de forma divertida.',
       link: '/music-academy/quizz',
     },
+    {
+      icon: 'policy',
+      title: 'Política de Privacidade',
+      description: 'Saiba como o Music Academy trata seus dados e integra com o Google Drive.',
+      link: '/privacy-policy',
+    },
+    {
+      icon: 'gavel',
+      title: 'Termos de Serviço',
+      description: 'Veja as regras de uso do Music Academy e suas responsabilidades.',
+      link: '/terms-of-service',
+    },
   ];
 }
+

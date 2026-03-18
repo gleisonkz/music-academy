@@ -1,0 +1,2 @@
+export { PrivacyPolicyPage } from './privacy-policy.page';
+
