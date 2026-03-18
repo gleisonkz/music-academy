@@ -143,6 +143,25 @@
   line-height: 1.4;
 }
 
+.legal-links {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  opacity: 0.75;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+
+  a {
+    color: #9bd9d6;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  a:hover {
+    text-decoration: none;
+  }
+}
+
 .footer {
   position: absolute;
   bottom: 1rem;

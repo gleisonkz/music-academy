@@ -44,12 +44,6 @@ export class LandingPageComponent {
       link: '/music-academy/metronome',
     },
     {
-      icon: 'music_note',
-      title: 'Prática de Backing',
-      description: 'Pratique com bases e backing tracks. Ajuste o andamento e treine suas partes com suporte de áudio.',
-      link: '/music-academy/backing-practice',
-    },
-    {
       icon: 'mic',
       title: 'Gravação',
       description: 'Grave sua voz ou instrumento com áudio de apoio. Use mapas sincronizados e baixe ou compartilhe suas tomadas.',
@@ -72,18 +66,6 @@ export class LandingPageComponent {
       title: 'Quizz',
       description: 'Teste seu conhecimento musical com perguntas e desafios. Aprenda de forma divertida.',
       link: '/music-academy/quizz',
-    },
-    {
-      icon: 'policy',
-      title: 'Política de Privacidade',
-      description: 'Saiba como o Music Academy trata seus dados e integra com o Google Drive.',
-      link: '/privacy-policy',
-    },
-    {
-      icon: 'gavel',
-      title: 'Termos de Serviço',
-      description: 'Veja as regras de uso do Music Academy e suas responsabilidades.',
-      link: '/terms-of-service',
     },
   ];
 }

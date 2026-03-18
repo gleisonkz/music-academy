@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, NgZone, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { getDriveTokenFromCache, requestDriveToken } from '../../shared/drive-token';
 
 @Component({
   selector: 'app-login-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })

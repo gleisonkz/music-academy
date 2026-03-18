@@ -71,8 +71,33 @@
   padding: 1.5rem;
 }
 
+.internal-footer {
+  padding: 0.85rem 1.25rem;
+  font-size: 0.8rem;
+  color: rgba(249, 250, 251, 0.75);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+
+  a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: rgba(0, 251, 251, 0.35);
+    text-underline-offset: 3px;
+  }
+
+  a:hover {
+    text-decoration-color: rgba(0, 251, 251, 0.8);
+  }
+}
+
 @media (max-width: 768px) {
   .drawer-content-inner {
+    padding: 0.75rem 1rem;
+  }
+
+  .internal-footer {
     padding: 0.75rem 1rem;
   }
 }
@@ -80,5 +105,10 @@
 @media (max-width: 480px) {
   .drawer-content-inner {
     padding: 0.5rem 0.75rem;
+  }
+
+  .internal-footer {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.78rem;
   }
 }

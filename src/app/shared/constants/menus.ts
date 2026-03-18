@@ -28,11 +28,6 @@ export const MENUS: Menu[] = [
     link: '/music-academy/metronome',
   },
   {
-    icon: 'music_note',
-    title: 'Prática de Backing',
-    link: '/music-academy/backing-practice',
-  },
-  {
     icon: 'mic',
     title: 'Gravação',
     link: '/music-academy/recording',
