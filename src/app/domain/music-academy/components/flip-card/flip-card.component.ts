@@ -13,6 +13,10 @@ import { ZardCardComponent } from '../../../../ui/components/card/card.component
 export class FlipCardComponent implements OnInit {
   question = input('');
   answer = input('');
+  imageOnly = input<boolean>(false);
+
+  questionImageSrc = input<string | undefined>(undefined);
+  answerImageSrc = input<string | undefined>(undefined);
 
   isFlipped = signal(false);
 

@@ -44,6 +44,10 @@ export const MUSIC_ACADEMY_ROUTES: Route[] = [
         path: 'sync-editor',
         loadComponent: async () => (await import('./pages/sync-editor/index')).SyncEditorPage,
       },
+      {
+        path: 'tom-ideal',
+        loadComponent: async () => (await import('./pages/tom-ideal')).TomIdealPage,
+      },
     ],
   },
 ];

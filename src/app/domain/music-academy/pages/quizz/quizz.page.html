@@ -1,6 +1,6 @@
 <div class="quiz-page">
   <!-- Tabs no topo: barra fixa acima do conteúdo -->
-  <nav class="quiz-tabs" role="tablist">
+  <nav class="quiz-tabs">
     <button
       type="button"
       role="tab"
@@ -57,8 +57,8 @@
         </div>
       } @else {
       <div class="cards-grid">
-        @for (question of filteredQuestions(); track question.question) {
-          <z-card class="quiz-card" [zTitle]="question.question">
+        @for (question of filteredQuestions(); track question.question + '|' + question.answer) {
+          <z-card class="quiz-card" [zTitle]="question.imageOnly ? undefined : question.question">
             @if (question.tags && question.tags.length) {
               <div class="quiz-card-tags">
                 @for (t of question.tags; track t) {
@@ -66,6 +66,13 @@
                 }
               </div>
             }
+            <div class="quiz-figure-wrap">
+              @if (question.questionImageSrc) {
+                <img class="quiz-card-figure" [src]="question.questionImageSrc" alt="Figura rítmica" />
+              } @else if (question.answerImageSrc) {
+                <img class="quiz-card-figure" [src]="question.answerImageSrc" alt="Figura rítmica" />
+              }
+            </div>
             <p class="quiz-card-answer">{{ question.answer }}</p>
           </z-card>
         }
@@ -106,11 +113,14 @@
         </header>
 
         <div class="flip-card-wrapper">
-          @for (question of randomizedQuestions(); track question.question; let i = $index) {
+          @for (question of randomizedQuestions(); track question.question + '|' + question.answer; let i = $index) {
             @if (currentQuestionIndex() === i) {
               <ma-flip-card
                 [question]="question.question"
                 [answer]="question.answer"
+                [imageOnly]="question.imageOnly ?? false"
+                [questionImageSrc]="question.questionImageSrc"
+                [answerImageSrc]="question.answerImageSrc"
               />
             }
           }

@@ -1,12 +1,18 @@
 export interface Question {
   question: string;
   answer: string;
+  /** Quando true, a UI deve priorizar imagem e reduzir texto grande. */
+  imageOnly?: boolean;
+  /** Opcional: SVG de figura a mostrar no card (Estudar) ou no flip (Praticar). */
+  questionImageSrc?: string;
+  /** Opcional: SVG de figura a mostrar no verso (Praticar) ou abaixo da pergunta (Estudar). */
+  answerImageSrc?: string;
   /** Tags para filtrar (ex.: "Backing Vocal", "Instrumento"). Cada pergunta pode ter várias. */
   tags?: string[];
 }
 
 /** Tags disponíveis para categorizar perguntas. */
-export const QUIZ_TAGS = ['Backing Vocal', 'Instrumento'] as const;
+export const QUIZ_TAGS = ['Backing Vocal', 'Instrumento', 'Ritmo'] as const;
 
 export const QUESTIONS: Question[] = [
   {
@@ -485,5 +491,170 @@ export const QUESTIONS: Question[] = [
     tags: ['Backing Vocal', 'Instrumento'],
     question: 'Aumentando em meio tom a nota B, qual a nota resultante?',
     answer: 'C',
+  },
+  // ----------------------------
+  // Ritmo (Nome das figuras)
+  // ----------------------------
+  {
+    tags: ['Ritmo'],
+    imageOnly: true,
+    question: 'Qual o nome da figura?',
+    answer: 'Semibreve',
+    questionImageSrc: '/assets/figures/whole-note.svg',
+    answerImageSrc: '/assets/figures/whole-note.svg',
+  },
+  {
+    tags: ['Ritmo'],
+    imageOnly: true,
+    question: 'Qual o nome da figura?',
+    answer: 'Mínima',
+    questionImageSrc: '/assets/figures/half-note.svg',
+    answerImageSrc: '/assets/figures/half-note.svg',
+  },
+  {
+    tags: ['Ritmo'],
+    imageOnly: true,
+    question: 'Qual o nome da figura?',
+    answer: 'Semínima',
+    questionImageSrc: '/assets/figures/quarter-note.svg',
+    answerImageSrc: '/assets/figures/quarter-note.svg',
+  },
+  {
+    tags: ['Ritmo'],
+    imageOnly: true,
+    question: 'Qual o nome da figura?',
+    answer: 'Colcheia',
+    questionImageSrc: '/assets/figures/eighth-note.svg',
+    answerImageSrc: '/assets/figures/eighth-note.svg',
+  },
+  {
+    tags: ['Ritmo'],
+    imageOnly: true,
+    question: 'Qual o nome da figura?',
+    answer: 'Semicolcheia',
+    questionImageSrc: '/assets/figures/sixteenth-note.svg',
+    answerImageSrc: '/assets/figures/sixteenth-note.svg',
+  },
+  {
+    tags: ['Ritmo'],
+    imageOnly: true,
+    question: 'Qual o nome da figura?',
+    answer: 'Semínima pontuada',
+    questionImageSrc: '/assets/figures/dotted-quarter-note.svg',
+    answerImageSrc: '/assets/figures/dotted-quarter-note.svg',
+  },
+  // ----------------------------
+  // Ritmo (Figuras Rítmicas)
+  // Foco: 4/4 e 6/8
+  // ----------------------------
+  {
+    tags: ['Ritmo'],
+    question: 'O que é a semínima (figura rítmica) em 4/4?',
+    answer: 'Em 4/4, a semínima vale 1 tempo (1 pulso).',
+    questionImageSrc: '/assets/figures/quarter-note.svg',
+    answerImageSrc: '/assets/figures/quarter-note.svg',
+  },
+  {
+    tags: ['Ritmo'],
+    question: 'Em 4/4, quantas semínimas cabem em 1 compasso?',
+    answer: '4 semínimas por compasso.',
+    questionImageSrc: '/assets/figures/quarter-note.svg',
+    answerImageSrc: '/assets/figures/quarter-note.svg',
+  },
+  {
+    tags: ['Ritmo'],
+    question: 'Em 4/4, quanto vale uma mínima?',
+    answer: 'Uma mínima vale 2 tempos.',
+    questionImageSrc: '/assets/figures/half-note.svg',
+    answerImageSrc: '/assets/figures/half-note.svg',
+  },
+  {
+    tags: ['Ritmo'],
+    question: 'Em 4/4, quanto vale uma semibreve?',
+    answer: 'Uma semibreve vale 4 tempos.',
+    questionImageSrc: '/assets/figures/whole-note.svg',
+    answerImageSrc: '/assets/figures/whole-note.svg',
+  },
+  {
+    tags: ['Ritmo'],
+    question: 'O que é a colcheia em 4/4?',
+    answer: 'Em 4/4, a colcheia vale 1/2 tempo. Duas colcheias completam 1 tempo.',
+    questionImageSrc: '/assets/figures/eighth-note.svg',
+    answerImageSrc: '/assets/figures/eighth-note.svg',
+  },
+  {
+    tags: ['Ritmo'],
+    question: 'Em 4/4, quantas colcheias cabem em 1 tempo?',
+    answer: '2 colcheias por tempo.',
+    questionImageSrc: '/assets/figures/eighth-note.svg',
+    answerImageSrc: '/assets/figures/eighth-note.svg',
+  },
+  {
+    tags: ['Ritmo'],
+    question: 'Em 4/4, quantas semicolcheias cabem em 1 tempo?',
+    answer: '4 semicolcheias por tempo.',
+    questionImageSrc: '/assets/figures/sixteenth-note.svg',
+    answerImageSrc: '/assets/figures/sixteenth-note.svg',
+  },
+  {
+    tags: ['Ritmo'],
+    question: 'Em 4/4, qual é a relação de duração entre 2 colcheias e 1 semínima?',
+    answer: '2 colcheias têm a mesma duração de 1 semínima.',
+    questionImageSrc: '/assets/figures/eighth-note.svg',
+    answerImageSrc: '/assets/figures/quarter-note.svg',
+  },
+  {
+    tags: ['Ritmo'],
+    question: 'O que significa a contagem “1 e 2 e 3 e 4 e” (em 4/4)?',
+    answer: 'A contagem de 1 a 4 indica os tempos (semínimas) e o “e” divide cada tempo em 2 partes iguais (colcheias).',
+  },
+  {
+    tags: ['Ritmo'],
+    question: 'Em 6/8, qual figura representa o pulso principal (tempo) do compasso?',
+    answer: 'Em 6/8, o pulso principal é a semínima pontuada: ela vale 3 colcheias.',
+    questionImageSrc: '/assets/figures/dotted-quarter-note.svg',
+    answerImageSrc: '/assets/figures/dotted-quarter-note.svg',
+  },
+  {
+    tags: ['Ritmo'],
+    question: 'Em 6/8, quantas colcheias existem por compasso?',
+    answer: '6 colcheias por compasso.',
+    questionImageSrc: '/assets/figures/eighth-note.svg',
+    answerImageSrc: '/assets/figures/eighth-note.svg',
+  },
+  {
+    tags: ['Ritmo'],
+    question: 'Em 6/8, quantas colcheias existem por tempo (pulso principal)?',
+    answer: '3 colcheias por tempo (3+3).',
+    questionImageSrc: '/assets/figures/eighth-note.svg',
+    answerImageSrc: '/assets/figures/dotted-quarter-note.svg',
+  },
+  {
+    tags: ['Ritmo'],
+    question: 'Em 6/8, como normalmente se organizam as colcheias na contagem?',
+    answer: 'Em dois grupos de 3: 1-2-3 (tempo 1) e 4-5-6 (tempo 2).',
+    questionImageSrc: '/assets/figures/eighth-note.svg',
+    answerImageSrc: '/assets/figures/eighth-note.svg',
+  },
+  {
+    tags: ['Ritmo'],
+    question: 'Em 6/8, quanto vale uma semínima (1/4) em colcheias?',
+    answer: '1 semínima = 2 colcheias.',
+    questionImageSrc: '/assets/figures/quarter-note.svg',
+    answerImageSrc: '/assets/figures/eighth-note.svg',
+  },
+  {
+    tags: ['Ritmo'],
+    question: 'Em 6/8, quantas semicolcheias existem por compasso?',
+    answer: '12 semicolcheias por compasso.',
+    questionImageSrc: '/assets/figures/sixteenth-note.svg',
+    answerImageSrc: '/assets/figures/sixteenth-note.svg',
+  },
+  {
+    tags: ['Ritmo'],
+    question: 'Em 6/8, quantas semicolcheias existem por tempo?',
+    answer: '6 semicolcheias por tempo (porque 1 tempo = 3 colcheias = 6 semicolcheias).',
+    questionImageSrc: '/assets/figures/sixteenth-note.svg',
+    answerImageSrc: '/assets/figures/dotted-quarter-note.svg',
   },
 ];

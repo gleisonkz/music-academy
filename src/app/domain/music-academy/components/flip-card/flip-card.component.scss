@@ -4,6 +4,32 @@
   height: 200px;
   cursor: pointer;
 
+  .flip-figure-wrap {
+    height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0.25rem auto 0.75rem;
+  }
+
+  .flip-figure {
+    width: 120px;
+    max-height: 70px;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .flip-image-prompt {
+    text-align: center;
+    margin: 0;
+    padding-top: 0.25rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: var(--card-foreground, #f3f4f6);
+    opacity: 0.95;
+  }
+
   .card {
     position: relative;
     width: 100%;

@@ -43,6 +43,11 @@ export const MENUS: Menu[] = [
     link: '/music-academy/sync-editor',
   },
   {
+    icon: 'tune',
+    title: 'Tom Ideal',
+    link: '/music-academy/tom-ideal',
+  },
+  {
     icon: 'quiz',
     title: 'Quizz',
     link: '/music-academy/quizz',

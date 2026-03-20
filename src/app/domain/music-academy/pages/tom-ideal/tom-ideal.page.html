@@ -1,0 +1,133 @@
+<div class="tom-ideal-page">
+  <h1 class="title">Tom Ideal</h1>
+  <p class="subtitle">
+    Envie um áudio para identificar tom, nota mais grave/aguda da melodia e
+    recomendação de tonalidade baseada na sua tessitura.
+  </p>
+
+  <z-card class="card result-card">
+    <div class="form-grid">
+      <label class="field">
+        <span>Tessitura mínima</span>
+        <select
+          [value]="userMin()"
+          (change)="onUserMinChange(($any($event.target).value || '').trim())"
+        >
+          @for (note of minNoteOptions(); track note) {
+          <option [value]="note">{{ note }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Tessitura máxima</span>
+        <select
+          [value]="userMax()"
+          (change)="onUserMaxChange(($any($event.target).value || '').trim())"
+        >
+          @for (note of maxNoteOptions(); track note) {
+          <option [value]="note">{{ note }}</option>
+          }
+        </select>
+      </label>
+    </div>
+
+    <ma-audio-upload-dropzone
+      class="upload-dropzone"
+      [selectedFileName]="selectedFileName()"
+      (fileSelected)="onAudioFileSelected($event)"
+    />
+
+    <div class="process-action">
+      <button
+        z-button
+        zType="default"
+        zSize="lg"
+        type="button"
+        [disabled]="isProcessing() || !selectedFile()"
+        (click)="processAudio()"
+      >
+        {{ isProcessing() ? 'Processando...' : 'Processar áudio' }}
+      </button>
+    </div>
+
+    @if (isProcessing()) {
+    <div class="progress">
+      <div class="bar">
+        <div class="fill" [style.width.%]="progress()"></div>
+      </div>
+      <small>{{ progress() }}% - {{ progressLabel() }}</small>
+    </div>
+    } @if (error()) {
+    <p class="error">{{ error() }}</p>
+    }
+  </z-card>
+
+  @if (result(); as r) {
+  <div class="result-card">
+    <h2 class="section-title">Resultado</h2>
+
+    <div class="audio-grid">
+      <div class="audio-card">
+        <p class="label">Voz isolada</p>
+        <ma-track-audio-player
+          [src]="audioUrlFromHandle(r.vocals)"
+        ></ma-track-audio-player>
+      </div>
+      <div class="audio-card">
+        <p class="label">Instrumental</p>
+        <ma-track-audio-player
+          [src]="audioUrlFromHandle(r.instrumental)"
+        ></ma-track-audio-player>
+      </div>
+    </div>
+
+    <div class="result-grid">
+      <div class="result-item">
+        <span class="result-key">Tom da música</span>
+        @if (extractMainTonality(r.keyText); as key) {
+        <div class="result-chip-row">
+          <span class="result-chip tone">{{ key }}</span>
+        </div>
+        }
+        <p>{{ r.keyText }}</p>
+      </div>
+      <div class="result-item">
+        <span class="result-key">Nota mais grave</span>
+        @if (extractNoteAndTime(r.graveText); as info) {
+        <div class="result-chip-row">
+          @if (info.note) {
+          <span class="result-chip note">{{ info.note }}</span>
+          } @if (info.time) {
+          <span class="result-chip time">{{ info.time }}</span>
+          }
+        </div>
+        }
+        <p>{{ r.graveText }}</p>
+      </div>
+      <div class="result-item">
+        <span class="result-key">Nota mais aguda</span>
+        @if (extractNoteAndTime(r.agudoText); as info) {
+        <div class="result-chip-row">
+          @if (info.note) {
+          <span class="result-chip note">{{ info.note }}</span>
+          } @if (info.time) {
+          <span class="result-chip time">{{ info.time }}</span>
+          }
+        </div>
+        }
+        <p>{{ r.agudoText }}</p>
+      </div>
+      <div class="result-item result-item-highlight">
+        <span class="result-key">Tom recomendado</span>
+        @if (extractRecommendedTonality(r.suggestedText); as recommended) {
+        <div class="result-chip-row">
+          <span class="result-chip tone">{{ recommended }}</span>
+        </div>
+        }
+        <p>{{ r.suggestedText }}</p>
+      </div>
+    </div>
+  </div>
+  }
+</div>

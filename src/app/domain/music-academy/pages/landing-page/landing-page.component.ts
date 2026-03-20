@@ -20,6 +20,24 @@ export class LandingPageComponent {
   readonly year = new Date().getFullYear();
   readonly features: FeatureCard[] = [
     {
+      icon: 'tune',
+      title: 'Tom Ideal',
+      description: 'Envie um áudio para detectar tom, nota mais grave/aguda e receber recomendação de tonalidade para sua tessitura.',
+      link: '/music-academy/tom-ideal',
+    },
+    {
+      icon: 'timer',
+      title: 'Metrônomo',
+      description: 'Mantenha o tempo preciso em qualquer BPM. Essencial para ensaios e gravações.',
+      link: '/music-academy/metronome',
+    },
+    {
+      icon: 'quiz',
+      title: 'Quizz',
+      description: 'Teste seu conhecimento musical com perguntas e desafios. Aprenda de forma divertida.',
+      link: '/music-academy/quizz',
+    },
+    {
       icon: 'volume_up',
       title: 'Treinamento Auditivo',
       description: 'Aprenda a reconhecer notas, intervalos e acordes pelo ouvido. Exercícios progressivos para afinar sua percepção musical.',
@@ -38,12 +56,6 @@ export class LandingPageComponent {
       link: '/music-academy/cipher-notation',
     },
     {
-      icon: 'timer',
-      title: 'Metrônomo',
-      description: 'Mantenha o tempo preciso em qualquer BPM. Essencial para ensaios e gravações.',
-      link: '/music-academy/metronome',
-    },
-    {
       icon: 'mic',
       title: 'Gravação',
       description: 'Grave sua voz ou instrumento com áudio de apoio. Use mapas sincronizados e baixe ou compartilhe suas tomadas.',
@@ -55,18 +67,11 @@ export class LandingPageComponent {
       description: 'Acesse suas pastas e arquivos no Google Drive. Organize áudios, mapas e sincronize com a gravação.',
       link: '/music-academy/kit-ensaio',
     },
-    {
-      icon: 'schedule',
-      title: 'Editor de Sincronia',
-      description: 'Crie e edite mapas que sincronizam letra e áudio. Defina os tempos de cada seção e exporte para a gravação.',
-      link: '/music-academy/sync-editor',
-    },
-    {
-      icon: 'quiz',
-      title: 'Quizz',
-      description: 'Teste seu conhecimento musical com perguntas e desafios. Aprenda de forma divertida.',
-      link: '/music-academy/quizz',
-    },
+    // {
+    //   icon: 'schedule',
+    //   title: 'Editor de Sincronia',
+    //   description: 'Crie e edite mapas que sincronizam letra e áudio. Defina os tempos de cada seção e exporte para a gravação.',
+    //   link: '/music-academy/sync-editor',
+    // },
   ];
 }
-
