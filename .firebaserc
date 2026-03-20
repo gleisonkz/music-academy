@@ -5,7 +5,7 @@
   "targets": {
     "music-academy-562b1": {
       "hosting": {
-        "music-academy": ["music-academy-562b1"]
+        "musix-studio": ["music-academy-562b1"]
       }
     }
   }

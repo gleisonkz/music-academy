@@ -6,7 +6,7 @@
 Criar uma página web interativa para prática de backing vocal que permite aos músicos reproduzir múltiplas faixas de áudio simultaneamente, controlar individualmente cada faixa, e seguir letras sincronizadas em tempo real com formatação visual para identificar diferentes partes vocais.
 
 ### 1.2 Contexto
-A aplicação faz parte de uma plataforma educacional musical (Music Academy) e serve como ferramenta de estudo e prática para músicos que precisam aprender e praticar backing vocals de músicas específicas.
+A aplicação faz parte de uma plataforma educacional musical (Musix Studio) e serve como ferramenta de estudo e prática para músicos que precisam aprender e praticar backing vocals de músicas específicas.
 
 ### 1.3 Público-Alvo
 - Músicos profissionais e amadores
@@ -593,7 +593,7 @@ song = {
 ### 5.1 Fluxo Principal: Praticar uma Música
 
 1. **Usuário acessa a página de detalhes da música**
-   - URL: `/music-academy/backing-practice/songs/detail/:id`
+   - URL: `/musix-studio/backing-practice/songs/detail/:id`
    - Página carrega metadados da música
    - Todas as 7 faixas começam a carregar
 
@@ -1089,4 +1089,4 @@ Ver seção 2.5.4
 
 **Documento criado em:** 2024
 **Versão:** 1.0
-**Autor:** Equipe de Desenvolvimento Music Academy
+**Autor:** Equipe de Desenvolvimento Musix Studio

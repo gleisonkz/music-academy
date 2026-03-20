@@ -1,7 +1,7 @@
 {
   "hosting": {
-    "target": "music-academy",
-    "public": "dist/music-academy/browser",
+    "target": "musix-studio",
+    "public": "dist/musix-studio/browser",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "frameworksBackend": { "region": "us-central1" },
     "rewrites": [{ "source": "**", "destination": "/index.html" }]

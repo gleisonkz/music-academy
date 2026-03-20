@@ -4,26 +4,26 @@ export const APP_ROUTES: Route[] = [
   {
     path: '',
     loadComponent: async () =>
-      (await import('./domain/music-academy/pages/landing-page')).LandingPageComponent,
+      (await import('./domain/musix-studio/pages/landing-page')).LandingPageComponent,
   },
   {
     path: 'privacy-policy',
     loadComponent: async () =>
-      (await import('./domain/music-academy/pages/privacy-policy')).PrivacyPolicyPage,
+      (await import('./domain/musix-studio/pages/privacy-policy')).PrivacyPolicyPage,
   },
   {
     path: 'terms-of-service',
     loadComponent: async () =>
-      (await import('./domain/music-academy/pages/terms-of-service')).TermsOfServicePage,
+      (await import('./domain/musix-studio/pages/terms-of-service')).TermsOfServicePage,
   },
   {
     path: 'login',
     loadComponent: async () =>
-      (await import('./domain/music-academy/pages/login')).LoginPage,
+      (await import('./domain/musix-studio/pages/login')).LoginPage,
   },
   {
-    path: 'music-academy',
-    loadChildren: async () => (await import('./domain/music-academy/music-academy.routes')).MUSIC_ACADEMY_ROUTES,
+    path: 'musix-studio',
+    loadChildren: async () => (await import('./domain/musix-studio/musix-studio.routes')).MUSIX_STUDIO_ROUTES,
   },
   {
     path: '**',

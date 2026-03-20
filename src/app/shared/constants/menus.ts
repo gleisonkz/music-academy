@@ -10,47 +10,47 @@ export const MENUS: Menu[] = [
   {
     icon: 'volume_up',
     title: 'Treinamento Auditivo',
-    link: '/music-academy/note-ear-training',
+    link: '/musix-studio/note-ear-training',
   },
   {
     icon: 'hearing',
     title: 'Ouvido Perfeito',
-    link: '/music-academy/perfect-ear',
+    link: '/musix-studio/perfect-ear',
   },
   {
     icon: 'music_note',
     title: 'Notação de Cifras',
-    link: '/music-academy/cipher-notation',
+    link: '/musix-studio/cipher-notation',
   },
   {
     icon: 'timer',
     title: 'Metrônomo',
-    link: '/music-academy/metronome',
+    link: '/musix-studio/metronome',
   },
   {
     icon: 'mic',
     title: 'Gravação',
-    link: '/music-academy/recording',
+    link: '/musix-studio/recording',
   },
   {
     icon: 'folder',
     title: 'Kit Ensaio',
-    link: '/music-academy/kit-ensaio',
+    link: '/musix-studio/kit-ensaio',
   },
   {
     icon: 'schedule',
     title: 'Editor de Sincronia',
-    link: '/music-academy/sync-editor',
+    link: '/musix-studio/sync-editor',
   },
   {
     icon: 'tune',
     title: 'Tom Ideal',
-    link: '/music-academy/tom-ideal',
+    link: '/musix-studio/tom-ideal',
   },
   {
     icon: 'quiz',
     title: 'Quizz',
-    link: '/music-academy/quizz',
+    link: '/musix-studio/quizz',
   },
   {
     icon: 'logout',

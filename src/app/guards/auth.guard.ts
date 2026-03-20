@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { getDriveTokenFromCache } from '../domain/music-academy/shared/drive-token';
+import { getDriveTokenFromCache } from '../domain/musix-studio/shared/drive-token';
 
 /**
  * Guard que exige login (token do Google Drive em cache).

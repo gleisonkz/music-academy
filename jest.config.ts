@@ -1,9 +1,9 @@
 /* eslint-disable */
 export default {
-  displayName: 'music-academy',
+  displayName: 'musix-studio',
   preset: './jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: './coverage/music-academy',
+  coverageDirectory: './coverage/musix-studio',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

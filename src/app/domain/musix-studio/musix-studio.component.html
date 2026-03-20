@@ -1,0 +1,28 @@
+<div class="musix-studio-container" [class.drawer-open]="drawerOpened()">
+  <header class="toolbar toolbar-header">
+    <button type="button" class="toolbar-title" (click)="navigateToDashboard()">
+      Musix Studio
+    </button>
+    @if (drawerMode() === 'over') {
+    <button (click)="toggleDrawer()" z-button zType="ghost" zSize="sm" type="button" [attr.aria-label]="drawerOpened() ? 'Fechar menu' : 'Abrir menu'" class="toolbar-menu-btn">
+      <span class="material-icons icon-menu">{{ drawerOpened() ? 'close' : 'menu' }}</span>
+    </button>
+    }
+  </header>
+
+  <div class="drawer-container">
+    <div #drawer class="drawer p-16" [class.open]="drawerOpened()">
+      <app-navigation-bar (menuChange)="menuChange()" />
+    </div>
+    <div class="drawer-content">
+      <div class="drawer-content-inner">
+        <router-outlet />
+      </div>
+      <footer class="internal-footer" aria-label="Informações legais">
+        <a routerLink="/privacy-policy">Política de Privacidade</a>
+        <span aria-hidden="true">•</span>
+        <a routerLink="/terms-of-service">Termos de Serviço</a>
+      </footer>
+    </div>
+  </div>
+</div>

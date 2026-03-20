@@ -2,13 +2,13 @@ import { MENUS } from 'src/app/shared/constants/menus';
 import { Menu } from 'src/app/shared/models/interfaces/menu';
 import { ZardSharedModule } from 'src/app/shared/modules/zard-shared.module';
 import { KitEnsaioPermissionService } from 'src/app/shared/services/kit-ensaio-permission.service';
-import { clearDriveTokenCache } from 'src/app/domain/music-academy/shared/drive-token';
+import { clearDriveTokenCache } from 'src/app/domain/musix-studio/shared/drive-token';
 
 import { Component, EventEmitter, inject, Output, computed } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 
-const SYNC_EDITOR_LINK = '/music-academy/sync-editor';
-const RECORDING_LINK = '/music-academy/recording';
+const SYNC_EDITOR_LINK = '/musix-studio/sync-editor';
+const RECORDING_LINK = '/musix-studio/recording';
 const LOGOUT_LINK = '__logout__';
 
 @Component({
