@@ -71,13 +71,14 @@
       <div class="audio-card">
         <p class="label">Voz isolada</p>
         <ma-track-audio-player
-          [src]="audioUrlFromHandle(r.vocals)"
+          #vocalsPlayer
+          [src]="audioUrlFromHandle(r.files?.vocals_path ?? null)"
         ></ma-track-audio-player>
       </div>
       <div class="audio-card">
         <p class="label">Instrumental</p>
         <ma-track-audio-player
-          [src]="audioUrlFromHandle(r.instrumental)"
+          [src]="audioUrlFromHandle(r.files?.instrumental_path ?? null)"
         ></ma-track-audio-player>
       </div>
     </div>
@@ -85,47 +86,71 @@
     <div class="result-grid">
       <div class="result-item">
         <span class="result-key">Tom da música</span>
-        @if (extractMainTonality(r.keyText); as key) {
+        @if (r.music?.estimated_key; as key) {
         <div class="result-chip-row">
           <span class="result-chip tone">{{ key }}</span>
         </div>
         }
-        <p>{{ r.keyText }}</p>
+        <p>
+          {{ r.music?.estimated_key || 'Não informado' }}
+          @if (r.music?.mode) { ({{ r.music?.mode }}) }
+        </p>
       </div>
       <div class="result-item">
         <span class="result-key">Nota mais grave</span>
-        @if (extractNoteAndTime(r.graveText); as info) {
         <div class="result-chip-row">
-          @if (info.note) {
-          <span class="result-chip note">{{ info.note }}</span>
-          } @if (info.time) {
-          <span class="result-chip time">{{ info.time }}</span>
+          @if (r.vocal_range?.min_note) {
+          <span class="result-chip note">{{ r.vocal_range?.min_note }}</span>
+          } @if (formatSeconds(r.vocal_range?.min_time_sec); as minTime) {
+          <button
+            type="button"
+            class="result-chip time result-chip-action"
+            (click)="playVocalAt(r.vocal_range?.min_time_sec)"
+            [attr.aria-label]="'Tocar voz em ' + minTime"
+            title="Tocar neste momento"
+          >
+            {{ minTime }}
+          </button>
           }
         </div>
-        }
-        <p>{{ r.graveText }}</p>
+        <p>Clique na minutagem para ouvir o ponto no áudio da voz.</p>
       </div>
       <div class="result-item">
         <span class="result-key">Nota mais aguda</span>
-        @if (extractNoteAndTime(r.agudoText); as info) {
         <div class="result-chip-row">
-          @if (info.note) {
-          <span class="result-chip note">{{ info.note }}</span>
-          } @if (info.time) {
-          <span class="result-chip time">{{ info.time }}</span>
+          @if (r.vocal_range?.max_note) {
+          <span class="result-chip note">{{ r.vocal_range?.max_note }}</span>
+          } @if (formatSeconds(r.vocal_range?.max_time_sec); as maxTime) {
+          <button
+            type="button"
+            class="result-chip time result-chip-action"
+            (click)="playVocalAt(r.vocal_range?.max_time_sec)"
+            [attr.aria-label]="'Tocar voz em ' + maxTime"
+            title="Tocar neste momento"
+          >
+            {{ maxTime }}
+          </button>
           }
         </div>
-        }
-        <p>{{ r.agudoText }}</p>
+        <p>Clique na minutagem para ouvir o ponto no áudio da voz.</p>
       </div>
       <div class="result-item result-item-highlight">
         <span class="result-key">Tom recomendado</span>
-        @if (extractRecommendedTonality(r.suggestedText); as recommended) {
+        @if (r.recommendation?.target_key; as recommended) {
         <div class="result-chip-row">
-          <span class="result-chip tone">{{ recommended }}</span>
+          <span class="recommended-tone-value">{{ recommended }}</span>
+          @if (r.recommendation?.transpose_semitones !== undefined) {
+          <span class="result-chip note">
+            {{ r.recommendation?.transpose_semitones }} semitons
+          </span>
+          }
         </div>
         }
-        <p>{{ r.suggestedText }}</p>
+        <p>
+          Faixa sugerida:
+          {{ r.recommendation?.suggested_min_note || '-' }} até
+          {{ r.recommendation?.suggested_max_note || '-' }}
+        </p>
       </div>
     </div>
   </div>

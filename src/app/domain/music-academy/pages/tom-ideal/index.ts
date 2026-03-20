@@ -1,2 +1,2 @@
-export { TomIdealPage } from './tom-ideal.page';
+export { IdealPitchPage } from './ideal-pitch.page';
 
