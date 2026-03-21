@@ -1,3 +1,21 @@
+<div class="nav-brand">
+  <a
+    routerLink="/"
+    class="nav-logo-link"
+    aria-label="Musix Studio — início"
+    (click)="onLogoClick()"
+  >
+    <img
+      src="assets/images/musix-logo.png"
+      alt=""
+      width="48"
+      height="48"
+      class="nav-logo"
+    />
+    <span class="nav-app-name">Musix Studio</span>
+  </a>
+</div>
+
 @for (menu of menus(); track menu.title) {
   <nav class="nav-list">
     <a

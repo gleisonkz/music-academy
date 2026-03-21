@@ -31,6 +31,12 @@ export class NavigationBarComponent {
 
   @Output() menuChange = new EventEmitter<Menu>();
 
+  /** Fecha o drawer em modo overlay (mesmo comportamento dos itens do menu). */
+  protected onLogoClick(): void {
+    const first = this.menus()[0];
+    if (first) this.menuChange.emit(first);
+  }
+
   /** Ao clicar em "Gravação" já estando na página de gravação, força reset (estado inicial com dropzone). */
   protected onMenuClick(event: MouseEvent, menu: Menu): void {
     if (menu.link === LOGOUT_LINK) {
