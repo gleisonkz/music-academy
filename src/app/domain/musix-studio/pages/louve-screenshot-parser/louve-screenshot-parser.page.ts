@@ -11,6 +11,12 @@ interface ParsedParticipant {
   role: string;
 }
 
+interface ResolvedParticipant {
+  role: string;
+  output: string;
+  sortKey: string;
+}
+
 interface ParsedSong {
   title: string;
 }
@@ -23,6 +29,17 @@ interface OcrJsonResponse {
 
 const TOM_IDEAL_BACKEND_URL_LOCAL = 'http://127.0.0.1:7860';
 const TOM_IDEAL_BACKEND_URL_PUBLIC = 'https://gleisonkz-audio-separator-ai.hf.space';
+const PARTICIPANT_ROLE_ORDER: Record<string, number> = {
+  ministros: 0,
+  soprano: 1,
+  contralto: 2,
+  tenor: 3,
+  teclado: 4,
+  violao: 5,
+  guitarra: 6,
+  baixo: 7,
+  bateria: 8,
+};
 
 function resolveTomIdealBackendUrl(): string {
   const hostname = globalThis?.location?.hostname ?? '';
@@ -263,20 +280,36 @@ export class LouveScreenshotParserPage {
     }
 
     const uniqueByNameRole = new Set<string>();
-    return participants
-      .filter((p) => !this.isLikelyMusicArtifact(p.name))
-      .map((p) => {
-        const key = `${this.normalize(p.name)}::${p.role}`;
-        if (uniqueByNameRole.has(key)) return null;
-        uniqueByNameRole.add(key);
-        return this.resolveParticipantOutput(p.name, p.role);
+    const resolved: ResolvedParticipant[] = [];
+    for (const p of participants) {
+      if (!this.isValidParticipantName(p.name)) continue;
+      const key = `${this.normalize(p.name)}::${p.role}`;
+      if (uniqueByNameRole.has(key)) continue;
+      uniqueByNameRole.add(key);
+      const output = this.resolveParticipantOutput(p.name, p.role);
+      resolved.push({
+        role: this.normalizeRole(p.role),
+        output,
+        sortKey: this.normalize(p.name),
+      });
+    }
+    return resolved
+      .sort((a, b) => {
+        const roleA = PARTICIPANT_ROLE_ORDER[a.role] ?? 99;
+        const roleB = PARTICIPANT_ROLE_ORDER[b.role] ?? 99;
+        if (roleA !== roleB) return roleA - roleB;
+        return a.sortKey.localeCompare(b.sortKey);
       })
-      .filter((item): item is string => !!item);
+      .map((r) => r.output);
   }
 
-  private isLikelyMusicArtifact(name: string): boolean {
+  private isValidParticipantName(name: string): boolean {
     const n = this.normalize(name);
-    return n.includes('musicas') || n.includes('musica') || n.includes('versao') || n.includes('adoracao');
+    if (!n || n.length < 2) return false;
+    if (n.includes('musicas') || n.includes('musica') || n.includes('versao') || n.includes('adoracao')) return false;
+    if (n.includes('participantes') || n.includes('membros') || n.includes('funcoes') || n.includes('confirmado')) return false;
+    if (n === 'iter') return false;
+    return true;
   }
 
   private extractParticipantFromSingleLine(line: string, roleSet: string[]): ParsedParticipant[] {
@@ -334,7 +367,7 @@ export class LouveScreenshotParserPage {
     const role = this.normalizeRole(roleRaw);
     const normalizedName = this.normalize(name);
     const roster = LOUVE_ROSTER_MAP[role] ?? [];
-    if (role === 'bateria' && normalizedName.includes('pedro')) return '🥁 - Pedro';
+    if (role === 'bateria' && (normalizedName.includes('pedro') || normalizedName === 'pb')) return '🥁 - Pedro';
 
     const best = this.findBestMatch(roster, normalizedName);
     if (best) return best.output;
