@@ -512,7 +512,7 @@ export class KitEnsaioPage implements OnInit {
 
       const bc = this.breadcrumb();
       const folderIds = bc.map((c) => c.id).join(',');
-      this.router.navigate(['/musix-studio/recording'], {
+      this.router.navigate(['/recording'], {
         queryParams: { audioId: item.id, folderIds },
         state: {
           backingAudioUrl: objectUrl,
@@ -549,7 +549,7 @@ export class KitEnsaioPage implements OnInit {
       const syncMap = await this.loadSyncMapRecursive(last.breadcrumb);
 
       const folderIds = last.breadcrumb.map((c) => c.id).join(',');
-      this.router.navigate(['/musix-studio/recording'], {
+      this.router.navigate(['/recording'], {
         queryParams: { audioId: last.itemId, folderIds },
         state: {
           backingAudioUrl: objectUrl,
@@ -591,7 +591,7 @@ export class KitEnsaioPage implements OnInit {
       const musicRootFolderId = bc.length >= 2 ? bc[1].id : bc[0]?.id;
       const folderIds = bc.map((c) => c.id).join(',');
 
-      this.router.navigate(['/musix-studio/sync-editor'], {
+      this.router.navigate(['/sync-editor'], {
         queryParams: { audioId: item.id, folderIds },
         state: {
           backingAudioUrl: objectUrl,

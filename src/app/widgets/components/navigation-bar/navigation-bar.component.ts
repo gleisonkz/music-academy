@@ -7,8 +7,8 @@ import { clearDriveTokenCache } from 'src/app/domain/musix-studio/shared/drive-t
 import { Component, EventEmitter, inject, Output, computed } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 
-const SYNC_EDITOR_LINK = '/musix-studio/sync-editor';
-const RECORDING_LINK = '/musix-studio/recording';
+const SYNC_EDITOR_LINK = '/sync-editor';
+const RECORDING_LINK = '/recording';
 const LOGOUT_LINK = '__logout__';
 
 @Component({

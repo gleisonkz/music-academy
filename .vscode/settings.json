@@ -1,7 +1,4 @@
 {
   "scss.lint.unknownAtRules": "ignore",
-  "cSpell.words": [
-    "Tétrade",
-    "Zard"
-  ]
+  "cSpell.words": ["musix", "Tétrade", "Zard"]
 }

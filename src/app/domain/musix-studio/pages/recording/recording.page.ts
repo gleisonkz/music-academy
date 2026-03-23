@@ -297,7 +297,7 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
     this.route.queryParamMap.subscribe((params) => {
       if (params.get('reset') === '1') {
         this.resetToInitialState();
-        this.router.navigate(['/musix-studio/recording'], { replaceUrl: true });
+        this.router.navigate(['/recording'], { replaceUrl: true });
       }
     });
 
@@ -730,7 +730,7 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
         : undefined);
     const driveAccessToken =
       ctx?.driveAccessToken ?? (queryParams ? getDriveTokenFromCache() ?? undefined : undefined);
-    this.router.navigate(['/musix-studio/sync-editor'], {
+    this.router.navigate(['/sync-editor'], {
       queryParams,
       state: {
         backingAudioUrl: backingUrl,

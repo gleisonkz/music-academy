@@ -535,7 +535,7 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
   }
 
   goToKitEnsaio(): void {
-    this.router.navigate(['/musix-studio/kit-ensaio']);
+    this.router.navigate(['/kit-ensaio']);
   }
 
   /** Navega para a página de Gravação com o mesmo contexto (áudio, mapa, sync map) para continuar de lá. */
@@ -559,6 +559,6 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
     if (queryParams.audioId && queryParams.folderIds) {
       extras.queryParams = { audioId: queryParams.audioId, folderIds: queryParams.folderIds };
     }
-    this.router.navigate(['/musix-studio/recording'], extras);
+    this.router.navigate(['/recording'], extras);
   }
 }
