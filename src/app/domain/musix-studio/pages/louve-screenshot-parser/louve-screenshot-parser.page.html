@@ -1,0 +1,99 @@
+<div class="louve-parser-page">
+  <h1 class="title">Louve Screenshot Parser</h1>
+  <p class="subtitle">
+    Envie um print do Louve App para extrair culto, participantes e músicas,
+    gerando o texto no formato de descrição do YouTube.
+  </p>
+
+  <z-card class="card">
+    <div class="actions">
+      <label class="upload-btn" [class.disabled]="isProcessing()">
+        <input
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          (change)="onFileSelected($event, 'headline')"
+          [disabled]="isProcessing()"
+        />
+        {{ isProcessing() ? 'Processando...' : 'Upload print: headline' }}
+      </label>
+      <button z-button zType="outline" type="button" (click)="pasteFromClipboard('headline')" [disabled]="isProcessing()">
+        Colar headline
+      </button>
+
+      <label class="upload-btn" [class.disabled]="isProcessing()">
+        <input
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          (change)="onFileSelected($event, 'roteiro')"
+          [disabled]="isProcessing()"
+        />
+        {{ isProcessing() ? 'Processando...' : 'Upload print: roteiro/musicas' }}
+      </label>
+      <button z-button zType="outline" type="button" (click)="pasteFromClipboard('roteiro')" [disabled]="isProcessing()">
+        Colar roteiro
+      </button>
+
+      <label class="upload-btn" [class.disabled]="isProcessing()">
+        <input
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          (change)="onFileSelected($event, 'participants')"
+          [disabled]="isProcessing()"
+        />
+        {{ isProcessing() ? 'Processando...' : 'Upload print: participantes' }}
+      </label>
+      <button z-button zType="outline" type="button" (click)="pasteFromClipboard('participants')" [disabled]="isProcessing()">
+        Colar participantes
+      </button>
+      <button z-button zType="outline" type="button" (click)="copyResult()" [disabled]="!hasOutput()">
+        Copiar texto
+      </button>
+    </div>
+
+    <p class="status">{{ progressLabel() }}</p>
+
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+  </z-card>
+
+  <div class="result-grid">
+    <z-card class="card">
+      <h2>OCR - Headline</h2>
+      <textarea
+        readonly
+        [value]="headlineOcrText()"
+        rows="14"
+        (focus)="setPasteTarget('headline')"
+        (click)="setPasteTarget('headline')"
+      ></textarea>
+    </z-card>
+
+    <z-card class="card">
+      <h2>OCR - Roteiro/Músicas</h2>
+      <textarea
+        readonly
+        [value]="roteiroOcrText()"
+        rows="14"
+        (focus)="setPasteTarget('roteiro')"
+        (click)="setPasteTarget('roteiro')"
+      ></textarea>
+    </z-card>
+
+    <z-card class="card">
+      <h2>OCR - Participantes</h2>
+      <textarea
+        readonly
+        [value]="participantsOcrText()"
+        rows="14"
+        (focus)="setPasteTarget('participants')"
+        (click)="setPasteTarget('participants')"
+      ></textarea>
+    </z-card>
+
+    <z-card class="card">
+      <h2>Texto para YouTube</h2>
+      <textarea readonly [value]="generatedText()" rows="14"></textarea>
+    </z-card>
+  </div>
+</div>

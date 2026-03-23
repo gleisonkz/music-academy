@@ -1,5 +1,6 @@
 import { Route } from '@angular/router';
 import { authGuard } from '../../guards/auth.guard';
+import { louveParserGuard } from '../../guards/louve-parser.guard';
 
 export const MUSIX_STUDIO_ROUTES: Route[] = [
   {
@@ -47,6 +48,12 @@ export const MUSIX_STUDIO_ROUTES: Route[] = [
       {
         path: 'tom-ideal',
         loadComponent: async () => (await import('./pages/tom-ideal')).IdealPitchPage,
+      },
+      {
+        path: 'louve-screenshot-parser',
+        canActivate: [louveParserGuard],
+        loadComponent: async () =>
+          (await import('./pages/louve-screenshot-parser/index')).LouveScreenshotParserPage,
       },
     ],
   },

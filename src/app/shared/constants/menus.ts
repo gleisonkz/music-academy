@@ -53,6 +53,11 @@ export const MENUS: Menu[] = [
     link: '/quizz',
   },
   {
+    icon: 'image_search',
+    title: 'Louve Screenshot Parser',
+    link: '/louve-screenshot-parser',
+  },
+  {
     icon: 'logout',
     title: 'Sair',
     link: '__logout__',
