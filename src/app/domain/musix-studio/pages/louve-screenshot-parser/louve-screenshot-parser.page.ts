@@ -196,7 +196,7 @@ export class LouveScreenshotParserPage {
 
     if (hasHeadline) {
       const cultName = this.extractCultName(headlineLines);
-      const serviceTime = this.extractServiceTime(headlineLines);
+      const serviceTime = this.formatServiceTime(this.extractServiceTime(headlineLines));
       const serviceDate = this.extractServiceDate(headlineLines);
       out.push(`${cultName.toUpperCase()} - ${serviceTime} - ${serviceDate} - SARA SEDE INTERIOR SP`);
     }
@@ -245,6 +245,15 @@ export class LouveScreenshotParserPage {
     if (normalizedJoined.includes('noite')) return '19H';
 
     return '00:00';
+  }
+
+  private formatServiceTime(value: string): string {
+    const normalized = (value || '').trim().toUpperCase();
+    const hmMatch = /^([01]?\d|2[0-3]):([0-5]\d)$/.exec(normalized);
+    if (hmMatch && hmMatch[2] === '00') {
+      return `${Number.parseInt(hmMatch[1], 10)}H`;
+    }
+    return normalized;
   }
 
   private extractServiceDate(lines: string[]): string {
@@ -485,7 +494,9 @@ export class LouveScreenshotParserPage {
         if (this.isRoteiroSongMarker(n)) break;
         if (this.isSectionBoundary(n)) break;
         if (this.isMusicMetadataLine(n, candidate)) {
-          if (parts.length > 0) break;
+          // Timestamps (ex.: 4:19) não encerram o título;
+          // metadados "fortes" (versão/tom/youtube) podem encerrar.
+          if (parts.length > 0 && this.isHardBreakMusicMetadata(n, candidate)) break;
           continue;
         }
         const cleaned = this.cleanSongFragment(candidate);
@@ -511,7 +522,7 @@ export class LouveScreenshotParserPage {
         if (/^\s*\d+\s*[ªaº]?\s*$/.test(candidate)) break;
         if (this.isSectionBoundary(n)) break;
         if (this.isMusicMetadataLine(n, candidate)) {
-          if (parts.length > 0) break;
+          if (parts.length > 0 && this.isHardBreakMusicMetadata(n, candidate)) break;
           continue;
         }
         const cleaned = this.cleanSongFragment(candidate);
@@ -612,6 +623,16 @@ export class LouveScreenshotParserPage {
     if (normalizedLine.includes('musicas')) return true;
     if (/^\d+\s*vers/.test(normalizedLine)) return true;
     return false;
+  }
+
+  private isHardBreakMusicMetadata(normalizedLine: string, rawLine?: string): boolean {
+    const raw = (rawLine ?? '').trim();
+    if (/^\d{1,2}:\d{2}$/.test(raw)) return false;
+    if (/^\d{1,2}:\d{2}:\d{2}$/.test(raw)) return false;
+    if (/^\d{1,2}[.,]\d{2}$/.test(raw)) return false;
+    if (/^\d{1,2}\s+\d{2}$/.test(normalizedLine)) return false;
+    if (/^\d{1,2}\s+\d{2}\s+\d{2}$/.test(normalizedLine)) return false;
+    return true;
   }
 
   private cleanSongFragment(line: string): string {

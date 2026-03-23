@@ -79,6 +79,18 @@ h2 {
   font-size: 1rem;
 }
 
+.result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+
+  h2 {
+    margin: 0;
+  }
+}
+
 textarea {
   width: 100%;
   min-height: 330px;

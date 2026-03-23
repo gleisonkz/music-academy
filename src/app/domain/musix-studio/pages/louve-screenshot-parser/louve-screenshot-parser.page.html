@@ -92,7 +92,12 @@
     </z-card>
 
     <z-card class="card">
-      <h2>Texto para YouTube</h2>
+      <div class="result-header">
+        <h2>Texto para YouTube</h2>
+        <button z-button zType="outline" type="button" (click)="copyResult()" [disabled]="!hasOutput()">
+          Copiar resultado
+        </button>
+      </div>
       <textarea readonly [value]="generatedText()" rows="14"></textarea>
     </z-card>
   </div>
