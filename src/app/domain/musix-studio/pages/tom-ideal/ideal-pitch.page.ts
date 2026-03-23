@@ -4,6 +4,7 @@ import {
 } from 'src/app/widgets/components/audio-upload-dropzone/audio-upload-dropzone.component';
 
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Component, computed, signal, viewChild } from '@angular/core';
 import { Client, handle_file } from '@gradio/client';
 
@@ -56,7 +57,7 @@ function resolveTomIdealBackendUrl(): string {
 @Component({
   selector: 'app-ideal-pitch-page',
   standalone: true,
-  imports: [CommonModule, ZardSharedModule, AudioUploadDropzoneComponent, TrackAudioPlayerComponent],
+  imports: [CommonModule, FormsModule, ZardSharedModule, AudioUploadDropzoneComponent, TrackAudioPlayerComponent],
   templateUrl: './ideal-pitch.page.html',
   styleUrls: ['./ideal-pitch.page.scss'],
 })
@@ -115,8 +116,8 @@ export class IdealPitchPage {
     'C6',
   ] as const;
 
-  readonly userMin = signal('E3');
-  readonly userMax = signal('C#5');
+  readonly userMin = signal('A2');
+  readonly userMax = signal('F#3');
   readonly minNoteOptions = computed(() => {
     const maxIdx = this.noteOptions.indexOf(this.userMax() as (typeof this.noteOptions)[number]);
     if (maxIdx < 0) return this.noteOptions;

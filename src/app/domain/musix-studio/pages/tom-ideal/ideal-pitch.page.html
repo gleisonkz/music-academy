@@ -10,8 +10,8 @@
       <label class="field">
         <span>Tessitura mínima</span>
         <select
-          [value]="userMin()"
-          (change)="onUserMinChange(($any($event.target).value || '').trim())"
+          [ngModel]="userMin()"
+          (ngModelChange)="onUserMinChange($event)"
         >
           @for (note of minNoteOptions(); track note) {
           <option [value]="note">{{ note }}</option>
@@ -22,8 +22,8 @@
       <label class="field">
         <span>Tessitura máxima</span>
         <select
-          [value]="userMax()"
-          (change)="onUserMaxChange(($any($event.target).value || '').trim())"
+          [ngModel]="userMax()"
+          (ngModelChange)="onUserMaxChange($event)"
         >
           @for (note of maxNoteOptions(); track note) {
           <option [value]="note">{{ note }}</option>
