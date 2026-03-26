@@ -23,6 +23,8 @@ import { enumerateMapBlocks, normalizeDocHtml } from '../../shared/map-backs-doc
 export interface SyncPoint {
   time: number;
   blockIndex: number;
+  /** Texto do bloco no momento da sincronização (ou atualizado ao recarregar mapa). */
+  label?: string;
 }
 
 /** State opcional ao navegar do Kit Ensaio com um áudio já escolhido. */
@@ -442,10 +444,28 @@ export class RecordingPage implements OnInit, AfterViewChecked, OnDestroy {
     const content = container.querySelector('.map-html-content');
     if (!content) return;
     const count = enumerateMapBlocks(content);
+    this.refreshSyncPointLabelsFromMap(content);
     this.enumeratedForHtml = html;
     this.enumeratedBlocksCount.set(count);
     // Aplica seekable logo após enumerar blocos para o hover (cursor pointer) funcionar antes de qualquer clique.
     this.applySeekableToBlocks(content);
+  }
+
+  /** Atualiza labels dos sync points com base no HTML atual do mapa (quando texto muda no Drive). */
+  private refreshSyncPointLabelsFromMap(content: Element): void {
+    const current = this.syncPoints();
+    if (current.length === 0) return;
+    let changed = false;
+    const updated = current.map((point) => {
+      const el = content.querySelector<HTMLElement>(`[data-block-index="${point.blockIndex}"]`);
+      if (!el) return point;
+      const rawLabel = el.textContent?.trim() ?? '';
+      const nextLabel = rawLabel.length > 300 ? rawLabel.slice(0, 300) : rawLabel;
+      if ((point.label ?? '') === (nextLabel ?? '')) return point;
+      changed = true;
+      return { ...point, label: nextLabel || undefined };
+    });
+    if (changed) this.syncPoints.set(updated);
   }
 
   /** Marca blocos que têm sync point como clicáveis; cursor via JS para vencer estilos do Docs/innerHTML. */

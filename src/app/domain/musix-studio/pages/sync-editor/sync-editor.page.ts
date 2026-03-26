@@ -334,7 +334,28 @@ export class SyncEditorPage implements OnInit, AfterViewChecked {
     const content = container.querySelector('.map-html-content');
     if (!content) return;
     enumerateMapBlocks(content);
+    this.refreshSyncPointLabelsFromMap(content);
     this.enumeratedForHtml = html;
+  }
+
+  /**
+   * Quando o mapa muda no Drive, o JSON pode manter labels antigos.
+   * Recalculamos os labels pelo blockIndex com base no HTML atual.
+   */
+  private refreshSyncPointLabelsFromMap(content: Element): void {
+    const current = this.syncPoints();
+    if (current.length === 0) return;
+    let changed = false;
+    const updated = current.map((point) => {
+      const el = content.querySelector<HTMLElement>(`[data-block-index="${point.blockIndex}"]`);
+      if (!el) return point;
+      const rawLabel = el.textContent?.trim() ?? '';
+      const nextLabel = rawLabel.length > 300 ? rawLabel.slice(0, 300) : rawLabel;
+      if ((point.label ?? '') === (nextLabel ?? '')) return point;
+      changed = true;
+      return { ...point, label: nextLabel || undefined };
+    });
+    if (changed) this.syncPoints.set(updated);
   }
 
   onMapClick(event: MouseEvent): void {
