@@ -1,7 +1,7 @@
 /** Chave do localStorage onde o Kit Ensaio guarda o token do Drive (para Gravação/Editor recarregarem após F5). */
 export const DRIVE_TOKEN_STORAGE_KEY = 'musix-studio-drive-token';
 
-const TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000;
+const TOKEN_EXPIRY_MS = 55 * 60 * 1000;
 
 /** Client ID OAuth 2.0 (Google Cloud Console). Usado para "Conectar de novo" fora do Kit Ensaio. */
 const GOOGLE_CLIENT_ID = '216430399393-s4bsm8fiti6978mm4elmmkphh6npa30q.apps.googleusercontent.com';

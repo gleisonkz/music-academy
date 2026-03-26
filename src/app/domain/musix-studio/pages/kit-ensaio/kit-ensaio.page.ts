@@ -13,8 +13,8 @@ const GOOGLE_CLIENT_ID = '216430399393-s4bsm8fiti6978mm4elmmkphh6npa30q.apps.goo
 const DRIVE_TOKEN_STORAGE_KEY = 'musix-studio-drive-token';
 const KIT_ENSAIO_VIEW_KEY = 'musix-studio-kit-ensaio-view';
 const LAST_USED_AUDIO_KEY = 'musix-studio-kit-ensaio-last-used-audio';
-/** Tempo que mantemos o token em cache no localStorage (1 dia). */
-const TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000;
+/** Tempo de cache local do token (~55min, alinhado com expiração típica do access token OAuth). */
+const TOKEN_EXPIRY_MS = 55 * 60 * 1000;
 
 export interface LastUsedAudio {
   itemId: string;
@@ -109,6 +109,7 @@ export class KitEnsaioPage implements OnInit {
   readonly canWriteToKitEnsaio = this.permissionService.canWriteToKitEnsaio;
 
   private accessToken: string | null = null;
+  private silentRefreshPromise: Promise<boolean> | null = null;
 
   get hasClientId(): boolean {
     return !!GOOGLE_CLIENT_ID;
@@ -218,49 +219,87 @@ export class KitEnsaioPage implements OnInit {
   tryConnectGoogle(): void {
     this.error.set(null);
     this.isConnecting.set(true);
-    const g = (globalThis as unknown as { google?: { accounts: { oauth2: { initTokenClient: (config: { client_id: string; scope: string; callback: (resp: { access_token?: string; error?: string }) => void }) => { requestAccessToken: (opts?: unknown) => void } } } } }).google;
-    if (!g?.accounts?.oauth2?.initTokenClient) {
-      this.error.set('Script do Google não carregou. Recarregue a página.');
-      this.isConnecting.set(false);
-      return;
-    }
-    const client = g.accounts.oauth2.initTokenClient({
-      client_id: GOOGLE_CLIENT_ID,
-      scope: 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/drive.file',
-      callback: (response: { access_token?: string; error?: string }) => {
-        this.isConnecting.set(false);
-        if (response.error) {
-          this.error.set(response.error);
-          return;
-        }
-        if (response.access_token) {
-          this.accessToken = response.access_token;
-          this.saveTokenToCache(response.access_token);
-          this.isConnected.set(true);
-          this.error.set(null);
-          this.listFolders();
-          this.loadLastUsedFromStorage();
-          this.checkDriveWritePermission();
-        }
-      },
-    });
-    client.requestAccessToken();
+    this.requestAccessToken()
+      .then((token) => {
+        this.accessToken = token;
+        this.saveTokenToCache(token);
+        this.isConnected.set(true);
+        this.error.set(null);
+        this.listFolders();
+        this.loadLastUsedFromStorage();
+        this.checkDriveWritePermission();
+      })
+      .catch((err) => {
+        this.error.set((err as Error)?.message ?? 'Não foi possível conectar.');
+      })
+      .finally(() => this.isConnecting.set(false));
   }
 
-  private apiFetch<T>(url: string): Promise<T> {
-    return fetch(url, {
-      headers: { Authorization: `Bearer ${this.accessToken}` },
-    }).then((res) => {
-      if (res.status === 401) {
-        this.clearTokenCache();
-        this.accessToken = null;
-        this.isConnected.set(false);
-        this.permissionService.setCanWrite(false);
-        this.error.set('Sessão expirada. Recarregue a página para conectar de novo.');
+  private requestAccessToken(prompt?: '' | 'consent' | 'select_account'): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const g = (globalThis as unknown as { google?: { accounts: { oauth2: { initTokenClient: (config: { client_id: string; scope: string; callback: (resp: { access_token?: string; error?: string }) => void }) => { requestAccessToken: (opts?: unknown) => void } } } } }).google;
+      if (!g?.accounts?.oauth2?.initTokenClient) {
+        reject(new Error('Script do Google não carregou. Recarregue a página.'));
+        return;
       }
-      if (!res.ok) throw new Error(`Erro ${res.status}: ${res.statusText}`);
-      return res.json() as Promise<T>;
+      const client = g.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/drive.file',
+        callback: (response: { access_token?: string; error?: string }) => {
+          if (response.error) {
+            reject(new Error(response.error));
+            return;
+          }
+          const token = response.access_token?.trim();
+          if (!token) {
+            reject(new Error('Nenhum token retornado'));
+            return;
+          }
+          resolve(token);
+        },
+      });
+      if (prompt !== undefined) {
+        client.requestAccessToken({ prompt });
+      } else {
+        client.requestAccessToken();
+      }
     });
+  }
+
+  private refreshAccessTokenSilently(): Promise<boolean> {
+    if (this.silentRefreshPromise) return this.silentRefreshPromise;
+    this.silentRefreshPromise = this.requestAccessToken('')
+      .then((token) => {
+        this.accessToken = token;
+        this.saveTokenToCache(token);
+        this.isConnected.set(true);
+        this.error.set(null);
+        return true;
+      })
+      .catch(() => false)
+      .finally(() => {
+        this.silentRefreshPromise = null;
+      });
+    return this.silentRefreshPromise;
+  }
+
+  private async apiFetch<T>(url: string, retryOnUnauthorized = true): Promise<T> {
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${this.accessToken}` },
+    });
+    if (res.status === 401 && retryOnUnauthorized) {
+      const refreshed = await this.refreshAccessTokenSilently();
+      if (refreshed) return this.apiFetch<T>(url, false);
+    }
+    if (res.status === 401) {
+      this.clearTokenCache();
+      this.accessToken = null;
+      this.isConnected.set(false);
+      this.permissionService.setCanWrite(false);
+      this.error.set('Sessão expirada. Clique em "Tentar novamente".');
+    }
+    if (!res.ok) throw new Error(`Erro ${res.status}: ${res.statusText}`);
+    return res.json() as Promise<T>;
   }
 
   private getFolderName(folderId: string): Promise<string> {
