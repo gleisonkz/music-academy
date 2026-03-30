@@ -56,7 +56,7 @@ export const LOUVE_ROSTER_MAP: LouveRosterMap = {
   ],
   bateria: [
     { output: '🥁 - @luhgodines', aliases: ['luh', 'luh godines'] },
-    { output: '🥁 - @ademarsnt', aliases: ['ademar', 'ademarsnt'] },
+    { output: '🥁 - @ademarsnt', aliases: ['ademar', 'ademarsnt', 'ademar goncalves campos', 'goncalves campos'] },
     { output: '🥁 - @hugo_perecin', aliases: ['hugo perecin', 'hugo'] },
     { output: '🥁 - @_medeiro.xs', aliases: ['gabriel medeiros', 'medeiros', 'gabriel'] },
     { output: '🥁 - Pedro', aliases: ['pedro', 'pedro fontes'] },

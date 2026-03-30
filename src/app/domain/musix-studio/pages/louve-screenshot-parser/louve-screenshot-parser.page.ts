@@ -283,7 +283,7 @@ export class LouveScreenshotParserPage {
       const role = this.normalizeRole(lines[i]);
       if (!roleSet.includes(role)) continue;
       if (this.shouldIgnoreRole(role)) continue;
-      const name = this.findPreviousName(lines, i);
+      const name = this.collectNameBeforeRole(lines, i, roleSet);
       if (!name) continue;
       participants.push({ name, role: this.normalizeRole(role) });
     }
@@ -361,15 +361,30 @@ export class LouveScreenshotParserPage {
     return IGNORE_ROLE_TERMS.some((term) => this.normalize(term) === this.normalize(role));
   }
 
-  private findPreviousName(lines: string[], roleIndex: number): string | null {
-    for (let i = roleIndex - 1; i >= Math.max(roleIndex - 3, 0); i--) {
-      const candidate = lines[i];
-      if (!candidate) continue;
-      if (/^(membros|funções|\d+\/\d+)$/i.test(candidate)) continue;
-      if (/^[\W_]+$/.test(candidate)) continue;
-      return candidate;
+  /**
+   * Junta várias linhas de nome (OCR costuma quebrar "Ademar / Gonçalves / Campos" em 3 linhas).
+   * Caminha para trás até achar outra função ou ignorar "Confirmado" entre blocos.
+   */
+  private collectNameBeforeRole(lines: string[], roleIndex: number, roleSet: string[]): string | null {
+    const parts: string[] = [];
+    for (let i = roleIndex - 1; i >= 0; i--) {
+      const raw = (lines[i] ?? '').trim();
+      if (!raw) continue;
+
+      const n = this.normalize(raw);
+      if (n === 'confirmado' || n.includes('confirmado')) continue;
+      if (n.includes('participantes') && /\d/.test(raw)) continue;
+      if (n === 'membros' || n.startsWith('funcoes')) continue;
+      if (/^(membros|funções|\d+\/\d+)$/i.test(raw)) continue;
+      if (/^[\W_]+$/.test(raw)) continue;
+
+      const roleNorm = this.normalizeRole(raw);
+      if (roleSet.includes(roleNorm) || this.shouldIgnoreRole(roleNorm)) break;
+
+      parts.unshift(raw);
     }
-    return null;
+    const joined = parts.join(' ').trim().replace(/\s+/g, ' ');
+    return joined.length > 0 ? joined : null;
   }
 
   private resolveParticipantOutput(name: string, roleRaw: string): string {
